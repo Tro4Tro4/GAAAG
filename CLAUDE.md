@@ -33,7 +33,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 - Dialoghi ad albero con condizioni legate a flag/stato di gioco
 
 ## Ordine di sviluppo previsto
-1. Sistema base: movimento, stanze, hotspot cliccabili, verb-coin UI
+1. Sistema base: movimento *(fatto: click-to-walk con navmesh)*, stanze
+   *(scena `Room` minima)*, hotspot cliccabili *(da fare)*, verb-coin UI
+   *(da fare)*
 2. Sistema personaggi multipli: switch, stato indipendente per personaggio
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
@@ -46,8 +48,11 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 project.godot        Configurazione progetto Godot (renderer, display, dotnet)
 Aggga.csproj/.sln    Progetto e solution C# (.NET 8, RootNamespace = Aggga)
 icon.svg             Icona placeholder
-scenes/              Scene Godot (.tscn) — es. Main.tscn (scena di avvio)
-scripts/             Codice C# — es. Main.cs
+scenes/              Scene Godot (.tscn)
+  rooms/TestRoom     Stanza di prova, scena di avvio del progetto
+  characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
+  Main.tscn          Smoke test dello scaffold, non più la scena di avvio
+scripts/             Codice C#, rispecchia l'albero di scenes/
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
 
@@ -82,8 +87,50 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Nota: nell'ambiente di sviluppo remoto non erano installati `dotnet` né
     `godot`, quindi lo scaffold non è stato build-testato lì. Va aperto in
     Godot (versione .NET) per la prima verifica.
+- **Movimento con `NavigationRegion2D` + `NavigationAgent2D`** (il pathfinding
+  nativo di Godot) invece di soluzioni scritte a mano: la zona calpestabile si
+  disegna nell'editor come poligono con eventuali "buchi" per gli ostacoli, e
+  l'engine calcola il percorso. Il personaggio aggira gli ostacoli e non taglia
+  gli angoli delle stanze concave senza che il codice se ne occupi: lo script
+  del personaggio si limita a sterzare verso il prossimo vertice del percorso.
+  - **Area calpestabile + movimento diretto** (poligono pavimento, si cammina
+    in linea retta verso il click): l'alternativa più economica, una cinquantina
+    di righe e nessun concetto nuovo dell'engine — sarebbe bastata per una
+    stanza rettangolare vuota. Scartata perché cede alla prima stanza non
+    convessa o con un oggetto in mezzo: il personaggio attraversa gli ostacoli
+    e taglia gli angoli. Il costo aggiuntivo della navigazione nativa è di poche
+    righe, molto meno di quanto costerebbe rifare il movimento più avanti.
+  - **Walkbox stile SCUMM** (box convessi + grafo di adiacenza, come nei
+    LucasArts originali): è la soluzione più fedele al genere e regala la scala
+    per profondità, perché ogni box può portarsi dietro il proprio fattore di
+    scala. Scartata per il costo: è tutto da costruire a mano, tooling di
+    authoring incluso, prima che qualcosa si muova sullo schermo. La scala per
+    profondità si può ottenere separatamente con una curva Y→scala, senza
+    legarla al sistema di movimento.
+  - Nota: da rivedere se emergesse il bisogno di regole di percorribilità che
+    la navmesh non esprime (zone attraversabili solo da un personaggio,
+    passaggi che si aprono con un flag di gioco). Sono modellabili anche con la
+    navigazione nativa, ma se diventassero la norma e non l'eccezione, il grafo
+    esplicito dei walkbox tornerebbe competitivo.
+- **La stanza gestisce il click, il personaggio non lo conosce**: `Room`
+  intercetta il click in `_UnhandledInput`, lo proietta sul punto più vicino
+  della navmesh e chiama `WalkTo()` sul personaggio. Il personaggio non sa
+  nulla di mouse né di stanze: è ciò che permetterà a verb-coin, inventario e
+  dialoghi di consumare il click prima del pavimento, e allo stesso
+  personaggio di essere pilotato da una cutscene invece che dal giocatore.
+  - **Input gestito dal personaggio**: più immediato da scrivere (un solo
+    script invece di due) e con un nodo in meno da collegare. Scartato perché
+    con più personaggi giocabili ognuno reagirebbe al click, e servirebbe
+    comunque un arbitro che decida quale: quell'arbitro è la stanza.
 
 ## Decisioni ancora aperte
+- Come la stanza individua il personaggio attivo quando saranno più di uno
+  (ora è un riferimento diretto assegnato nell'editor): autoload di stato di
+  gioco, gruppo di nodi, o altro
+- Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
+  e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
+- Come si esprime "cammina fino all'hotspot, poi esegui il verbo": il segnale
+  `DestinationReached` esiste già, manca la struttura che lo usa
 - Durata finale del gioco (valutare dopo il prototipo)
 - Inventario condiviso vs per personaggio
 - Lista definitiva dei verbi nel verb-coin

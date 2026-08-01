@@ -1,0 +1,44 @@
+[gd_scene load_steps=4 format=3 uid="uid://baggaroom00001"]
+
+[ext_resource type="Script" path="res://scripts/rooms/Room.cs" id="1_room"]
+[ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 5, 4), PackedInt32Array(1, 2, 6, 5), PackedInt32Array(2, 3, 7, 6), PackedInt32Array(4, 5, 9, 8), PackedInt32Array(6, 7, 11, 10), PackedInt32Array(8, 9, 13, 12), PackedInt32Array(9, 10, 14, 13), PackedInt32Array(10, 11, 15, 14)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208), PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)])
+agent_radius = 4.0
+
+[node name="TestRoom" type="Node2D"]
+script = ExtResource("1_room")
+_player = NodePath("Player")
+
+[node name="Wall" type="Polygon2D" parent="."]
+color = Color(0.13, 0.15, 0.24, 1)
+polygon = PackedVector2Array(0, 0, 384, 0, 384, 120, 0, 120)
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color(0.29, 0.27, 0.31, 1)
+polygon = PackedVector2Array(0, 120, 384, 120, 384, 216, 0, 216)
+
+[node name="FloorEdge" type="Polygon2D" parent="."]
+color = Color(0.36, 0.34, 0.39, 1)
+polygon = PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208)
+
+[node name="Obstacle" type="Polygon2D" parent="."]
+color = Color(0.55, 0.35, 0.22, 1)
+polygon = PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(48, 198)
+
+[node name="DebugHint" type="Label" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 376.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 8
+text = "Clicca sul pavimento: il personaggio aggira la cassa."
