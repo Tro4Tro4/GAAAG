@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=10 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="3_hotspot"]
 [ext_resource type="Script" path="res://scripts/ui/caption.gd" id="4_caption"]
 [ext_resource type="Script" path="res://scripts/ui/character_bar.gd" id="5_bar"]
+[ext_resource type="Script" path="res://scripts/ui/verb_coin.gd" id="6_coin"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
@@ -49,6 +50,7 @@ position = Vector2(192, 160)
 script = ExtResource("3_hotspot")
 display_name = "Cassa"
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
+use_text = "Il coperchio non cede. Forse a tenerlo chiuso è proprio quel NON."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")
@@ -61,6 +63,8 @@ position = Vector2(316, 88)
 script = ExtResource("3_hotspot")
 display_name = "Porta"
 look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
+use_text = "Chiusa. La maniglia gira a vuoto, con un rumore di ingranaggi delusi."
+talk_text = "Bussi. Dall'altra parte qualcuno bussa uguale, un attimo dopo."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
@@ -97,3 +101,8 @@ offset_bottom = 208.0
 mouse_filter = 2
 theme_override_constants/separation = 4
 script = ExtResource("5_bar")
+
+[node name="VerbCoin" type="Control" parent="."]
+offset_right = 384.0
+offset_bottom = 216.0
+script = ExtResource("6_coin")

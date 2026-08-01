@@ -24,8 +24,8 @@ protagonista qualunque catapultato in situazioni incomprensibili.
 Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
-- Punta-e-clicca classico con **verb-coin** (Cammina, Guarda, Prendi, Usa,
-  Parla, ecc. — da finalizzare la lista esatta dei verbi)
+- Punta-e-clicca classico con **verb-coin** a tre verbi: Guarda, Usa, Parla
+  (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
   diversi (es. uno passa un oggetto attraverso una finestra, l'altro lo
@@ -38,7 +38,7 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 1. Sistema base: movimento *(fatto e **verificato sul dispositivo**:
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
-   mostra la descrizione)*, verb-coin UI *(da fare)*
+   mostra la descrizione)*, verb-coin UI *(fatta: tre verbi, due tocchi)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio, due personaggi nella stessa stanza)*, stato indipendente per
    personaggio *(parziale: ognuno ha la sua posizione; il resto arriverà con
@@ -60,7 +60,7 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
   autoload/          Stato che sopravvive alle scene (game_state.gd)
-  ui/                Interfaccia (caption.gd, character_bar.gd)
+  ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd)
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
 
@@ -252,6 +252,37 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   la stanza ascolta `_unhandled_input` e non `_input`.
 - **Cambiare personaggio annulla l'azione in sospeso**: la commissione era di
   chi stava camminando, e passare il controllo non passa la commissione.
+- **Verb-coin con tre verbi: Guarda, Usa, Parla** — il set della *Maledizione
+  di Monkey Island*. "Prendi" sta dentro "Usa", e camminare non è un verbo: si
+  clicca il pavimento. Chiude il punto che era rimasto aperto sulla lista dei
+  verbi. Meno verbi significa anche meno testi da scrivere per ogni oggetto,
+  che è il costo vero di questa scelta e si paga a ogni hotspot del gioco.
+  - **Quattro verbi, con "Prendi" separato**: distingue raccogliere da
+    azionare, cosa che il giocatore a volte apprezza. Scartata perché aggiunge
+    un testo per oggetto e restringe gli spicchi da toccare.
+  - **Barra SCUMM a nove verbi** (*Monkey Island* 1 e 2): la più evocativa del
+    genere. Scartata perché mangerebbe un terzo di uno schermo 384×216 e su
+    telefono i bersagli diventerebbero minuscoli.
+- **La moneta si usa con due tocchi**, non con premi-trascina-rilascia: un
+  tocco sull'oggetto la apre, un tocco su un verbo lo esegue, un tocco altrove
+  annulla. Si costruisce con normali nodi `Control`, perdona gli errori e non
+  richiede di seguire il dito.
+  - **Premi, trascina, rilascia** (il gesto originale di *Full Throttle*): più
+    rapido una volta imparato e più fedele all'originale. Scartato perché va
+    scritto a mano — tracciamento del dito e riconoscimento dello spicchio al
+    rilascio — e su un telefono il dito copre proprio ciò che deve scegliere.
+  - Correzione a una nota precedente: l'assenza di hover su mobile **non** era
+    un ostacolo per la verb-coin, che nell'originale si basava sul
+    trascinamento e non sul passaggio del puntatore. Quel vincolo colpisce la
+    barra SCUMM e la riga "Usa X con Y" che segue il cursore, non questo
+    sistema.
+- **La moneta copre l'intero schermo mentre è aperta**: così si mangia ogni
+  click che non finisce su un verbo, e un tocco a vuoto la chiude invece di
+  ordinare una camminata sotto il menù aperto.
+- **Un verbo senza testo risponde con un rifiuto generico** invece di restare
+  muto: in un punta-e-clicca la maggior parte degli oggetti rifiuta la maggior
+  parte dei verbi, e scrivere tre testi per ogni hotspot sarebbe insostenibile.
+  Il silenzio, invece, si legge come un bug.
 
 ## Decisioni ancora aperte
 - **Multi-stanza**: come si caricano e scaricano le stanze, dove vivono i
@@ -275,7 +306,6 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   di avere testo sparso nelle scene
 - Durata finale del gioco (valutare dopo il prototipo)
 - Inventario condiviso vs per personaggio
-- Lista definitiva dei verbi nel verb-coin
 - Nome del progetto, dei personaggi, ambientazione specifica
 
 ## Comportamento di Claude Code su questo progetto

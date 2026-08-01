@@ -3,23 +3,35 @@ extends Area2D
 
 ## A clickable thing in a room: a door, a crate, a panel.
 ##
-## A hotspot carries data, not behaviour. Most of them only need a name, a
-## description and a place to stand — no script of their own. The ones that
-## actually do something connect to [signal interacted] or extend this class.
+## A hotspot carries data, not behaviour. Most of them only need a name, a few
+## lines of description and a place to stand — no script of their own. The ones
+## that actually do something connect to [signal interacted] or extend this
+## class.
 ##
 ## An Area2D is used purely as a shape the room can query. The hotspot does
 ## not listen for its own clicks: the room decides what a click means, so the
 ## priority between hotspot and floor lives in one place.
 
-## Emitted after the character has reached this hotspot and acted on it.
-signal interacted
+## What the player can do to a hotspot. Three verbs, as in The Curse of Monkey
+## Island: "take" lives inside USE, and walking is not a verb — you click the
+## floor for that.
+enum Verb { LOOK, USE, TALK }
+
+## Emitted after the character has reached this hotspot and acted on it. The
+## verb is an int rather than Verb for the same reason as in VerbCoin.
+signal interacted(verb: int)
+
+## Said when a verb leads nowhere. Most objects in an adventure game refuse
+## most verbs, and one generic line is how the genre has always covered it.
+const REFUSAL: String = "Non mi sembra il caso."
 
 ## The name the player sees. Kept apart from the node name so the node can
 ## stay an English identifier whatever language the game ends up speaking.
 @export var display_name: String = ""
 
-## What the default "look at" action says about this hotspot.
 @export_multiline var look_text: String = ""
+@export_multiline var use_text: String = ""
+@export_multiline var talk_text: String = ""
 
 # Where the character stops before acting: an optional child named
 # ApproachPoint. Without it the character would walk into the object itself
@@ -28,10 +40,26 @@ signal interacted
 @onready var _approach_marker: Marker2D = get_node_or_null("ApproachPoint")
 
 
-## Runs the default action. The verb-coin will eventually pick between
-## several of these; for now looking is the only thing anyone can do.
-func interact() -> void:
-	interacted.emit()
+## The line to show for [param verb], or the generic refusal if this hotspot
+## has nothing to say about it.
+func get_text_for(verb: int) -> String:
+	var text: String = ""
+
+	match verb:
+		Verb.LOOK:
+			text = look_text
+		Verb.USE:
+			text = use_text
+		Verb.TALK:
+			text = talk_text
+
+	return text if not text.is_empty() else REFUSAL
+
+
+## Runs [param verb] on this hotspot. The text is the room's business; this
+## is the hook for hotspots that actually do something.
+func interact(verb: int) -> void:
+	interacted.emit(verb)
 
 
 ## The point the character should walk to before acting on this hotspot.

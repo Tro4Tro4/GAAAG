@@ -14,6 +14,10 @@ extends Node2D
 ## _ready() runs, and this one is needed exactly there.
 @onready var caption: Caption = $Caption
 
+## The verb menu. It covers the whole screen while open, so it also acts as
+## the thing that swallows a click meant to cancel.
+@onready var verb_coin: VerbCoin = $VerbCoin
+
 # How many overlapping shapes a single point query may report. Hotspots are
 # not meant to overlap; the allowance is there so that a mistake in a room
 # degrades into "the first one wins" instead of silently finding nothing.
@@ -24,6 +28,9 @@ const MAX_SHAPES_UNDER_A_POINT: int = 8
 # cancel the pending action instead of firing it when you get there.
 var _pending_hotspot: Hotspot = null
 
+# The verb chosen for _pending_hotspot. Meaningless while that is null.
+var _pending_verb: int = Hotspot.Verb.LOOK
+
 # Who this room is currently driving. Held separately from
 # GameState.active_character because the room needs the outgoing character
 # too, to take its signal connection back off.
@@ -31,6 +38,7 @@ var _character: PlayerCharacter = null
 
 
 func _ready() -> void:
+	verb_coin.verb_chosen.connect(_on_verb_chosen)
 	GameState.active_character_changed.connect(_take_control_of)
 
 	# Characters register during their own _ready(), which runs before this
@@ -41,8 +49,10 @@ func _ready() -> void:
 
 func _take_control_of(character: PlayerCharacter) -> void:
 	# The errand belonged to whoever was walking. Handing control over does
-	# not hand over the errand, so it is dropped rather than inherited.
+	# not hand over the errand, so it is dropped rather than inherited — and
+	# a coin still open belonged to that errand too.
 	_pending_hotspot = null
+	verb_coin.close()
 
 	if _character != null:
 		_character.destination_reached.disconnect(_on_destination_reached)
@@ -75,12 +85,22 @@ func _handle_click(click_position: Vector2) -> void:
 		return
 
 	var hotspot: Hotspot = _hotspot_at(click_position)
-	_pending_hotspot = hotspot
 
 	if hotspot != null:
-		_walk_to(hotspot.get_approach_position())
-	else:
-		_walk_to(click_position)
+		# Nothing moves yet: the coin opens on the spot that was tapped, and
+		# the walk is ordered only once a verb has been chosen. Changing your
+		# mind before that costs nothing.
+		verb_coin.open_for(hotspot, click_position)
+		return
+
+	_pending_hotspot = null
+	_walk_to(click_position)
+
+
+func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:
+	_pending_hotspot = hotspot
+	_pending_verb = verb
+	_walk_to(hotspot.get_approach_position())
 
 
 func _walk_to(destination: Vector2) -> void:
@@ -121,8 +141,5 @@ func _on_destination_reached() -> void:
 	var hotspot: Hotspot = _pending_hotspot
 	_pending_hotspot = null
 
-	# This is the seam where the verb-coin will slot in. Today the default
-	# verb is the only verb; tomorrow the coin picks one and this line asks
-	# the hotspot for that verb instead.
-	caption.show_text(hotspot.look_text)
-	hotspot.interact()
+	caption.show_text(hotspot.get_text_for(_pending_verb))
+	hotspot.interact(_pending_verb)
