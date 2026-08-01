@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://baggamain0001"]
+
+[ext_resource type="Script" path="res://scripts/Main.cs" id="1_main"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 96.0
+offset_top = 88.0
+offset_right = 288.0
+offset_bottom = 128.0
+text = "AGGGA
+scaffold pronto"
+horizontal_alignment = 1
+vertical_alignment = 1
