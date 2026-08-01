@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=9 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="3_hotspot"]
 [ext_resource type="Script" path="res://scripts/ui/caption.gd" id="4_caption"]
+[ext_resource type="Script" path="res://scripts/ui/character_bar.gd" id="5_bar"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
@@ -69,6 +70,13 @@ position = Vector2(0, 44)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector2(48, 198)
+display_name = "Tizio"
+body_color = Color(0.92, 0.55, 0.2, 1)
+
+[node name="Player2" parent="." instance=ExtResource("2_player")]
+position = Vector2(320, 200)
+display_name = "Caio"
+body_color = Color(0.35, 0.62, 0.85, 1)
 
 [node name="Caption" type="Label" parent="."]
 offset_left = 8.0
@@ -80,3 +88,12 @@ theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("4_caption")
+
+[node name="CharacterBar" type="HBoxContainer" parent="."]
+offset_left = 8.0
+offset_top = 190.0
+offset_right = 200.0
+offset_bottom = 208.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+script = ExtResource("5_bar")

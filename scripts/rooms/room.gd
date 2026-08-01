@@ -7,16 +7,11 @@ extends Node2D
 ## runs the action once the character has arrived. Neither the character nor
 ## the hotspots know anything about input.
 
-## The character this room drives. Once several playable characters exist,
-## the room will ask the game state which one is active instead of naming a
-## child — that is still an open decision in CLAUDE.md.
+## The line of text at the top of the screen.
 ##
 ## Resolved with @onready rather than @export: a node reference written by
 ## hand into a .tscn is not reliably available yet when the scene root's
 ## _ready() runs, and this one is needed exactly there.
-@onready var player: PlayerCharacter = $Player
-
-## The line of text at the top of the screen.
 @onready var caption: Caption = $Caption
 
 # How many overlapping shapes a single point query may report. Hotspots are
@@ -29,9 +24,33 @@ const MAX_SHAPES_UNDER_A_POINT: int = 8
 # cancel the pending action instead of firing it when you get there.
 var _pending_hotspot: Hotspot = null
 
+# Who this room is currently driving. Held separately from
+# GameState.active_character because the room needs the outgoing character
+# too, to take its signal connection back off.
+var _character: PlayerCharacter = null
+
 
 func _ready() -> void:
-	player.destination_reached.connect(_on_player_destination_reached)
+	GameState.active_character_changed.connect(_take_control_of)
+
+	# Characters register during their own _ready(), which runs before this
+	# one, so the first active character was chosen before this room could
+	# hear about it. Picking it up by hand is what covers that gap.
+	_take_control_of(GameState.active_character)
+
+
+func _take_control_of(character: PlayerCharacter) -> void:
+	# The errand belonged to whoever was walking. Handing control over does
+	# not hand over the errand, so it is dropped rather than inherited.
+	_pending_hotspot = null
+
+	if _character != null:
+		_character.destination_reached.disconnect(_on_destination_reached)
+
+	_character = character
+
+	if _character != null:
+		_character.destination_reached.connect(_on_destination_reached)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -50,6 +69,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _handle_click(click_position: Vector2) -> void:
+	if _character == null:
+		return
+
 	var hotspot: Hotspot = _hotspot_at(click_position)
 	_pending_hotspot = hotspot
 
@@ -65,7 +87,7 @@ func _walk_to(destination: Vector2) -> void:
 	# front of the wall instead of doing nothing — the behaviour every
 	# adventure game of the era had.
 	var navigation_map: RID = get_world_2d().navigation_map
-	player.walk_to(NavigationServer2D.map_get_closest_point(navigation_map, destination))
+	_character.walk_to(NavigationServer2D.map_get_closest_point(navigation_map, destination))
 
 
 ## Returns the hotspot under [param point], or null if there is only floor.
@@ -88,7 +110,7 @@ func _hotspot_at(point: Vector2) -> Hotspot:
 	return null
 
 
-func _on_player_destination_reached() -> void:
+func _on_destination_reached() -> void:
 	if _pending_hotspot == null:
 		return
 

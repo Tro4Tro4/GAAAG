@@ -39,7 +39,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(da fare)*
-2. Sistema personaggi multipli: switch, stato indipendente per personaggio
+2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
+   cambio, due personaggi nella stessa stanza)*, stato indipendente per
+   personaggio *(parziale: ognuno ha la sua posizione; il resto arriverà con
+   inventario e flag)*, multi-stanza *(da fare)*
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
@@ -56,6 +59,8 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
+  autoload/          Stato che sopravvive alle scene (game_state.gd)
+  ui/                Interfaccia (caption.gd, character_bar.gd)
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
 
@@ -212,11 +217,43 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   si arriva. L'alternativa (`await destination_reached` dentro il gestore del
   click) è più corta da scrivere ma lascia in vita la vecchia attesa, che si
   risveglia alla fine della camminata successiva ed esegue l'azione sbagliata.
+- **Stato dei personaggi in un autoload `GameState`**: chi è il personaggio
+  attivo, e in futuro inventario e flag, vivono fuori dalle scene. È la
+  risposta al punto che era rimasto aperto ("come la stanza individua il
+  personaggio attivo"): la stanza non nomina più un figlio, chiede a
+  `GameState` e si riaggancia al segnale `active_character_changed`. Il motivo
+  è che le stanze verranno caricate e scaricate, e ciò che il giocatore sta
+  controllando non deve sparire con esse.
+  - **Nodo `Game` esplicito sopra le stanze**, che possiede i personaggi e
+    passa i riferimenti verso il basso: niente stato globale, dipendenze
+    dichiarate, più facile da seguire leggendo. Scartata perché introduce
+    subito un livello di scena in più, e perché ogni sistema successivo
+    (inventario, dialoghi, flag) dovrebbe ripetere lo stesso cablaggio —
+    ricostruendo di fatto un singleton con più passaggi.
+  - **Gruppo di nodi più un flag "attivo"**: nessun concetto nuovo. Scartata
+    perché il flag deve comunque vivere da qualche parte, e nella stanza si
+    perderebbe al cambio stanza: rimanda il problema invece di risolverlo.
+  - Costo accettato consapevolmente: un autoload è raggiungibile da ovunque, e
+    tutto ciò che può fare lo può fare qualunque script. Va tenuto **di soli
+    dati**, non di comportamento, o diventa il posto dove finisce tutto.
+- **I personaggi si registrano da soli** in `_ready()` e si tolgono in
+  `_exit_tree()`; il primo che arriva prende il controllo. L'alternativa — un
+  elenco configurato a mano da qualche parte — andrebbe tenuta allineata alle
+  scene e divergerebbe alla prima modifica.
+- **La barra di cambio personaggio si costruisce a runtime** dall'elenco di
+  `GameState`, invece di essere disegnata nella scena: segue il numero di
+  personaggi che una stanza ha davvero, e non esiste una seconda lista da
+  mantenere sincronizzata. Essendo fatta di nodi `Control`, consuma i propri
+  click prima che arrivino alla stanza — che è precisamente il motivo per cui
+  la stanza ascolta `_unhandled_input` e non `_input`.
+- **Cambiare personaggio annulla l'azione in sospeso**: la commissione era di
+  chi stava camminando, e passare il controllo non passa la commissione.
 
 ## Decisioni ancora aperte
-- Come la stanza individua il personaggio attivo quando saranno più di uno
-  (ora è un riferimento diretto assegnato nell'editor): autoload di stato di
-  gioco, gruppo di nodi, o altro
+- **Multi-stanza**: come si caricano e scaricano le stanze, dove vivono i
+  personaggi che non sono nella stanza mostrata, e come si conserva la loro
+  posizione mentre la loro stanza non è caricata. Oggi i personaggi sono figli
+  della stanza, il che va bene finché la stanza è una sola
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
 - Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è

@@ -13,8 +13,16 @@ extends CharacterBody2D
 ## once hotspots exist.
 signal destination_reached
 
+## The name shown on the character-switching bar.
+@export var display_name: String = ""
+
+## Placeholder until there are sprites: tells one character from another.
+@export var body_color: Color = Color(0.92, 0.55, 0.2)
+
 ## Pixels per second, expressed at the game's 384x216 base resolution.
 @export var walk_speed: float = 55.0
+
+@onready var _body: Polygon2D = $Body
 
 # Resolved with @onready rather than @export: a node reference written by
 # hand into a .tscn is not reliably resolved, and the agent is part of this
@@ -24,6 +32,17 @@ signal destination_reached
 # True while a destination is pending. Without it, destination_reached would
 # fire on every frame the character spends standing still.
 var _is_walking: bool = false
+
+
+func _ready() -> void:
+	_body.color = body_color
+	GameState.register_character(self)
+
+
+func _exit_tree() -> void:
+	# Rooms will be unloaded once there is more than one of them, and a
+	# character that left with its room must not stay on the roster.
+	GameState.unregister_character(self)
 
 
 ## Sends the character to [param global_target].
