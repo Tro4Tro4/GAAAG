@@ -4,7 +4,7 @@
 Avventura grafica punta-e-clicca stile anni '90 (LucasArts), con cambio di
 personaggio controllabile stile *Day of the Tentacle* / *Maniac Mansion*.
 Storia originale, ambientazione fantascientifica assurda/comica ispirata
-nello **spirito** ( nei contenuti) a *Guida Galattica per Autostoppisti*.
+nello **spirito** (non nei contenuti) a *Guida Galattica per Autostoppisti*.
 
 ## Stack tecnico
 - **Engine**: Godot 4.x
