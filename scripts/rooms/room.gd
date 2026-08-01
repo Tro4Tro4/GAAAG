@@ -59,8 +59,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	# character to the floor underneath it.
 	#
 	# Only mouse events are handled. On Android the engine turns a tap into
-	# one of these (see emulate_mouse_from_touch in project.godot), so
-	# listening to touch as well would run every action twice.
+	# one of these on its own — emulate_mouse_from_touch is on by default and
+	# the game relies on it — so listening to touch as well would run every
+	# action twice. The setting is not written in project.godot: Godot drops
+	# any value equal to its default. See CLAUDE.md for why this is deliberate.
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:

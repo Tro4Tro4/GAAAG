@@ -288,6 +288,24 @@ esattamente il mattone su cui si costruirà "cammina fino all'hotspot, poi
 esegui il verbo". Non esistono thread da gestire; non usare cicli di attesa,
 bloccano il frame e congelano il gioco.
 
+## `project.godot` è generato, non è un sorgente
+
+L'editor lo riscrive a ogni apertura del progetto. Due conseguenze pratiche,
+entrambe verificate su questo progetto:
+
+- **I commenti non sopravvivono.** Scriverci dentro spiegazioni è tempo
+  perso: la motivazione di un'impostazione va in `CLAUDE.md`.
+- **I valori uguali al default non vengono scritti.** Dichiarare
+  esplicitamente `emulate_mouse_from_touch=true` non serve a niente: sparisce.
+  Se il gioco dipende da un default, quella dipendenza va documentata altrove,
+  perché nel file non ci sarà.
+
+Ne segue una regola operativa per l'ambiente di sviluppo remoto: quando
+modifichi `project.godot` da qui, aspettati che la versione dell'editor
+diverga alla prima apertura e blocchi il `pull` successivo. Conviene farsi
+mandare il file come l'editor lo lascia e committare quello, invece di
+combattere ogni volta con lo stesso conflitto.
+
 ## Prima di dire "fatto"
 
 GDScript non ha passo di compilazione: si salva e si preme Play. È il

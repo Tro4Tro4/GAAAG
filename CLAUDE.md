@@ -154,10 +154,14 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     il progetto fosse ancora abbastanza piccolo da rendere sensata la
     riconversione — condizione che smette di valere in fretta.
 - **Il gioco ascolta solo eventi mouse, il tocco lo converte l'engine**
-  (`emulate_mouse_from_touch`, ora dichiarato esplicitamente in
-  `project.godot` invece di essere lasciato al default): un solo percorso di
-  codice per desktop e mobile, e i nodi `Control` — quindi la futura verb-coin
-  e l'inventario — continuano a rispondere al tocco senza codice dedicato.
+  (`emulate_mouse_from_touch`, attivo per impostazione predefinita): un solo
+  percorso di codice per desktop e mobile, e i nodi `Control` — quindi la
+  futura verb-coin e l'inventario — continuano a rispondere al tocco senza
+  codice dedicato. La dipendenza è dichiarata **qui e non in `project.godot`**
+  perché Godot non scrive i valori uguali al default: provato a metterlo
+  esplicitamente, l'editor lo cancella alla prima apertura. Se un giorno
+  qualcuno lo disattivasse, il gioco smetterebbe di rispondere al tocco senza
+  che nulla nel codice lo spieghi.
   - **Gestire anche `InputEventScreenTouch`**: sembra la scelta più corretta
     per un gioco mobile, ed è stata provata sul dispositivo. Scartata perché
     con l'emulazione attiva **ogni tocco arriva due volte**, una come mouse e

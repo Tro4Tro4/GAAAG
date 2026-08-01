@@ -22,27 +22,14 @@ GameState="*res://scripts/autoload/game_state.gd"
 
 [display]
 
-; Bassa risoluzione base per pixel art retro (16:9). La finestra reale
-; parte a 3x (1152x648). Vedi CLAUDE.md per la motivazione.
 window/size/viewport_width=384
 window/size/viewport_height=216
 window/size/window_width_override=1152
 window/size/window_height_override=648
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
-
-[input_devices]
-
-; Un tocco sullo schermo diventa un click del mouse. E' il default di Godot,
-; ma il gioco ci si appoggia (la stanza ascolta solo eventi mouse), quindi la
-; dipendenza sta scritta invece di essere implicita. Vedi CLAUDE.md.
-pointing/emulate_mouse_from_touch=true
 
 [rendering]
 
-; GL Compatibility: unico renderer che gira su PC + mobile + web senza
-; sorprese; sufficiente per un 2D pixel art.
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-; 0 = Nearest: niente sfocatura, pixel netti (fondamentale per pixel art).
-textures/canvas_textures/default_texture_filter=0
