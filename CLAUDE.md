@@ -7,8 +7,10 @@ Storia originale, ambientazione fantascientifica assurda/comica ispirata
 nello **spirito** (non nei contenuti) a *Guida Galattica per Autostoppisti*.
 
 ## Stack tecnico
-- **Engine**: Godot 4.x
-- **Linguaggio**: C# (Mono)
+- **Engine**: Godot 4.x (build standard, non .NET)
+- **Linguaggio**: GDScript
+- **Ambiente di sviluppo**: editor Godot per **Android** — è l'unica macchina
+  disponibile allo sviluppatore, e da questo discende la scelta del linguaggio
 - **Piattaforme target**: PC (Win/Mac/Linux) + mobile (Android/iOS)
 - **Arte**: pixel art retro, generata con strumenti AI esterni, poi
   importata/adattata nel progetto
@@ -45,22 +47,23 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Struttura del progetto
 ```
-project.godot        Configurazione progetto Godot (renderer, display, dotnet)
-Aggga.csproj/.sln    Progetto e solution C# (.NET 8, RootNamespace = Aggga)
+project.godot        Configurazione progetto Godot (renderer, display)
 icon.svg             Icona placeholder
-scenes/              Scene Godot (.tscn)
+scenes/              Scene Godot (.tscn), nomi in PascalCase
   rooms/TestRoom     Stanza di prova, scena di avvio del progetto
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
-  Main.tscn          Smoke test dello scaffold, non più la scena di avvio
-scripts/             Codice C#, rispecchia l'albero di scenes/
+scripts/             Codice GDScript (.gd), nomi in snake_case,
+                     rispecchia l'albero di scenes/
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
 
 ## Decisioni prese (e perché)
-- **Godot + C#** invece di Ren'Py/AGS/Visionaire: lo sviluppatore ha
-  esperienza pregressa in C# (.NET/ASP.NET Core), riuso di competenze;
-  Godot è gratuito, esporta su tutte le piattaforme target, ottimo supporto
-  2D nativo (non è un motore 3D adattato)
+- **Godot** invece di Ren'Py/AGS/Visionaire: è gratuito, esporta su tutte le
+  piattaforme target, ottimo supporto 2D nativo (non è un motore 3D adattato).
+  La parte di questa decisione che riguardava il **linguaggio C#** è stata
+  **superata** — vedi "Da C# a GDScript" in fondo all'elenco. Il motivo di
+  allora era il riuso dell'esperienza .NET dello sviluppatore, ed era valido:
+  è caduta la premessa, non il ragionamento.
 - **Sistema a personaggi multipli** invece di singolo protagonista: scelta
   esplicita di gameplay ispirata a Day of the Tentacle, guida il design
   degli altri sistemi (inventario, stato, dialoghi)
@@ -81,12 +84,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     risoluzione "retro" e si scala in modo pulito mantenendo il rapporto.
     Valori facilmente modificabili; scelti come default ragionevole, non
     definitivi.
-  - **.NET 8 / `net8.0`**: runtime LTS supportato da Godot 4.3.
-  - **Nome assembly/namespace `Aggga`**: provvisorio (il nome del progetto è
-    tra le decisioni aperte); rinominabile in fretta.
-  - Nota: nell'ambiente di sviluppo remoto non erano installati `dotnet` né
-    `godot`, quindi lo scaffold non è stato build-testato lì. Va aperto in
-    Godot (versione .NET) per la prima verifica.
+  - *(Decadute con il passaggio a GDScript: la scelta di `.NET 8 / net8.0` come
+    runtime e del nome assembly/namespace `Aggga`. I file `Aggga.csproj/.sln`
+    non esistono più.)*
 - **Movimento con `NavigationRegion2D` + `NavigationAgent2D`** (il pathfinding
   nativo di Godot) invece di soluzioni scritte a mano: la zona calpestabile si
   disegna nell'editor come poligono con eventuali "buchi" per gli ostacoli, e
@@ -122,6 +122,30 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     script invece di due) e con un nodo in meno da collegare. Scartato perché
     con più personaggi giocabili ognuno reagirebbe al click, e servirebbe
     comunque un arbitro che decida quale: quell'arbitro è la stanza.
+- **Da C# a GDScript** (revoca della scelta di linguaggio iniziale): l'unica
+  macchina su cui lo sviluppatore può lavorare è un telefono Android. L'editor
+  Godot per Android esiste ed è pienamente funzionante, ma è la build standard
+  dell'engine: **non supporta C#**, e una versione .NET dell'editor Android non
+  esiste né è prevista. Il PC aziendale non consente installazioni e non c'è un
+  computer personale. La scelta non era quindi tra due linguaggi, ma tra
+  GDScript e l'impossibilità di sviluppare.
+  - **Restare su C#**: conserva il riuso dell'esperienza .NET, la sicurezza del
+    compilatore (generics, interfacce, tipizzazione forte) e il tooling di
+    Visual Studio/Rider — vantaggi reali, non trascurabili. Scartata perché
+    richiede un editor .NET su desktop, che non è disponibile e non si prevede
+    lo diventi.
+  - Momento della conversione: fatta con **due script e ~110 righe** in tutto.
+    Le scene, la navmesh e ogni altra decisione architetturale sono rimaste
+    invariate: sono cambiati solo il riferimento allo script e i nomi delle
+    proprietà esportate. Convertire più avanti, con verb-coin, inventario e
+    dialoghi già scritti, sarebbe costato ordini di grandezza in più.
+  - Effetto collaterale positivo sul metodo di lavoro: senza passo di
+    compilazione e con l'editor sul dispositivo dello sviluppatore, il codice
+    può finalmente essere **eseguito e verificato**. Con C# nessuno dei due
+    lati poteva farlo, e ogni modifica restava non testata.
+  - Nota: da rivedere solo se lo sviluppatore ottenesse una macchina desktop e
+    il progetto fosse ancora abbastanza piccolo da rendere sensata la
+    riconversione — condizione che smette di valere in fretta.
 
 ## Decisioni ancora aperte
 - Come la stanza individua il personaggio attivo quando saranno più di uno
@@ -130,7 +154,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
 - Come si esprime "cammina fino all'hotspot, poi esegui il verbo": il segnale
-  `DestinationReached` esiste già, manca la struttura che lo usa
+  `destination_reached` esiste già, manca la struttura che lo usa
 - Durata finale del gioco (valutare dopo il prototipo)
 - Inventario condiviso vs per personaggio
 - Lista definitiva dei verbi nel verb-coin
@@ -139,11 +163,16 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 ## Comportamento di Claude Code su questo progetto
 - **Lingua conversazione**: italiano. **Lingua codice**: inglese per nomi di
   classi/metodi/variabili e commenti (convenzione standard, resta comunque
-  leggibile e coerente col resto dell'ecosistema Godot/C#)
+  leggibile e coerente col resto dell'ecosistema Godot)
 - Questo è il primo progetto di game dev dello sviluppatore (esperto in
-  C#/.NET ma non in game engine): spiegare i concetti specifici di Godot
-  (signal, scene tree, node, autoload, ecc.) la prima volta che vengono
-  introdotti, senza darli per scontati
+  C#/.NET ma non in game engine né in GDScript): spiegare i concetti specifici
+  di Godot (signal, scene tree, node, autoload, ecc.) la prima volta che
+  vengono introdotti, senza darli per scontati. Dove GDScript si comporta
+  diversamente dal C#, dirlo esplicitamente invece di lasciarlo scoprire
+- Lo sviluppo avviene su **telefono Android**: preferire modifiche che si
+  possano verificare premendo Play, ed evitare di scaricare sullo sviluppatore
+  editing manuale lungo nell'editor quando si può esprimere la stessa cosa nel
+  file di scena
 - Prima di implementare scelte architetturali importanti (es. come gestire
   lo stato dei personaggi, come strutturare i dialoghi), proporre alternative
   con pro/contro e motivare la scelta consigliata, non eseguire e basta

@@ -2,12 +2,9 @@
 .godot/
 /android/
 
-# .NET / C# build output
-.mono/
-mono_crash.*.json
-[Bb]in/
-[Oo]bj/
-*.user
+# Export output e preset (i preset possono contenere password di firma)
+export_presets.cfg
+/builds/
 
 # OS / editor cruft
 .DS_Store

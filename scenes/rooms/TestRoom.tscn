@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://baggaroom00001"]
 
-[ext_resource type="Script" path="res://scripts/rooms/Room.cs" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
@@ -11,7 +11,7 @@ agent_radius = 4.0
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
-_player = NodePath("Player")
+player = NodePath("Player")
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.13, 0.15, 0.24, 1)
