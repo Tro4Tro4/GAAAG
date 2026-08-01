@@ -35,9 +35,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 - Dialoghi ad albero con condizioni legate a flag/stato di gioco
 
 ## Ordine di sviluppo previsto
-1. Sistema base: movimento *(fatto: click-to-walk con navmesh)*, stanze
-   *(scena `Room` minima)*, hotspot cliccabili *(da fare)*, verb-coin UI
-   *(da fare)*
+1. Sistema base: movimento *(fatto e **verificato sul dispositivo**:
+   click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
+   `Room` minima)*, hotspot cliccabili *(da fare)*, verb-coin UI *(da fare)*
 2. Sistema personaggi multipli: switch, stato indipendente per personaggio
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
@@ -146,6 +146,22 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Nota: da rivedere solo se lo sviluppatore ottenesse una macchina desktop e
     il progetto fosse ancora abbastanza piccolo da rendere sensata la
     riconversione — condizione che smette di valere in fretta.
+- **Il gioco ascolta solo eventi mouse, il tocco lo converte l'engine**
+  (`emulate_mouse_from_touch`, ora dichiarato esplicitamente in
+  `project.godot` invece di essere lasciato al default): un solo percorso di
+  codice per desktop e mobile, e i nodi `Control` — quindi la futura verb-coin
+  e l'inventario — continuano a rispondere al tocco senza codice dedicato.
+  - **Gestire anche `InputEventScreenTouch`**: sembra la scelta più corretta
+    per un gioco mobile, ed è stata provata sul dispositivo. Scartata perché
+    con l'emulazione attiva **ogni tocco arriva due volte**, una come mouse e
+    una come touch: verificato nell'output di esecuzione. Oggi significa solo
+    ordinare due volte la stessa camminata, ma con gli hotspot vorrebbe dire
+    eseguire ogni verbo due volte. Disattivare l'emulazione per evitarlo
+    costerebbe il funzionamento al tocco di tutta la UI.
+  - Conseguenza da non dimenticare: l'emulazione copre il click, **non
+    l'hover**. Su mobile il passaggio del puntatore non esiste, e la verb-coin
+    non può basarsi su di esso. È un vincolo di design della verb-coin, non un
+    dettaglio implementativo.
 
 ## Decisioni ancora aperte
 - Come la stanza individua il personaggio attivo quando saranno più di uno

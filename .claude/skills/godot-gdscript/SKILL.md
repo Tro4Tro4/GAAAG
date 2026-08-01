@@ -67,6 +67,27 @@ Blocchi definiti dall'indentazione, come in Python. Godot usa **tabulazioni**,
 non spazi: mischiarle produce errori di parsing. Nessuna graffa, nessun
 punto e virgola.
 
+### `not x is Y` — scrivi la forma positiva
+
+```gdscript
+if not event is InputEventMouseButton:   # da evitare
+	return
+
+if event is InputEventMouseButton:       # preferibile
+	var mouse_event: InputEventMouseButton = event
+	...
+```
+
+La forma negata mescola `not` e `is` in un punto dove la precedenza non è
+ovvia a chi legge, e in questo progetto un `_unhandled_input` scritto così non
+ha mai reagito ai click, senza che fosse evidente il perché. Preferisci il
+ramo positivo con una variabile tipizzata: elimina l'ambiguità e ti dà
+l'accesso statico alle proprietà della sottoclasse, che sull'`InputEvent` di
+partenza non esistono.
+
+Vale in generale: quando una condizione mescola operatori di tipo e operatori
+logici, o metti le parentesi o riscrivila in positivo.
+
 ### I costruttori non servono per inizializzare
 
 Godot costruisce l'oggetto, poi lo inserisce nell'albero, poi applica i valori
