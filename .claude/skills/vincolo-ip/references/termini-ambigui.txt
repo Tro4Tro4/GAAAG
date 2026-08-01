@@ -1,0 +1,52 @@
+# Termini che NON sono vietati in se', ma che diventano sospetti a seconda
+# del contesto. Lo script li segnala come AVVISO, non come errore: servono
+# occhi umani (o un giudizio motivato di Claude), non un blocco automatico.
+#
+# Perche' separati dai termini vietati: parole come "42" o "asciugamano"
+# compaiono legittimamente in qualsiasi progetto (una coordinata, un
+# oggetto di scena in un bagno). Bloccarle a tappeto renderebbe il
+# controllo cosi' rumoroso da farlo ignorare, che e' il modo piu' sicuro
+# per farsi sfuggire una violazione vera.
+#
+# Per ognuno, la domanda da porsi e' scritta in SKILL.md.
+
+# Il numero-citazione: innocuo come valore, problematico se presentato
+# come "la risposta", il risultato di un calcolo cosmico, o un mistero.
+42
+
+# L'oggetto-talismano: innocuo come oggetto di scena, problematico se
+# elevato a simbolo dell'esploratore galattico previdente.
+asciugamano
+towel
+
+# Traduzione universale: il concetto e' un tropo libero, ma la creatura
+# viva infilata nell'orecchio e' l'esecuzione specifica dell'originale.
+traduttore
+traduzione universale
+orecchio
+
+# Robot depresso: il tropo del robot malinconico come spalla comica e'
+# la trappola piu' facile in cui cadere per un progetto di questo genere.
+depresso
+malinconico
+paranoide
+
+# Demolizione planetaria per opere pubbliche: la premessa specifica
+# dell'originale, non un tropo generico.
+demolizione
+tangenziale
+circonvallazione
+bypass
+
+# Poesia come tortura burocratica: esecuzione specifica dell'originale.
+poesia
+poema
+
+# Guida/enciclopedia che narra a voci: e' LA trovata dell'originale.
+guida
+enciclopedia
+voce dell'enciclopedia
+
+# Propulsione basata sull'improbabilita'.
+improbabilita
+improbabile

@@ -1,0 +1,133 @@
+# Termini che NON devono comparire in AGGGA (codice, commenti, dialoghi,
+# nomi di asset, nomi di file, documentazione).
+# Un termine per riga. Le righe che iniziano con # sono commenti.
+# Il match e' case-insensitive e su parola intera.
+#
+# Questi sono elementi protetti dell'opera originale: nomi propri e
+# denominazioni coniate dall'autore. Non sono "tropi generici": sono
+# espressione specifica, ed e' esattamente cio' che il vincolo IP vieta.
+
+# --- Personaggi ---
+Arthur Dent
+Ford Prefect
+Zaphod
+Beeblebrox
+Trillian
+Tricia McMillan
+Marvin
+Slartibartfast
+Deep Thought
+Agrajag
+Fenchurch
+Wowbagger
+Zarniwoop
+Roosta
+Hactar
+Humma Kavula
+Gag Halfrunt
+Wonko
+Lunkwill
+Vroomfondel
+Majikthise
+Max Quordlepleen
+Effrafax
+Prostetnic
+Jeltz
+
+# --- Popoli e razze ---
+Vogon
+Vogons
+Vogoni
+Golgafrincham
+Golgafrinchan
+Golgafrinchani
+Jatravartid
+Krikkit
+Krikkiter
+Haggunenon
+Belcerebon
+Dentrassi
+Magrathean
+Magratheani
+Grebulon
+Silastic Armorfiend
+
+# --- Luoghi ---
+Magrathea
+Vogsphere
+Damogran
+Milliways
+Frogstar
+Squornshellous
+Sqornshellous
+Brontitall
+Lamuella
+Bartledan
+Preliumtarn
+Viltvodle
+Santraginus
+Eroticon
+Traal
+Kakrafoon
+Ursa Minor Beta
+Betelgeuse
+Betelgeusiano
+
+# --- Oggetti, tecnologie, organizzazioni ---
+Babel fish
+Pesce Babele
+Infinite Improbability Drive
+Propulsore di Improbabilita
+Guida Improbabile
+Heart of Gold
+Cuore d'Oro
+Pan Galactic Gargle Blaster
+Pangalattico Gargarizzatore
+Sub-Etha
+Subeterea
+Sens-O-Matic
+Total Perspective Vortex
+Vortice della Prospettiva Totale
+Nutri-Matic
+Sirius Cybernetics
+Genuine People Personalities
+Bugblatter
+Disaster Area
+Bistromathics
+Bistromatica
+Janx Spirit
+Jynnan tonnyx
+Ameglian Major
+Somebody Else's Problem
+Campo SEP
+Point-of-View Gun
+B-Ark
+Arca B
+
+# --- Frasi e slogan ---
+Don't Panic
+Niente Panico
+Non fatevi prendere dal panico
+Mostly Harmless
+Innocuo
+Perlopiu innocuo
+So long and thanks for all the fish
+Addio e grazie per tutto il pesce
+Share and Enjoy
+Condividi e Godi
+Beware of the Leopard
+Attenti al leopardo
+Ultimate Question
+Domanda Fondamentale
+Answer to Life the Universe and Everything
+Risposta alla Vita l'Universo e Tutto Quanto
+
+# --- Titoli dell'opera ---
+Hitchhiker
+Hitch-hiker
+Guida Galattica per Autostoppisti
+Guida Galattica
+Restaurant at the End of the Universe
+Ristorante al Termine dell'Universo
+Life the Universe and Everything
+La Vita l'Universo e Tutto Quanto
