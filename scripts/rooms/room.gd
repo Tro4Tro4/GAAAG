@@ -2,15 +2,32 @@ extends Node2D
 
 ## A single game location.
 ##
-## For now it owns only the click-to-walk loop: clicking anywhere sends the
-## character to the closest reachable point of the room's navigation mesh.
-## Hotspots and the verb-coin will plug in here, consuming the click before
-## the floor ever sees it.
+## The room is the arbiter of the click. It decides whether the player tapped
+## a hotspot or the bare floor, sends the character to the right place, and
+## runs the action once the character has arrived. Neither the character nor
+## the hotspots know anything about input.
 
 ## Assigned in the editor. Once several playable characters exist, the room
 ## will ask the game state which one is active instead of holding a direct
 ## reference — that is still an open decision in CLAUDE.md.
 @export var player: PlayerCharacter
+
+## The line of text at the top of the screen.
+@export var caption: Caption
+
+# How many overlapping shapes a single point query may report. Hotspots are
+# not meant to overlap; the allowance is there so that a mistake in a room
+# degrades into "the first one wins" instead of silently finding nothing.
+const MAX_SHAPES_UNDER_A_POINT: int = 8
+
+# The hotspot the character is walking towards, consumed on arrival. Every
+# new click overwrites it, which is what makes changing your mind mid-walk
+# cancel the pending action instead of firing it when you get there.
+var _pending_hotspot: Hotspot = null
+
+
+func _ready() -> void:
+	player.destination_reached.connect(_on_player_destination_reached)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -24,16 +41,60 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			_walk_to_clicked_point(get_global_mouse_position())
+			_handle_click(get_global_mouse_position())
 			get_viewport().set_input_as_handled()
 
 
-func _walk_to_clicked_point(click_position: Vector2) -> void:
-	# A navigation map is the server-side merge of every navigation region in
-	# this world. Snapping the click to it means clicking a wall walks to the
-	# floor in front of the wall instead of doing nothing — the behaviour
-	# every adventure game of the era had.
-	var navigation_map: RID = get_world_2d().navigation_map
-	var target: Vector2 = NavigationServer2D.map_get_closest_point(navigation_map, click_position)
+func _handle_click(click_position: Vector2) -> void:
+	var hotspot: Hotspot = _hotspot_at(click_position)
+	_pending_hotspot = hotspot
 
-	player.walk_to(target)
+	if hotspot != null:
+		_walk_to(hotspot.get_approach_position())
+	else:
+		_walk_to(click_position)
+
+
+func _walk_to(destination: Vector2) -> void:
+	# A navigation map is the server-side merge of every navigation region in
+	# this world. Snapping to it means clicking a wall walks to the floor in
+	# front of the wall instead of doing nothing — the behaviour every
+	# adventure game of the era had.
+	var navigation_map: RID = get_world_2d().navigation_map
+	player.walk_to(NavigationServer2D.map_get_closest_point(navigation_map, destination))
+
+
+## Returns the hotspot under [param point], or null if there is only floor.
+func _hotspot_at(point: Vector2) -> Hotspot:
+	# The room asks the physics server what sits under the point instead of
+	# letting each Area2D react to its own click. That keeps the room the
+	# single arbiter, and keeps the hotspot-beats-floor priority written here
+	# rather than inherited from the engine's input ordering.
+	var query := PhysicsPointQueryParameters2D.new()
+	query.position = point
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+
+	var space_state := get_world_2d().direct_space_state
+	for hit in space_state.intersect_point(query, MAX_SHAPES_UNDER_A_POINT):
+		var collider: Object = hit.get("collider")
+		if collider is Hotspot:
+			return collider
+
+	return null
+
+
+func _on_player_destination_reached() -> void:
+	if _pending_hotspot == null:
+		return
+
+	# Cleared before acting: an action that starts another walk must not find
+	# itself still pending when that second walk ends.
+	var hotspot: Hotspot = _pending_hotspot
+	_pending_hotspot = null
+
+	# This is the seam where the verb-coin will slot in. Today the default
+	# verb is the only verb; tomorrow the coin picks one and this line asks
+	# the hotspot for that verb instead.
+	caption.show_text(hotspot.look_text)
+	hotspot.interact()

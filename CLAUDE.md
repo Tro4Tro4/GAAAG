@@ -37,7 +37,8 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 ## Ordine di sviluppo previsto
 1. Sistema base: movimento *(fatto e **verificato sul dispositivo**:
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
-   `Room` minima)*, hotspot cliccabili *(da fare)*, verb-coin UI *(da fare)*
+   `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
+   mostra la descrizione)*, verb-coin UI *(da fare)*
 2. Sistema personaggi multipli: switch, stato indipendente per personaggio
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
@@ -51,6 +52,7 @@ project.godot        Configurazione progetto Godot (renderer, display)
 icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
   rooms/TestRoom     Stanza di prova, scena di avvio del progetto
+                     (navmesh, due hotspot, riga di testo)
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
@@ -162,6 +164,40 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     l'hover**. Su mobile il passaggio del puntatore non esiste, e la verb-coin
     non può basarsi su di esso. È un vincolo di design della verb-coin, non un
     dettaglio implementativo.
+- **Hotspot come `Area2D` interrogata dalla stanza**, non come nodo che
+  intercetta il proprio click: al click la stanza chiede al motore fisico cosa
+  c'è sotto il punto e decide lei se è un hotspot o pavimento. La priorità tra
+  i due è scritta in un punto solo, ed è coerente con la decisione già presa
+  che la stanza sia l'arbitro del click — necessaria perché la verb-coin dovrà
+  inserirsi *tra* il click e l'azione.
+  - **Ogni `Area2D` gestisce il proprio click** (segnale `input_event`): è la
+    via che Godot offre e costa meno codice. Scartata per due motivi: l'ordine
+    con cui l'engine smista input e picking fisico non è verificabile
+    nell'ambiente di sviluppo remoto, e con più hotspot sovrapposti servirebbe
+    comunque un arbitro esterno che decida quale vince.
+  - **Solo geometria, niente fisica** (rettangolo esportato più test
+    matematico): nessun concetto nuovo dell'engine e comportamento del tutto
+    prevedibile. Scartata perché le forme si modificherebbero digitando numeri
+    nell'Inspector invece che trascinando maniglie nell'editor, e lo sviluppo
+    avviene su telefono.
+- **Hotspot come dati più segnale**, non uno script per oggetto: nome,
+  descrizione e punto di avvicinamento sono proprietà esportate, e
+  `interacted` permette a chi serve di agganciarsi. La porta con un
+  comportamento speciale avrà il suo script, la cassa no.
+  - **Uno script per ogni hotspot**: massima libertà. Scartata perché la
+    stragrande maggioranza degli oggetti di un punta-e-clicca deve solo
+    mostrare una descrizione, e un file per oggetto diventa ingestibile molto
+    prima che il gioco sia interessante.
+- **Punto di avvicinamento esplicito su ogni hotspot** (`Marker2D` figlio):
+  non si cammina *dentro* l'oggetto, ci si ferma davanti. Serve anche per una
+  ragione tecnica, non solo estetica: un hotspot su un muro — una porta — sta
+  fuori dalla navmesh, quindi la sua posizione non è una destinazione valida.
+- **L'azione in sospeso viene sovrascritta da ogni nuovo click**: la stanza
+  ricorda quale hotspot sta raggiungendo e la consuma all'arrivo. Cliccare
+  altrove a metà strada annulla l'azione invece di lasciarla scattare quando
+  si arriva. L'alternativa (`await destination_reached` dentro il gestore del
+  click) è più corta da scrivere ma lascia in vita la vecchia attesa, che si
+  risveglia alla fine della camminata successiva ed esegue l'azione sbagliata.
 
 ## Decisioni ancora aperte
 - Come la stanza individua il personaggio attivo quando saranno più di uno
@@ -169,8 +205,10 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   gioco, gruppo di nodi, o altro
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
-- Come si esprime "cammina fino all'hotspot, poi esegui il verbo": il segnale
-  `destination_reached` esiste già, manca la struttura che lo usa
+- **Lingua dei testi di gioco** (descrizioni, dialoghi, nomi visibili): ora
+  sono in italiano come segnaposto, ma non è una decisione presa. Da valutare
+  insieme all'eventuale localizzazione, che in Godot conviene impostare prima
+  di avere testo sparso nelle scene
 - Durata finale del gioco (valutare dopo il prototipo)
 - Inventario condiviso vs per personaggio
 - Lista definitiva dei verbi nel verb-coin

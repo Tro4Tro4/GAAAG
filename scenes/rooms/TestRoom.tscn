@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=8 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="3_hotspot"]
+[ext_resource type="Script" path="res://scripts/ui/caption.gd" id="4_caption"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
@@ -9,9 +11,16 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 5, 4), PackedInt32Arr
 outlines = Array[PackedVector2Array]([PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208), PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)])
 agent_radius = 4.0
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+size = Vector2(64, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 64)
+
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
 player = NodePath("Player")
+caption = NodePath("Caption")
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.13, 0.15, 0.24, 1)
@@ -25,6 +34,10 @@ polygon = PackedVector2Array(0, 120, 384, 120, 384, 216, 0, 216)
 color = Color(0.36, 0.34, 0.39, 1)
 polygon = PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208)
 
+[node name="Door" type="Polygon2D" parent="."]
+color = Color(0.35, 0.24, 0.18, 1)
+polygon = PackedVector2Array(296, 56, 336, 56, 336, 120, 296, 120)
+
 [node name="Obstacle" type="Polygon2D" parent="."]
 color = Color(0.55, 0.35, 0.22, 1)
 polygon = PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)
@@ -32,13 +45,42 @@ polygon = PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
 
+[node name="CrateHotspot" type="Area2D" parent="."]
+position = Vector2(192, 160)
+script = ExtResource("3_hotspot")
+display_name = "Cassa"
+look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
+approach_marker = NodePath("ApproachPoint")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="ApproachPoint" type="Marker2D" parent="CrateHotspot"]
+position = Vector2(0, 32)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(316, 88)
+script = ExtResource("3_hotspot")
+display_name = "Porta"
+look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
+approach_marker = NodePath("ApproachPoint")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 44)
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector2(48, 198)
 
-[node name="DebugHint" type="Label" parent="."]
+[node name="Caption" type="Label" parent="."]
 offset_left = 8.0
-offset_top = 8.0
+offset_top = 6.0
 offset_right = 376.0
-offset_bottom = 24.0
+offset_bottom = 22.0
+mouse_filter = 2
 theme_override_font_sizes/font_size = 8
-text = "Clicca sul pavimento: il personaggio aggira la cassa."
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("4_caption")
