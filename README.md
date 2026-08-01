@@ -7,8 +7,8 @@ Le decisioni di design/architettura e le convenzioni di progetto sono
 documentate in [`CLAUDE.md`](./CLAUDE.md).
 
 ## Requisiti
-Basta Godot 4.3+, **build standard** (non la versione .NET: il progetto non
-usa C#).
+Basta Godot 4.x, **build standard** (non la versione .NET: il progetto non
+usa C#). Sviluppato su 4.7.
 
 - **Su Android**: app *Godot Engine* dal Play Store — è l'ambiente di sviluppo
   principale di questo progetto.
