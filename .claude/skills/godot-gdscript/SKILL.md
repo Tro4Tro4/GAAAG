@@ -122,24 +122,41 @@ get_node("Visual/Body/Sprite")   # fragile
 ```
 
 Basta rinominare o spostare un nodo nell'editor e il percorso salta a runtime,
-senza che nulla lo segnali prima. Tre alternative migliori, in ordine di
-preferenza:
+senza che nulla lo segnali prima. Le alternative:
 
 ```gdscript
-@export var sprite: Sprite2D                  # assegnato nell'editor
-@onready var sprite2: Sprite2D = %Sprite      # unique name, ovunque nella scena
-@onready var sprite3: Sprite2D = $Visual/Body # comodo ma sempre posizionale
+@onready var sprite: Sprite2D = $Visual/Sprite  # posizionale ma esplicito
+@onready var sprite2: Sprite2D = %Sprite        # unique name, ovunque nella scena
+@export var sprite3: Sprite2D                   # assegnato a mano nell'editor
 ```
 
-`@export` espone il campo nell'Inspector: il collegamento è dichiarato una
-volta e sopravvive agli spostamenti. Il prefisso `%` indica un *unique name*,
-impostato nell'editor. `@onready` ritarda l'assegnazione a `_ready()`, che è
-l'unico momento in cui i figli esistono davvero.
+`@onready` ritarda l'assegnazione a `_ready()`, che è l'unico momento in cui i
+figli esistono davvero. Il prefisso `%` indica un *unique name*, da impostare
+nella scena con `unique_name_in_owner = true`: sopravvive agli spostamenti del
+nodo, ma deve essere unico per scena, quindi non serve per nodi ripetuti (due
+hotspot con lo stesso figlio `ApproachPoint` non possono usarlo).
 
-Attenzione a un punto: un `@export` di tipo nodo viene salvato nel `.tscn` come
-`NodePath`. Se modifichi a mano il file di scena, il nome della proprietà deve
-corrispondere **esattamente** a quello della variabile esportata, underscore
-compreso, altrimenti il collegamento viene perso senza errori evidenti.
+### Non usare `@export` per i riferimenti a nodi in questo progetto
+
+È la scelta che la documentazione di Godot suggerisce, e nell'editor funziona.
+Qui no, e la ragione è il modo in cui si lavora: le scene di AGGGA vengono
+**scritte come testo**, non composte trascinando nodi nell'Inspector.
+
+Un `@export` di tipo nodo si salva nel `.tscn` come `NodePath("Figlio")`, e la
+conversione da percorso a nodo avviene durante l'istanziazione della scena.
+Scrivendo quella riga a mano il collegamento **non risulta disponibile** quando
+serve: in questo progetto un `@export var player: PlayerCharacter` con
+`player = NodePath("Player")` nel file di scena è arrivato a `_ready()` come
+`Nil`, con l'errore che compariva sulla riga successiva — quella che usava il
+riferimento — invece che sulla dichiarazione.
+
+Peggio: il sintomo può essere silenzioso. Se il riferimento serve solo dentro
+un gestore di input, la scena parte, si vede tutto, e semplicemente nulla
+reagisce al click.
+
+Regola operativa: **i riferimenti a nodi si risolvono con `@onready`**.
+`@export` resta ottimo per i valori — numeri, stringhe, booleani, colori, che
+dal `.tscn` si applicano senza problemi.
 
 ### I segnali sono l'accoppiamento debole dell'engine
 

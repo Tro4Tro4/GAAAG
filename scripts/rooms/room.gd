@@ -7,13 +7,17 @@ extends Node2D
 ## runs the action once the character has arrived. Neither the character nor
 ## the hotspots know anything about input.
 
-## Assigned in the editor. Once several playable characters exist, the room
-## will ask the game state which one is active instead of holding a direct
-## reference — that is still an open decision in CLAUDE.md.
-@export var player: PlayerCharacter
+## The character this room drives. Once several playable characters exist,
+## the room will ask the game state which one is active instead of naming a
+## child — that is still an open decision in CLAUDE.md.
+##
+## Resolved with @onready rather than @export: a node reference written by
+## hand into a .tscn is not reliably available yet when the scene root's
+## _ready() runs, and this one is needed exactly there.
+@onready var player: PlayerCharacter = $Player
 
 ## The line of text at the top of the screen.
-@export var caption: Caption
+@onready var caption: Caption = $Caption
 
 # How many overlapping shapes a single point query may report. Hotspots are
 # not meant to overlap; the allowance is there so that a mistake in a room

@@ -21,10 +21,11 @@ signal interacted
 ## What the default "look at" action says about this hotspot.
 @export_multiline var look_text: String = ""
 
-## Where the character stops before acting. Without it the character would
-## walk into the object itself — and some hotspots, a door in a wall above
-## all, sit outside the navigation mesh entirely.
-@export var approach_marker: Marker2D
+# Where the character stops before acting: an optional child named
+# ApproachPoint. Without it the character would walk into the object itself
+# — and some hotspots, a door in a wall above all, sit outside the
+# navigation mesh entirely, so their own position is not a valid destination.
+@onready var _approach_marker: Marker2D = get_node_or_null("ApproachPoint")
 
 
 ## Runs the default action. The verb-coin will eventually pick between
@@ -35,6 +36,6 @@ func interact() -> void:
 
 ## The point the character should walk to before acting on this hotspot.
 func get_approach_position() -> Vector2:
-	if approach_marker != null:
-		return approach_marker.global_position
+	if _approach_marker != null:
+		return _approach_marker.global_position
 	return global_position

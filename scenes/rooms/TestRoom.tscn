@@ -19,8 +19,6 @@ size = Vector2(40, 64)
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
-player = NodePath("Player")
-caption = NodePath("Caption")
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.13, 0.15, 0.24, 1)
@@ -50,7 +48,6 @@ position = Vector2(192, 160)
 script = ExtResource("3_hotspot")
 display_name = "Cassa"
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
-approach_marker = NodePath("ApproachPoint")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")
@@ -63,7 +60,6 @@ position = Vector2(316, 88)
 script = ExtResource("3_hotspot")
 display_name = "Porta"
 look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
-approach_marker = NodePath("ApproachPoint")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")

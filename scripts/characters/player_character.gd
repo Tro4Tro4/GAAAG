@@ -16,9 +16,10 @@ signal destination_reached
 ## Pixels per second, expressed at the game's 384x216 base resolution.
 @export var walk_speed: float = 55.0
 
-## Assigned in the editor rather than looked up by node path: a path breaks
-## silently the moment the node is renamed or moved.
-@export var agent: NavigationAgent2D
+# Resolved with @onready rather than @export: a node reference written by
+# hand into a .tscn is not reliably resolved, and the agent is part of this
+# same scene anyway, so renaming it means editing this scene regardless.
+@onready var _agent: NavigationAgent2D = $NavigationAgent2D
 
 # True while a destination is pending. Without it, destination_reached would
 # fire on every frame the character spends standing still.
@@ -28,7 +29,7 @@ var _is_walking: bool = false
 ## Sends the character to [param global_target].
 func walk_to(global_target: Vector2) -> void:
 	# target_position is in global coordinates, not local to this node.
-	agent.target_position = global_target
+	_agent.target_position = global_target
 	_is_walking = true
 
 
@@ -36,14 +37,14 @@ func _physics_process(_delta: float) -> void:
 	if not _is_walking:
 		return
 
-	if agent.is_navigation_finished():
+	if _agent.is_navigation_finished():
 		_stop_walking()
 		return
 
 	# The agent returns the next corner of the path, never the final
 	# destination directly: steering corner by corner is what makes the
 	# character go around an obstacle instead of into it.
-	var next_corner: Vector2 = agent.get_next_path_position()
+	var next_corner: Vector2 = _agent.get_next_path_position()
 	velocity = global_position.direction_to(next_corner) * walk_speed
 
 	# move_and_slide() applies velocity using the physics frame time on its

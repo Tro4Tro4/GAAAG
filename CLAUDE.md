@@ -192,6 +192,20 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   non si cammina *dentro* l'oggetto, ci si ferma davanti. Serve anche per una
   ragione tecnica, non solo estetica: un hotspot su un muro — una porta — sta
   fuori dalla navmesh, quindi la sua posizione non è una destinazione valida.
+- **I riferimenti a nodi si risolvono con `@onready`, non con `@export`**: le
+  scene di questo progetto si scrivono come testo, non si compongono
+  trascinando nodi nell'editor, e un `@export` di tipo nodo salvato a mano come
+  `NodePath` non risulta collegato quando serve. Verificato sul dispositivo:
+  `player` è arrivato a `_ready()` come `Nil`, e in precedenza lo stesso
+  problema si era presentato come "il click non fa niente", perché il
+  riferimento mancante veniva usato solo dentro il gestore di input.
+  - **`@export` assegnato a mano nell'editor**: è la via che Godot documenta,
+    sopravvive agli spostamenti del nodo e tiene il collegamento fuori dal
+    codice. Scartata perché richiederebbe allo sviluppatore di ricollegare a
+    mano ogni riferimento nell'Inspector, su telefono, ogni volta che una
+    scena viene scritta o rigenerata da qui.
+  - `@export` resta la scelta giusta per i **valori** — numeri, stringhe,
+    booleani: quelli dal file di scena si applicano senza problemi.
 - **L'azione in sospeso viene sovrascritta da ogni nuovo click**: la stanza
   ricorda quale hotspot sta raggiungendo e la consuma all'arrivo. Cliccare
   altrove a metà strada annulla l'azione invece di lasciarla scattare quando
