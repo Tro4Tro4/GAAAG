@@ -219,6 +219,15 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   gioco, gruppo di nodi, o altro
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
+- Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è
+  uno solo, quindi arrivando dal lato opposto il personaggio gira attorno
+  all'oggetto. Nei LucasArts era spesso voluto — si arriva in un punto noto,
+  rivolti in una direzione nota, perché l'animazione dell'azione torni — ma per
+  un oggetto accessibile da tutti i lati è innaturale. Opzioni: più marker con
+  scelta del più vicino; nessun marker e punto calpestabile più vicino
+  all'oggetto; raggio di interazione entro cui non si cammina affatto. Da
+  decidere quando esisteranno animazioni direzionali e stanze vere: si innesta
+  tutto in `get_approach_position()` e non blocca nessun altro sistema
 - **Lingua dei testi di gioco** (descrizioni, dialoghi, nomi visibili): ora
   sono in italiano come segnaposto, ma non è una decisione presa. Da valutare
   insieme all'eventuale localizzazione, che in Godot conviene impostare prima
