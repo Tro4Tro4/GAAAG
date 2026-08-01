@@ -20,9 +20,25 @@ signal destination_reached
 ## silently the moment the node is renamed or moved.
 @export var agent: NavigationAgent2D
 
+## Temporary, paired with the same flag on the room. Turn off once
+## click-to-walk is confirmed working.
+@export var debug_walk: bool = true
+
 # True while a destination is pending. Without it, destination_reached would
 # fire on every frame the character spends standing still.
 var _is_walking: bool = false
+
+# Makes the diagnostic report fire once per trip rather than every frame.
+var _debug_report_pending: bool = false
+
+
+func _ready() -> void:
+	if agent == null:
+		agent = get_node_or_null("NavigationAgent2D")
+		push_warning("The 'agent' export was empty; fell back to the NavigationAgent2D child node.")
+
+	if debug_walk:
+		print("[Player] agent = ", agent)
 
 
 ## Sends the character to [param global_target].
@@ -30,11 +46,22 @@ func walk_to(global_target: Vector2) -> void:
 	# target_position is in global coordinates, not local to this node.
 	agent.target_position = global_target
 	_is_walking = true
+	_debug_report_pending = true
+
+	if debug_walk:
+		print("[Player] walk_to ", global_target, " from ", global_position)
 
 
 func _physics_process(_delta: float) -> void:
 	if not _is_walking:
 		return
+
+	if _debug_report_pending:
+		_debug_report_pending = false
+		if debug_walk:
+			print("[Player] finished=", agent.is_navigation_finished(),
+				" reachable=", agent.is_target_reachable(),
+				" next=", agent.get_next_path_position())
 
 	if agent.is_navigation_finished():
 		_stop_walking()
