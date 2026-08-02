@@ -1,29 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-  <!-- Prendi: palmo aperto cartoon, dita a ventaglio e pollice divaricato.
-       Le parti sono disegnate due volte: prima come silhouette scura allargata
-       dal proprio contorno, che le fonde in una sagoma sola, poi in pelle
-       sopra. Senza questo passaggio le dita restano rettangoli incollati al
-       palmo e la mano non si legge. Le dita nascono attaccate e si aprono
-       verso la punta, come in una mano vera: e' quello che scava le valli. -->
-  <g fill="#2b2135" stroke="#2b2135" stroke-width="1.6" stroke-linejoin="round">
-    <rect x="10.40" y="4.60" width="2.2" height="10.20" rx="1.1" transform="rotate(-34 11.5 19.8)"/>
-    <rect x="10.40" y="3.60" width="2.2" height="11.20" rx="1.1" transform="rotate(-11 11.5 19.8)"/>
-    <rect x="10.40" y="4.20" width="2.2" height="10.60" rx="1.1" transform="rotate(12 11.5 19.8)"/>
-    <rect x="10.40" y="6.20" width="2.2" height="8.60" rx="1.1" transform="rotate(35 11.5 19.8)"/>
-    <rect x="10.00" y="9.90" width="3.0" height="7.40" rx="1.5" transform="rotate(68 11.5 19.8)"/>
-    <ellipse cx="11.4" cy="15.4" rx="5.7" ry="4.7"/>
-    <rect x="8.7" y="18.4" width="5.4" height="3.6" rx="1.4"/>
+  <!-- Prendi: palmo aperto cartoon, dita lunghe e affusolate, pollice
+       divaricato in basso a destra.
+       Ogni dito e' una capsula: un segmento con le estremita' tonde, cosi'
+       base e punta si scrivono come due punti invece di dedurle da un
+       rettangolo ruotato.
+       Tutto e' disegnato due volte: prima con il tratto allargato e scuro,
+       che fonde le parti in una sagoma sola, poi in pelle sopra. Senza questo
+       passaggio le dita restano incollate al palmo e la mano non si legge. -->
+  <g fill="#2b2135" stroke="#2b2135" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.2 16.2L4.8 7.9" stroke-width="4.1"/>
+    <path d="M9.6 17.0L9.0 6.0" stroke-width="4.2"/>
+    <path d="M13.2 17.0L14.2 6.6" stroke-width="4.2"/>
+    <path d="M16.2 16.6L19.0 9.0" stroke-width="4.0"/>
+    <path d="M13.4 19.9L18.0 17.7" stroke-width="4.6"/>
+    <ellipse cx="10.6" cy="16.4" rx="5.0" ry="4.3" transform="rotate(-8 10.6 16.4)" stroke-width="1.6"/>
   </g>
-  <g fill="#f4b183">
-    <rect x="10.40" y="4.60" width="2.2" height="10.20" rx="1.1" transform="rotate(-34 11.5 19.8)"/>
-    <rect x="10.40" y="3.60" width="2.2" height="11.20" rx="1.1" transform="rotate(-11 11.5 19.8)"/>
-    <rect x="10.40" y="4.20" width="2.2" height="10.60" rx="1.1" transform="rotate(12 11.5 19.8)"/>
-    <rect x="10.40" y="6.20" width="2.2" height="8.60" rx="1.1" transform="rotate(35 11.5 19.8)"/>
-    <rect x="10.00" y="9.90" width="3.0" height="7.40" rx="1.5" transform="rotate(68 11.5 19.8)"/>
-    <ellipse cx="11.4" cy="15.4" rx="5.7" ry="4.7"/>
-    <rect x="8.7" y="18.4" width="5.4" height="3.6" rx="1.4"/>
+  <g fill="#f4b183" stroke="#f4b183" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.2 16.2L4.8 7.9" stroke-width="2.5"/>
+    <path d="M9.6 17.0L9.0 6.0" stroke-width="2.6"/>
+    <path d="M13.2 17.0L14.2 6.6" stroke-width="2.6"/>
+    <path d="M16.2 16.6L19.0 9.0" stroke-width="2.4"/>
+    <path d="M13.4 19.9L18.0 17.7" stroke-width="3.0"/>
+    <ellipse cx="10.6" cy="16.4" rx="5.0" ry="4.3" transform="rotate(-8 10.6 16.4)" stroke="none"/>
   </g>
-  <ellipse cx="11.2" cy="16" rx="4.2" ry="3.2" fill="#f8c39c"/>
-  <path d="M8.9 15.2c1.8.8 3.6 1.1 5.4.9" fill="none" stroke="#e5a276" stroke-width="0.55" stroke-linecap="round"/>
-  <ellipse cx="8.5" cy="13.1" rx="1.2" ry="0.7" transform="rotate(-34 8.5 13.1)" fill="#ffdcbb"/>
+  <!-- cuscinetti e pieghe del palmo -->
+  <ellipse cx="8.4" cy="17.6" rx="2.1" ry="2.9" transform="rotate(-14 8.4 17.6)" fill="#f8c39c"/>
+  <g fill="none" stroke="#dd9264" stroke-width="0.5" stroke-linecap="round">
+    <path d="M6.8 14.6c2.5 1.3 5.1 1.8 7.5 1.5"/>
+    <path d="M4.49 11.20L6.17 10.91"/><path d="M8.35 10.23L10.11 10.13"/><path d="M12.94 10.47L14.70 10.64"/><path d="M17.17 11.61L18.70 12.17"/>
+  </g>
+  <g stroke="#fbcda5" stroke-linecap="round" fill="none">
+    <path d="M4.64 9.98L4.45 8.81" stroke-width="0.43"/><path d="M8.62 8.67L8.54 7.13" stroke-width="0.44"/><path d="M13.44 9.05L13.58 7.59" stroke-width="0.44"/><path d="M17.88 10.66L18.27 9.59" stroke-width="0.41"/><path d="M16.64 17.69L17.28 17.38" stroke-width="0.51"/>
+  </g>
 </svg>
