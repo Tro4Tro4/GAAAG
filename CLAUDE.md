@@ -596,6 +596,65 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     stanza: esiste solo lì in mezzo, ed è per questo che gli serve una casa
     che sopravviva allo scarico delle stanze.
 
+- **Le parole sulla verb-coin cambiano con l'oggetto, le posizioni no.** Ogni
+  hotspot può ribattezzare uno spicchio — la porta dice "Vai" e "Apri", la
+  fessura dice "Ritira" — ma lo spicchio resta nella sua direzione e chiama lo
+  stesso verbo. Cambia il vocabolario, non la geometria.
+  Il motivo è che la scelta per direzione vive sul fatto che le quattro
+  posizioni siano sempre le stesse: si mira senza leggere. Un elenco variabile
+  in numero o in ordine trasformerebbe un gesto in un menù da consultare, con
+  il dito sopra metà delle voci — cioè annullerebbe la ragione per cui il
+  premi-trascina-rilascia è stato scelto.
+  - **Spegnere gli spicchi che non si applicano** a questo oggetto: il
+    giocatore vedrebbe a colpo d'occhio cosa è possibile. Scartata due volte.
+    Per prima cosa in un punta-e-clicca quasi ogni oggetto rifiuta quasi ogni
+    verbo, quindi si vedrebbe grigio quasi sempre e la moneta sembrerebbe
+    rotta. Soprattutto, **rivelerebbe le soluzioni**: se "Apri" si accende solo
+    sulle porte che si aprono davvero, il giocatore smette di provare e comincia
+    a leggere il menù. In un LucasArts "Usa" era generico apposta — tentare
+    *era* il gioco.
+  - **Cambiare l'insieme degli spicchi** (la porta ne mostra tre, la macchina
+    cinque): è il massimo dell'espressività ed è quello che si chiede
+    d'istinto. Scartata perché è esattamente ciò che rompe il gesto.
+  - Distinzione che regge e che vale come regola di scrittura: **un'etichetta
+    che riflette uno stato visibile** (Apri/Chiudi su una porta che vedi
+    com'è) non rivela niente; **uno spicchio che compare o sparisce in base a
+    uno stato nascosto** rivela tutto.
+  - Effetto collaterale utile: le quattro parole erano costanti dentro
+    `verb_coin.gd`, che è il posto peggiore dove trovarle il giorno in cui si
+    decide la lingua dei testi. Ora il default è lì e tutto il resto è dato.
+  - Vincolo pratico: a font 8 uno spicchio tiene sì e no otto caratteri. Se
+    servissero parole lunghe, la via è far scrivere la frase intera alla
+    caption in alto mentre si trascina — proposta e messa da parte, non serve
+    finché le etichette restano corte.
+- **Il tocco secco esegue l'azione ovvia dell'oggetto** invece di non fare
+  niente: premere e sollevare senza spostarsi esegue il `default_verb`
+  dell'hotspot, che è Guarda quasi sempre e Vai sulle porte. Recupera un gesto
+  che la decisione sul premi-trascina-rilascia aveva accettato di perdere.
+  Annullare resta il cono verso il basso, che continua a esistere.
+  - Distinguere il tocco secco dal trascinamento finito nel vuoto richiede di
+    ricordare **se il dito è mai uscito dalla zona morta**, non solo dove si
+    trova al rilascio: sono due esiti diversi che al momento del sollevamento
+    si assomigliano.
+  - Costo accettato: un tocco per sbaglio adesso *fa* qualcosa. È piccolo
+    perché l'azione ovvia è per definizione quella innocua — e su una porta,
+    attraversarla è precisamente ciò che il giocatore voleva.
+- **Stato a due vie in `GameState`, accanto ai flag**: `is_on()` e
+  `set_switch()`. I flag registrano che qualcosa è successo e non può
+  disaccadere; una porta invece va avanti e indietro, e senza un posto dove
+  ricordarlo si richiuderebbe da sola ogni volta che si esce dalla stanza.
+  Non contraddice la decisione sui flag a senso unico, la completa: le due
+  cose sono tenute separate proprio perché non poter disfare un flag è metà
+  della sua utilità. È anche il primo pezzo della persistenza di stanza, che
+  resta una decisione aperta.
+  - **Un `bool` locale sulla porta**, non persistente: mezza riga, e la porta
+    si richiude da sola al ritorno nella stanza. Scartata perché è una
+    funzionalità che si dimentica, e "a seconda dello stato" senza stato non
+    vuol dire niente.
+  - **I due capi della stessa porta condividono lo `state_id`**, così aprirla
+    da un lato la apre anche dall'altro. È la stessa idea del `cache_id` dei
+    passaggi.
+
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare

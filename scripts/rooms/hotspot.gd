@@ -47,6 +47,26 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 @export_multiline var use_text: String = ""
 @export_multiline var talk_text: String = ""
 
+@export_group("Verbs")
+
+## What this hotspot calls each verb, when the generic word does not fit. A
+## door is opened, not "used"; a note is read. Left empty, the coin shows its
+## own word.
+##
+## Only the wording changes: the slice stays in the same place and runs the
+## same code. That is the whole point — a set of verbs that varied in number
+## or order would turn a gesture the player can aim blind into a menu they
+## have to read, with a finger over half of it.
+@export var look_label: String = ""
+@export var take_label: String = ""
+@export var use_label: String = ""
+@export var talk_label: String = ""
+
+## What a press with no drag does. Most things are worth a look; a door is
+## worth going through. Lifting the finger without having moved runs this,
+## which is what makes the plain tap useful again.
+@export var default_verb: Verb = Verb.LOOK
+
 @export_group("Reaction to an item")
 
 ## The one item this hotspot does something about. One and not a list, for the
@@ -65,6 +85,27 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 ## thrown away and rebuilt. Optional: leave it empty for a hotspot whose
 ## reaction is only a line of text.
 @export var accepted_flag: StringName = &""
+
+
+## The word this hotspot wants on [param verb]'s slice, or "" for the coin's
+## own. Overridden by hotspots whose wording depends on their state.
+func get_label_for(verb: int) -> String:
+	match verb:
+		Verb.LOOK:
+			return look_label
+		Verb.TAKE:
+			return take_label
+		Verb.USE:
+			return use_label
+		Verb.TALK:
+			return talk_label
+
+	return ""
+
+
+## The verb a press with no drag runs on this hotspot.
+func get_default_verb() -> int:
+	return default_verb
 
 
 ## The line to show for [param verb], or the generic refusal if this hotspot

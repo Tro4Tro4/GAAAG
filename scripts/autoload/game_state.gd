@@ -48,6 +48,18 @@ var _flags: Dictionary = {}
 # returned by cache_contents() is typed, which is where it matters.
 var _caches: Dictionary = {}
 
+# Things that can go back the way they came: a door open or shut, a lever up or
+# down. Deliberately not mixed in with the flags — a flag records that
+# something happened and can never un-happen, and not being able to undo it is
+# half of what makes it worth trusting.
+#
+# It lives here for the same reason the flags do: a room is rebuilt from its
+# scene file every time it comes back on screen, so anything it changed about
+# itself has to be remembered somewhere that outlives it. This is the first
+# piece of that, and the wider question of what else a room must remember is
+# still open.
+var _switches: Dictionary = {}
+
 
 ## Characters announce themselves as they enter the tree. The alternative —
 ## a list configured by hand somewhere — would have to be kept in step with
@@ -116,6 +128,18 @@ func empty_cache(cache_id: StringName) -> Array[InventoryItem]:
 	var taken: Array[InventoryItem] = cache_contents(cache_id)
 	_caches.erase(cache_id)
 	return taken
+
+
+## True when the two-way switch [param switch] is currently on.
+func is_on(switch: StringName) -> bool:
+	return _switches.get(switch, false)
+
+
+func set_switch(switch: StringName, on: bool) -> void:
+	if switch.is_empty():
+		return
+
+	_switches[switch] = on
 
 
 ## True once [param flag] has been raised.

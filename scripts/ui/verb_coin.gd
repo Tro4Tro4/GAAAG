@@ -80,8 +80,10 @@ const BUTTON_OFFSETS: Array = [
 	Vector2(52, -8),
 ]
 
-# The four slices, in the order they are laid out, left to right.
-var _labels: Array[String] = ["Guarda", "Prendi", "Usa", "Parla"]
+# The words used when the thing under the finger has nothing better to call
+# them. A hotspot may rename any slice — a door says "Apri", not "Usa" — but
+# only the wording moves: the slice stays where it is and runs the same verb.
+var _default_labels: Array[String] = ["Guarda", "Prendi", "Usa", "Parla"]
 var _verbs: Array[int] = [
 	Hotspot.Verb.LOOK, Hotspot.Verb.TAKE, Hotspot.Verb.USE, Hotspot.Verb.TALK
 ]
@@ -100,6 +102,14 @@ var _anchor: Vector2 = Vector2.ZERO
 # it is the whole state of the gesture — and it is the one the player can see.
 var _highlighted: int = -1
 
+# Whether the finger has ever left the dead zone during this gesture. It is
+# what tells a plain tap from a drag that ended up pointing nowhere: the first
+# runs the subject's usual action, the second means "never mind".
+var _has_left_dead_zone: bool = false
+
+# What a plain tap runs, asked of the subject when the coin opens.
+var _default_verb: int = Hotspot.Verb.LOOK
+
 
 func _ready() -> void:
 	visible = false
@@ -110,6 +120,12 @@ func _ready() -> void:
 func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 	_hotspot = hotspot
 	_item = null
+	_default_verb = hotspot.get_default_verb()
+
+	for i in _buttons.size():
+		var label: String = hotspot.get_label_for(_verbs[i])
+		_set_label(i, label if not label.is_empty() else _default_labels[i])
+
 	_open_at(at_position)
 
 
@@ -117,7 +133,25 @@ func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
 	_item = item
 	_hotspot = null
+
+	# Looking is the harmless answer, and the one a stray tap should give.
+	_default_verb = Hotspot.Verb.LOOK
+
+	for i in _buttons.size():
+		_set_label(i, _default_labels[i])
+
 	_open_at(at_position)
+
+
+func _set_label(slice: int, text: String) -> void:
+	var button: Button = _buttons[slice]
+	button.text = text
+
+	# Re-applied straight after the text, and not left to the next layout pass:
+	# a longer word raises the button's minimum size, and _place_buttons() reads
+	# size to work out where the middle of each slice is. Setting it here forces
+	# the recalculation now, so what is measured is what will be drawn.
+	button.size = BUTTON_SIZE
 
 
 func close() -> void:
@@ -129,6 +163,7 @@ func close() -> void:
 
 func _open_at(at_position: Vector2) -> void:
 	_anchor = at_position
+	_has_left_dead_zone = false
 	_place_buttons(at_position)
 	_highlight(-1)
 	visible = true
@@ -172,6 +207,36 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Answers the finger coming off the glass.
+##
+## Three outcomes, and the difference between the last two is whether the
+## finger ever went anywhere: a tap that stayed put asks for the thing you
+## would obviously want, while a drag that ended up pointing at nothing is
+## somebody changing their mind.
+func _lift() -> void:
+	if _highlighted >= 0:
+		_choose(_highlighted)
+		return
+
+	if not _has_left_dead_zone:
+		_run_default()
+		return
+
+	close()
+
+
+func _run_default() -> void:
+	var hotspot: Hotspot = _hotspot
+	var item: InventoryItem = _item
+	var verb: int = _default_verb
+	close()
+
+	if hotspot != null:
+		verb_chosen.emit(verb, hotspot)
+	elif item != null:
+		item_verb_chosen.emit(verb, item)
+
+
 func _choose(slice: int) -> void:
 	# Closed before the verb goes out, so the coin is gone before anyone reacts
 	# to the choice and an action that opens something else does not fight it.
@@ -198,6 +263,8 @@ func _slice_aimed_at(point: Vector2) -> int:
 	var aim: Vector2 = point - _anchor
 	if aim.length() < DEAD_ZONE:
 		return -1
+
+	_has_left_dead_zone = true
 
 	var chosen: int = -1
 	var smallest_angle: float = INF
@@ -235,9 +302,9 @@ func _highlight(slice: int) -> void:
 
 
 func _build_buttons() -> void:
-	for i in _labels.size():
+	for i in _default_labels.size():
 		var button := Button.new()
-		button.text = _labels[i]
+		button.text = _default_labels[i]
 		button.size = BUTTON_SIZE
 		button.custom_minimum_size = BUTTON_SIZE
 		button.add_theme_font_size_override("font_size", BUTTON_FONT_SIZE)
