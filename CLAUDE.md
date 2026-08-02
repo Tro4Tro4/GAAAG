@@ -25,8 +25,8 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
 - Punta-e-clicca classico con **verb-coin** a quattro posizioni fisse e un
-  vocabolario chiuso di nove parole: Guarda / Prendi / Usa, Premi, Tira, Apri,
-  Chiudi / Parla, Vai (camminare non è un verbo: si clicca il pavimento)
+  vocabolario chiuso di sette parole: Guarda / Prendi / Usa, Apri, Chiudi /
+  Parla, Vai (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
   diversi (es. uno passa un oggetto attraverso una finestra, l'altro lo
@@ -43,7 +43,7 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
    dispositivo**: premi-trascina-rilascia con scelta per direzione, badge con
-   icone, vocabolario di nove parole in quattro famiglie)*
+   icone, vocabolario di sette parole in quattro famiglie)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
@@ -80,7 +80,7 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
 assets/              sprites/ backgrounds/ audio/ fonts/
-  ui/                Le nove icone dei verbi, in SVG — l'unica arte del
+  ui/                Le sette icone dei verbi, in SVG — l'unica arte del
                      progetto che non è pixel art
 ```
 
@@ -697,6 +697,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   etichette libere scritte oggetto per oggetto: **Guarda**; **Prendi**;
   **Usa, Premi, Tira, Apri, Chiudi**; **Parla, Vai**. Ogni famiglia ha una
   posizione fissa sulla moneta, e una parola non cambia mai direzione.
+  **Parzialmente superata** — vedi "Da nove parole a sette" in fondo
+  all'elenco: le famiglie e le posizioni restano, l'elenco scende a sette
+  perché Premi e Tira sono stati eliminati.
   Nove parole che il giocatore impara una volta valgono più di parole inventate
   di volta in volta: con l'elenco chiuso il vocabolario diventa qualcosa che si
   possiede e si applica, invece di qualcosa da leggere a ogni oggetto. E il
@@ -728,19 +731,19 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     da nessun'altra parte.
   - Conseguenza per gli hotspot: i testi passano da uno per verbo a **uno per
     famiglia** (`look_text`, `hand_text`, `act_text`, `reach_text`). Quattro
-    campi come prima, ma reggono nove parole invece di quattro.
+    campi come prima, ma reggono un elenco più lungo di quattro parole — nove
+    allora, sette da quando Premi e Tira sono stati eliminati.
 
-- **Le nove icone dei verbi sono cartoon a colori**, non sagome bianche:
+- **Le icone dei verbi sono cartoon a colori**, non sagome bianche:
   riempimenti piatti e vivaci, contorno scuro spesso, un solo tocco di luce
-  per icona, e una tavolozza condivisa dalle nove così che si leggano come un
-  insieme e non come nove disegni scollegati. Il motivo è che su un badge di
-  ventiquattro unità, con il dito lì accanto e mezzo secondo di gesto, **il
-  colore arriva prima della forma**: il rosso del pulsante di "Premi" e il
-  giallo del vano di "Apri" si distinguono ancora prima di essere riconosciuti
-  come disegni, mentre due sagome dello stesso bianco vanno confrontate. Il
-  vocabolario è chiuso e le posizioni sono fisse, quindi il giocatore impara
-  nove colori una volta e poi mira senza leggere — che è esattamente ciò su
-  cui il premi-trascina-rilascia vive.
+  per icona, e una tavolozza condivisa così che si leggano come un insieme e
+  non come disegni scollegati. Il motivo è che su un badge di ventiquattro
+  unità, con il dito lì accanto e mezzo secondo di gesto, **il colore arriva
+  prima della forma**: il giallo del vano di "Apri" si distingue ancora prima
+  di essere riconosciuto come una porta, mentre due sagome dello stesso bianco
+  vanno confrontate. Il vocabolario è chiuso e le posizioni sono fisse, quindi
+  il giocatore impara i colori una volta e poi mira senza leggere — che è
+  esattamente ciò su cui il premi-trascina-rilascia vive.
   - **Sagome bianche monocromatiche** (com'erano): un colore solo, nessuna
     tavolozza da mantenere, contrasto garantito su qualunque fondo e nessun
     rischio di stonare con la pixel art che arriverà. Vantaggi veri. Scartate
@@ -772,18 +775,17 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     l'apertura a ventaglio a scavare le valli che si vedono.
 - **Le icone si vettorizzano da immagini di riferimento, non si disegnano a
   mano** (revoca del modo di produrle, non dello stile: cartoon a colori,
-  contorno scuro spesso e tinte piatte restano). Otto delle nove — Guarda,
-  Prendi, Usa, Premi, Tira, Apri, Chiudi, Parla — sono il tracciamento di
-  immagini scelte dallo sviluppatore; solo Vai è ancora disegnata a mano.
+  contorno scuro spesso e tinte piatte restano). Tutte quante — Guarda,
+  Prendi, Usa, Apri, Chiudi, Parla, Vai — sono il tracciamento di immagini
+  scelte dallo sviluppatore.
   Il motivo è misurato, non teorico: la sola mano di "Prendi" ha richiesto
   sei tentativi disegnati (palmo aperto, guanto, pugno, mano dall'alto, mano
   protesa, mano con oggetto), tutti scartati, e ha funzionato al primo colpo
   partendo da un'immagine. A ventiquattro unità la differenza tra una forma
   riconoscibile e una macchia è di frazioni di unità, e l'occhio perdona meno
   dove il soggetto è familiare — una mano, una bocca, un occhio.
-  Tutte e nove vengono da immagini: Guarda un occhio, Prendi un palmo aperto,
-  Usa un ingranaggio, Premi una mano che schiaccia un pulsante, Tira un pugno
-  che tira una corda, Apri e Chiudi la stessa porta, Parla una bocca, Vai due
+  Tutte e sette vengono da immagini: Guarda un occhio, Prendi un palmo aperto,
+  Usa un ingranaggio, Apri e Chiudi la stessa porta, Parla una bocca, Vai due
   piedi che camminano.
   - **Continuare a disegnare a mano**: file da mezzo kilobyte, geometria
     leggibile e modificabile spostando un numero, tavolozza garantita.
@@ -810,13 +812,13 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     attraversano il bordo illuminato, e il tracciamento non ha modo di
     saperlo da sé. È l'unica cosa che l'automatismo non sa fare.
   - **Un'immagine può mostrare il soggetto e non il verbo**, e allora il
-    rimedio è chiedere un'altra immagine, non aggiustarla. Il primo
-    riferimento per Premi era un dorso di mano e nient'altro: l'ho composto a
-    mano — tagliato al polso perpendicolarmente all'asse dell'avambraccio,
-    girato verso il basso e posato su un pulsante disegnato — e funzionava,
-    ma è stato sostituito appena arrivata un'immagine che il gesto lo mostrava
-    già. La regola che resta: **serve il bersaglio, non solo la mano**. Una
-    mano che preme senza qualcosa sotto non è distinguibile da una mano.
+    rimedio è chiedere un'altra immagine, non aggiustarla. Imparato su un
+    riferimento che era un dorso di mano e nient'altro: composto a mano
+    (tagliato al polso, girato verso il basso, posato su un pulsante
+    disegnato) funzionava, ma è stato sostituito appena arrivata un'immagine
+    che il gesto lo mostrava già. La regola che resta: **serve il bersaglio,
+    non solo la parte del corpo**. Una mano che preme senza qualcosa sotto non
+    è distinguibile da una mano.
   - **Apri e Chiudi vengono dalla stessa immagine**: il battente della porta
     aperta è raddrizzato dentro il vano con una trasformazione prospettica, e
     traversa e soglia sono ricostruite ripetendo una colonna di telaio, perché
@@ -844,9 +846,39 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     pixel**, che è quanto è grande un badge su un telefono (ventiquattro unità
     a 5×). Ingrandite sembrano tutte buone; a quella dimensione due terzi dei
     tentativi cadono.
-  - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
-    regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
-    andrebbero ripensati due riempimenti su nove.
+  - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro regge,
+    ma i riferimenti sono tutti in gamma pelle e panna, quindi su un fondo
+    chiaro perderebbero contrasto tutti insieme, non uno o due.
+
+- **Da nove parole a sette: Premi e Tira sono eliminati** (revoca parziale del
+  vocabolario chiuso, non del suo principio: famiglie e posizioni fisse
+  restano, e restano **Guarda**; **Prendi**; **Usa, Apri, Chiudi**;
+  **Parla, Vai**). Le due parole stavano nella stessa famiglia di Usa, quindi
+  **non compravano una posizione sulla moneta**: qualunque cosa facessero, la
+  facevano dalla stessa casella e con lo stesso gesto di Usa. Il costo invece
+  era per oggetto — due parole in più da imparare, e per lo scrittore la
+  domanda "questa leva si tira o si usa?" a ogni hotspot, che è una scelta
+  senza risposta giusta e quindi senza informazione per il giocatore. Quel che
+  l'oggetto fa quando lo usi è affare del testo, non del verbo.
+  - **Tenerle**: distinguono azioni fisicamente diverse, e in un enigma
+    meccanico "tira" contro "premi" può essere la soluzione. Vantaggio reale, e
+    il motivo per cui c'erano. Scartate perché quella distinzione, se un giorno
+    servisse, si esprime meglio come *due hotspot* — la leva e il pulsante sono
+    oggetti diversi — che come due parole sullo stesso oggetto.
+  - Conseguenza tecnica da non ripetere a vuoto: gli `@export` di tipo enum
+    sono salvati nelle scene **come interi**, quindi togliere due valori in
+    mezzo all'elenco fa slittare tutti quelli dopo. Le due stanze avevano
+    `reach_verb = 9` per Vai e `reach_verb = 8` per Parla, che senza intervento
+    sarebbero diventati un verbo inesistente e Chiudi. Chi tocca l'enum
+    aggiorna le scene nello stesso commit, o il gioco cambia comportamento in
+    silenzio.
+  - I due hotspot che li usavano passano a Usa e **si tengono i loro testi**:
+    il distributore diceva già "Premi i pulsanti uno dopo l'altro" e il
+    cartello "Tiri il cartello verso di te". È la prova del ragionamento —
+    l'azione precisa era nel testo anche quando il verbo la nominava.
+  - Le due icone (mano sul pulsante, pugno con la corda) sono cancellate dal
+    progetto. Restano nella cronologia di git se un giorno le due parole
+    tornassero.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo

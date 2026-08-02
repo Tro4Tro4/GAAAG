@@ -12,13 +12,18 @@ extends Area2D
 ## not listen for its own clicks: the room decides what a click means, so the
 ## priority between hotspot and floor lives in one place.
 
-## The whole vocabulary of the game. Nine words and no more: a closed list is
+## The whole vocabulary of the game. Seven words and no more: a closed list is
 ## something the player learns once and can then apply everywhere, while words
 ## invented object by object have to be read every time.
 ##
 ## Walking is not among them — you click the floor for that. GO is for a door,
 ## which is a place you go rather than a stretch of floor you walk on.
-enum Verb { NONE, LOOK, TAKE, USE, PRESS, PULL, OPEN, CLOSE, TALK, GO }
+##
+## PRESS and PULL were here and are gone. They shared the ACT slot with USE, so
+## they never bought a position on the coin — only two more words to learn and
+## two more lines to write for every hotspot, to say what USE already says.
+## What the object does about being used is the text's business, not the verb's.
+enum Verb { NONE, LOOK, TAKE, USE, OPEN, CLOSE, TALK, GO }
 
 ## The four places on the coin, left to right, and the family of verbs each
 ## one holds.
@@ -64,8 +69,8 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 ## What this hotspot offers in the "holding" slot: TAKE, or nothing.
 @export var hand_verb: Verb = Verb.NONE
 
-## What it offers in the "do something to it" slot: USE, PRESS, PULL, OPEN,
-## CLOSE, or nothing.
+## What it offers in the "do something to it" slot: USE, OPEN, CLOSE, or
+## nothing.
 @export var act_verb: Verb = Verb.NONE
 
 ## What it offers in the "where it leads, or who it is" slot: TALK, GO, or

@@ -95,7 +95,7 @@ const BADGE_OFFSETS: Array = [
 ]
 
 # The whole vocabulary of the game, in one table: the word the player reads
-# and the drawing on the badge, for each of the nine verbs. This is the place
+# and the drawing on the badge, for each of the seven verbs. This is the place
 # to come when the language of the game is decided — there is no verb wording
 # anywhere else.
 #
@@ -107,8 +107,6 @@ var _words: Dictionary = {
 	Hotspot.Verb.LOOK: "Guarda",
 	Hotspot.Verb.TAKE: "Prendi",
 	Hotspot.Verb.USE: "Usa",
-	Hotspot.Verb.PRESS: "Premi",
-	Hotspot.Verb.PULL: "Tira",
 	Hotspot.Verb.OPEN: "Apri",
 	Hotspot.Verb.CLOSE: "Chiudi",
 	Hotspot.Verb.TALK: "Parla",
@@ -119,8 +117,6 @@ var _icon_paths: Dictionary = {
 	Hotspot.Verb.LOOK: "res://assets/ui/verb_look.svg",
 	Hotspot.Verb.TAKE: "res://assets/ui/verb_take.svg",
 	Hotspot.Verb.USE: "res://assets/ui/verb_use.svg",
-	Hotspot.Verb.PRESS: "res://assets/ui/verb_press.svg",
-	Hotspot.Verb.PULL: "res://assets/ui/verb_pull.svg",
 	Hotspot.Verb.OPEN: "res://assets/ui/verb_open.svg",
 	Hotspot.Verb.CLOSE: "res://assets/ui/verb_close.svg",
 	Hotspot.Verb.TALK: "res://assets/ui/verb_talk.svg",
