@@ -12,18 +12,34 @@ extends Area2D
 ## not listen for its own clicks: the room decides what a click means, so the
 ## priority between hotspot and floor lives in one place.
 
-## What the player can do to a hotspot. Walking is not among them: you click
-## the floor for that.
+## The whole vocabulary of the game. Nine words and no more: a closed list is
+## something the player learns once and can then apply everywhere, while words
+## invented object by object have to be read every time.
 ##
-## Listed in the order the verbs are laid out on the coin, left to right.
-enum Verb { LOOK, TAKE, USE, TALK }
+## Walking is not among them — you click the floor for that. GO is for a door,
+## which is a place you go rather than a stretch of floor you walk on.
+enum Verb { NONE, LOOK, TAKE, USE, PRESS, PULL, OPEN, CLOSE, TALK, GO }
+
+## The four places on the coin, left to right, and the family of verbs each
+## one holds.
+##
+## A word never changes direction: LOOK is always to the left, anything to do
+## with holding is always up-left, anything you do *to* the thing is always
+## up-right, and where it leads or who it is is always to the right. That is
+## what keeps the gesture aimable without reading — the slice that varies is
+## which word of the family is in it, never where the family sits.
+##
+## Checked against the objects the game will actually have: nothing sensible
+## wants two words of the same family at once. A door has nobody to talk to,
+## a person is not a place to go.
+enum Slot { LOOK, HAND, ACT, REACH }
 
 ## Emitted after the character has reached this hotspot and acted on it. The
 ## verb is an int rather than Verb for the same reason as in VerbCoin.
 ##
 ## The character is carried along because with several playable characters
 ## "who did it" is half the answer: a door has to move the person who opened
-## it, and picking something up will have to put it in somebody's hands.
+## it, and picking something up has to put it in somebody's hands.
 signal interacted(verb: int, character: PlayerCharacter)
 
 ## Emitted after an inventory item has been used on this hotspot, whether or
@@ -31,7 +47,8 @@ signal interacted(verb: int, character: PlayerCharacter)
 signal item_used(item: InventoryItem, character: PlayerCharacter)
 
 ## Said when a verb leads nowhere. Most objects in an adventure game refuse
-## most verbs, and one generic line is how the genre has always covered it.
+## most of what is tried on them, and one generic line is how the genre has
+## always covered it.
 const REFUSAL: String = "Non mi sembra il caso."
 
 ## Said when the wrong item is used on this hotspot — which, given an inventory
@@ -42,30 +59,32 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 ## stay an English identifier whatever language the game ends up speaking.
 @export var display_name: String = ""
 
-@export_multiline var look_text: String = ""
-@export_multiline var take_text: String = ""
-@export_multiline var use_text: String = ""
-@export_multiline var talk_text: String = ""
-
 @export_group("Verbs")
 
-## What this hotspot calls each verb, when the generic word does not fit. A
-## door is opened, not "used"; a note is read. Left empty, the coin shows its
-## own word.
-##
-## Only the wording changes: the slice stays in the same place and runs the
-## same code. That is the whole point — a set of verbs that varied in number
-## or order would turn a gesture the player can aim blind into a menu they
-## have to read, with a finger over half of it.
-@export var look_label: String = ""
-@export var take_label: String = ""
-@export var use_label: String = ""
-@export var talk_label: String = ""
+## What this hotspot offers in the "holding" slot: TAKE, or nothing.
+@export var hand_verb: Verb = Verb.NONE
+
+## What it offers in the "do something to it" slot: USE, PRESS, PULL, OPEN,
+## CLOSE, or nothing.
+@export var act_verb: Verb = Verb.NONE
+
+## What it offers in the "where it leads, or who it is" slot: TALK, GO, or
+## nothing.
+@export var reach_verb: Verb = Verb.NONE
 
 ## What a press with no drag does. Most things are worth a look; a door is
 ## worth going through. Lifting the finger without having moved runs this,
-## which is what makes the plain tap useful again.
+## which is what makes the plain tap useful.
 @export var default_verb: Verb = Verb.LOOK
+
+@export_group("Texts")
+
+## One line per slot rather than one per word, because a hotspot only ever has
+## one word in each slot.
+@export_multiline var look_text: String = ""
+@export_multiline var hand_text: String = ""
+@export_multiline var act_text: String = ""
+@export_multiline var reach_text: String = ""
 
 @export_group("Reaction to an item")
 
@@ -87,20 +106,26 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 @export var accepted_flag: StringName = &""
 
 
-## The word this hotspot wants on [param verb]'s slice, or "" for the coin's
-## own. Overridden by hotspots whose wording depends on their state.
-func get_label_for(verb: int) -> String:
-	match verb:
-		Verb.LOOK:
-			return look_label
-		Verb.TAKE:
-			return take_label
-		Verb.USE:
-			return use_label
-		Verb.TALK:
-			return talk_label
+## The verb sitting in [param slot] on this hotspot, or NONE for an empty
+## slice — which the coin then simply does not draw.
+##
+## Overridden by hotspots whose word depends on their state: a door offers
+## OPEN or CLOSE from the same slot depending on how it stands. Note what is
+## allowed to vary and what is not — the *word* follows visible state, but
+## *whether the slot exists at all* is a fixed property of the object. A slice
+## that appeared only when it would work would tell the player the answer.
+func get_verb_for(slot: int) -> int:
+	match slot:
+		Slot.LOOK:
+			return Verb.LOOK
+		Slot.HAND:
+			return hand_verb
+		Slot.ACT:
+			return act_verb
+		Slot.REACH:
+			return reach_verb
 
-	return ""
+	return Verb.NONE
 
 
 ## The verb a press with no drag runs on this hotspot.
@@ -113,15 +138,14 @@ func get_default_verb() -> int:
 func get_text_for(verb: int) -> String:
 	var text: String = ""
 
-	match verb:
-		Verb.LOOK:
-			text = look_text
-		Verb.TAKE:
-			text = take_text
-		Verb.USE:
-			text = use_text
-		Verb.TALK:
-			text = talk_text
+	if verb == Verb.LOOK:
+		text = look_text
+	elif verb != Verb.NONE and verb == get_verb_for(Slot.HAND):
+		text = hand_text
+	elif verb != Verb.NONE and verb == get_verb_for(Slot.ACT):
+		text = act_text
+	elif verb != Verb.NONE and verb == get_verb_for(Slot.REACH):
+		text = reach_text
 
 	return text if not text.is_empty() else REFUSAL
 

@@ -7,12 +7,11 @@ extends Hotspot
 ## carries data rather than behaviour: a door needs a few extra values and a
 ## handful of lines, and a crate needs neither.
 ##
-## A door uses two slices of the coin, and neither of them by their generic
-## name. Going through is USE, called "Vai"; opening and shutting is TAKE,
-## called "Apri" or "Chiudi" depending on how the door currently stands —
-## because "Prendi" means nothing to a door, and a slice with nothing to say
-## is a slice going to waste. Only the wording moves: both stay where they
-## always are, so the gesture is the one the player already knows.
+## A door uses two of the four slices. The one for doing something to a thing
+## holds OPEN or CLOSE, whichever the door is not at the moment; the one for
+## where a thing leads holds GO. Nothing goes in the other two: a door is not
+## picked up and has nobody in it to talk to, and a slice with nothing to say
+## is better left undrawn than shown greyed.
 
 ## Said while opening or shutting, when nothing was written for the occasion.
 const OPENING: String = "Apri la porta."
@@ -46,18 +45,23 @@ func is_open() -> bool:
 	return state_id.is_empty() or GameState.is_on(state_id)
 
 
-func get_label_for(verb: int) -> String:
-	if verb == Verb.TAKE and not state_id.is_empty():
-		return "Chiudi" if is_open() else "Apri"
+## The door offers whichever of the two it is not: a shut door can be opened,
+## an open one shut. It is the one thing about a hotspot that may change from
+## one opening of the coin to the next, and it is safe because it only ever
+## reflects something the player can already see.
+func get_verb_for(slot: int) -> int:
+	if slot == Slot.ACT and not state_id.is_empty():
+		return Verb.CLOSE if is_open() else Verb.OPEN
 
-	return super(verb)
+	return super(slot)
 
 
 func get_text_for(verb: int) -> String:
-	if verb == Verb.TAKE and not state_id.is_empty():
-		if is_open():
-			return closing_text if not closing_text.is_empty() else CLOSING
+	if verb == Verb.OPEN:
 		return opening_text if not opening_text.is_empty() else OPENING
+
+	if verb == Verb.CLOSE:
+		return closing_text if not closing_text.is_empty() else CLOSING
 
 	return super(verb)
 
@@ -67,11 +71,11 @@ func interact(verb: int, character: PlayerCharacter) -> void:
 	# another system might want to know about.
 	super(verb, character)
 
-	if verb == Verb.TAKE and not state_id.is_empty():
-		GameState.set_switch(state_id, not is_open())
+	if verb == Verb.OPEN or verb == Verb.CLOSE:
+		GameState.set_switch(state_id, verb == Verb.OPEN)
 		return
 
-	if verb != Verb.USE:
+	if verb != Verb.GO:
 		return
 
 	if character == null:

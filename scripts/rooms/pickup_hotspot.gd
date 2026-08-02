@@ -19,7 +19,7 @@ extends Hotspot
 @export var vanishes_when_taken: bool = true
 
 ## What TAKE says afterwards, for a hotspot that stays. Falls back to the
-## ordinary [member Hotspot.take_text] when empty.
+## ordinary [member Hotspot.hand_text] when empty.
 @export_multiline var taken_text: String = ""
 
 

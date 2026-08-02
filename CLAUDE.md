@@ -24,8 +24,9 @@ protagonista qualunque catapultato in situazioni incomprensibili.
 Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
-- Punta-e-clicca classico con **verb-coin** a quattro verbi: Guarda, Prendi,
-  Usa, Parla (camminare non è un verbo: si clicca il pavimento)
+- Punta-e-clicca classico con **verb-coin** a quattro posizioni fisse e un
+  vocabolario chiuso di nove parole: Guarda / Prendi / Usa, Premi, Tira, Apri,
+  Chiudi / Parla, Vai (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
   diversi (es. uno passa un oggetto attraverso una finestra, l'altro lo
@@ -41,8 +42,8 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
-   dispositivo**: quattro verbi, premi-trascina-rilascia con scelta per
-   direzione)*
+   dispositivo**: premi-trascina-rilascia con scelta per direzione, badge con
+   icone, vocabolario di nove parole in quattro famiglie)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
@@ -79,7 +80,7 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
 assets/              sprites/ backgrounds/ audio/ fonts/
-  ui/                Le quattro icone dei verbi, in SVG — l'unica arte del
+  ui/                Le nove icone dei verbi, in SVG — l'unica arte del
                      progetto che non è pixel art
 ```
 
@@ -601,7 +602,10 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Le parole sulla verb-coin cambiano con l'oggetto, le posizioni no.** Ogni
   hotspot può ribattezzare uno spicchio — la porta dice "Vai" e "Apri", la
   fessura dice "Ritira" — ma lo spicchio resta nella sua direzione e chiama lo
-  stesso verbo. Cambia il vocabolario, non la geometria.
+  stesso verbo. Cambia il vocabolario, non la geometria. **Parzialmente
+  superata** — vedi "Vocabolario chiuso di nove parole" in fondo all'elenco:
+  il principio (parole variabili, posizioni fisse) è confermato, ma le parole
+  non sono più stringhe libere per hotspot.
   Il motivo è che la scelta per direzione vive sul fatto che le quattro
   posizioni siano sempre le stesse: si mira senza leggere. Un elenco variabile
   in numero o in ordine trasformerebbe un gesto in un menù da consultare, con
@@ -688,6 +692,43 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - La disposizione non cambia: stesse quattro direzioni, stessi angoli. I
     badge sono più piccoli delle etichette che sostituiscono, quindi la moneta
     occupa meno schermo di prima.
+
+- **Vocabolario chiuso di nove parole in quattro famiglie**, invece di
+  etichette libere scritte oggetto per oggetto: **Guarda**; **Prendi**;
+  **Usa, Premi, Tira, Apri, Chiudi**; **Parla, Vai**. Ogni famiglia ha una
+  posizione fissa sulla moneta, e una parola non cambia mai direzione.
+  Nove parole che il giocatore impara una volta valgono più di parole inventate
+  di volta in volta: con l'elenco chiuso il vocabolario diventa qualcosa che si
+  possiede e si applica, invece di qualcosa da leggere a ogni oggetto. E il
+  principio della decisione precedente regge intatto — quello che varia è
+  *quale parola della famiglia* è in scena, mai dove la famiglia sta.
+  - **Verificato che le famiglie non vadano in conflitto**: nessun oggetto
+    sensato ne vuole due della stessa famiglia insieme. Una porta non ha
+    nessuno con cui parlare, una persona non è un posto dove andare — per
+    questo Parla e Vai possono condividere una casella senza pestarsi i piedi.
+  - **Le caselle vuote non si disegnano.** Prima ero contrario a nascondere gli
+    spicchi, ma l'obiezione era un'altra: che uno spicchio comparendo e
+    sparendo *in base a uno stato nascosto* rivelasse le soluzioni. Qui
+    l'insieme è una **proprietà statica dell'oggetto** — una porta ha sempre
+    Apri, che sia chiusa a chiave o no — e solo *quale* parola sta nella
+    casella segue lo stato **visibile**. È la linea da tenere anche in
+    scrittura: riflettere ciò che si vede sì, annunciare ciò che funziona no.
+  - **"Dai" è stato tolto dall'elenco** ed è rimasto solo come frase: dare un
+    oggetto a qualcuno è già "usa l'oggetto su di lui", e uno spicchio "Dai"
+    non sarebbe mai raggiungibile — quando hai qualcosa in mano la moneta non
+    si apre più. Scartate: farlo aprire l'inventario (un secondo percorso per
+    la stessa cosa) e farlo sostituire "Prendi" nella casella della mano
+    (elegante, ma una regola in più da capire).
+  - **L'icona segue la parola, non la posizione**: sulla porta la casella di
+    destra mostra una freccia, su una persona un fumetto. Si vede a colpo
+    d'occhio che quella porta è un posto e non un interlocutore.
+  - Ricaduta pratica: **il vocabolario sta tutto in una tabella sola** dentro
+    `verb_coin.gd`, parola e icona per verbo. È il posto da cui partire il
+    giorno in cui si decide la lingua dei testi — non c'è una parola di verbo
+    da nessun'altra parte.
+  - Conseguenza per gli hotspot: i testi passano da uno per verbo a **uno per
+    famiglia** (`look_text`, `hand_text`, `act_text`, `reach_text`). Quattro
+    campi come prima, ma reggono nove parole invece di quattro.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo

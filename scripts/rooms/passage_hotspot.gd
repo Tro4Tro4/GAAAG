@@ -46,7 +46,7 @@ func get_text_for(verb: int) -> String:
 
 	if verb == Verb.TAKE:
 		if waiting.is_empty():
-			return take_text if not take_text.is_empty() else NOTHING_THERE
+			return hand_text if not hand_text.is_empty() else NOTHING_THERE
 
 		# Built from what is actually in there rather than written by hand:
 		# a passage cannot know in advance what will come through it.

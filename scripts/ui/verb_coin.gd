@@ -54,16 +54,6 @@ signal item_verb_chosen(verb: int, item: InventoryItem)
 ## the badges carry pictures, this is the only place the verb is spelled out.
 signal aim_changed(label: String)
 
-## The icons, in slice order. Vector files rather than pixel art: a badge is
-## about twenty pixels across in game units but several times that on a real
-## screen, and a drawing of an eye made of twenty pixels is not an eye.
-const ICON_PATHS: Array = [
-	"res://assets/ui/verb_look.svg",
-	"res://assets/ui/verb_take.svg",
-	"res://assets/ui/verb_use.svg",
-	"res://assets/ui/verb_talk.svg",
-]
-
 const BADGE_SIZE: Vector2 = Vector2(24, 24)
 
 ## Only used if the icons fail to load, in which case the coin falls back to
@@ -104,13 +94,42 @@ const BADGE_OFFSETS: Array = [
 	Vector2(38, -7),
 ]
 
-# The words used when the thing under the finger has nothing better to call
-# them. A hotspot may rename any slice — a door says "Apri", not "Usa" — but
-# only the wording moves: the slice stays where it is and runs the same verb.
-var _default_labels: Array[String] = ["Guarda", "Prendi", "Usa", "Parla"]
-var _verbs: Array[int] = [
-	Hotspot.Verb.LOOK, Hotspot.Verb.TAKE, Hotspot.Verb.USE, Hotspot.Verb.TALK
-]
+# The whole vocabulary of the game, in one table: the word the player reads
+# and the drawing on the badge, for each of the nine verbs. This is the place
+# to come when the language of the game is decided — there is no verb wording
+# anywhere else.
+#
+# Not consts: they hold values belonging to another class, and whether that is
+# allowed at parse time is not something this project can check from the
+# development machine. A plain var is worked out at runtime, where it never is
+# a problem.
+var _words: Dictionary = {
+	Hotspot.Verb.LOOK: "Guarda",
+	Hotspot.Verb.TAKE: "Prendi",
+	Hotspot.Verb.USE: "Usa",
+	Hotspot.Verb.PRESS: "Premi",
+	Hotspot.Verb.PULL: "Tira",
+	Hotspot.Verb.OPEN: "Apri",
+	Hotspot.Verb.CLOSE: "Chiudi",
+	Hotspot.Verb.TALK: "Parla",
+	Hotspot.Verb.GO: "Vai",
+}
+
+var _icon_paths: Dictionary = {
+	Hotspot.Verb.LOOK: "res://assets/ui/verb_look.svg",
+	Hotspot.Verb.TAKE: "res://assets/ui/verb_take.svg",
+	Hotspot.Verb.USE: "res://assets/ui/verb_use.svg",
+	Hotspot.Verb.PRESS: "res://assets/ui/verb_press.svg",
+	Hotspot.Verb.PULL: "res://assets/ui/verb_pull.svg",
+	Hotspot.Verb.OPEN: "res://assets/ui/verb_open.svg",
+	Hotspot.Verb.CLOSE: "res://assets/ui/verb_close.svg",
+	Hotspot.Verb.TALK: "res://assets/ui/verb_talk.svg",
+	Hotspot.Verb.GO: "res://assets/ui/verb_go.svg",
+}
+
+# The loaded drawings, by verb. Filled once, because a badge changes picture
+# every time the coin opens on something new.
+var _icons: Dictionary = {}
 
 # What the coin was opened on. Exactly one of the two is set at a time.
 var _hotspot: Hotspot = null
@@ -118,9 +137,13 @@ var _item: InventoryItem = null
 
 var _buttons: Array[Button] = []
 
-# The words for this opening of the coin, one per slice. Held because the
-# badges no longer show them and the caption has to be told what to write.
-var _labels: Array[String] = ["", "", "", ""]
+# Which verb is in each slice for this opening of the coin, NONE for a slice
+# that is not there at all. An absent slice is not drawn and cannot be aimed
+# at: with a closed vocabulary most objects use two or three of the four, and
+# showing the others greyed would be clutter that says nothing.
+var _slot_verbs: Array[int] = [
+	Hotspot.Verb.NONE, Hotspot.Verb.NONE, Hotspot.Verb.NONE, Hotspot.Verb.NONE
+]
 
 # False when the icons could not be loaded, in which case the badges fall back
 # to showing the words themselves. A missing picture should cost the pictures,
@@ -146,6 +169,7 @@ var _default_verb: int = Hotspot.Verb.LOOK
 
 func _ready() -> void:
 	visible = false
+	_load_icons()
 	_build_badges()
 
 
@@ -155,14 +179,17 @@ func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 	_item = null
 	_default_verb = hotspot.get_default_verb()
 
-	for i in _buttons.size():
-		var label: String = hotspot.get_label_for(_verbs[i])
-		_set_label(i, label if not label.is_empty() else _default_labels[i])
+	for slot in _buttons.size():
+		_fill_slot(slot, hotspot.get_verb_for(slot))
 
 	_open_at(at_position)
 
 
 ## Opens the coin for [param item] in the inventory, centred on its slot.
+##
+## An item already in your hands offers two of the nine words and no more:
+## there is nothing to take that you are not holding, and nothing to talk to.
+## Before the slices could be left out, those two answered with a refusal.
 func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
 	_item = item
 	_hotspot = null
@@ -170,8 +197,10 @@ func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
 	# Looking is the harmless answer, and the one a stray tap should give.
 	_default_verb = Hotspot.Verb.LOOK
 
-	for i in _buttons.size():
-		_set_label(i, _default_labels[i])
+	_fill_slot(Hotspot.Slot.LOOK, Hotspot.Verb.LOOK)
+	_fill_slot(Hotspot.Slot.HAND, Hotspot.Verb.NONE)
+	_fill_slot(Hotspot.Slot.ACT, Hotspot.Verb.USE)
+	_fill_slot(Hotspot.Slot.REACH, Hotspot.Verb.NONE)
 
 	_open_at(at_position)
 
@@ -191,14 +220,21 @@ func _open_at(at_position: Vector2) -> void:
 	visible = true
 
 
-func _set_label(slice: int, text: String) -> void:
-	_labels[slice] = text
+func _fill_slot(slot: int, verb: int) -> void:
+	_slot_verbs[slot] = verb
 
-	if _has_icons:
+	var button: Button = _buttons[slot]
+	button.visible = verb != Hotspot.Verb.NONE
+
+	if not button.visible:
 		return
 
-	var button: Button = _buttons[slice]
-	button.text = text
+	if _has_icons:
+		button.icon = _icons.get(verb, null)
+		button.size = BADGE_SIZE
+		return
+
+	button.text = _words.get(verb, "")
 
 	# Re-applied straight after the text, and not left to the next layout pass:
 	# a longer word raises the button's minimum size, and _place_badges() reads
@@ -253,7 +289,7 @@ func _lift() -> void:
 		# and the lift confirms it — it is not an opportunity to work it out
 		# again. A fingertip also rolls a pixel or two on its way off the
 		# glass, so the two answers need not agree.
-		_run(_verbs[_highlighted])
+		_run(_slot_verbs[_highlighted])
 		return
 
 	if not _has_left_dead_zone:
@@ -270,6 +306,9 @@ func _run(verb: int) -> void:
 	var item: InventoryItem = _item
 	close()
 
+	if verb == Hotspot.Verb.NONE:
+		return
+
 	if hotspot != null:
 		verb_chosen.emit(verb, hotspot)
 	elif item != null:
@@ -278,9 +317,9 @@ func _run(verb: int) -> void:
 
 ## The slice the finger is aiming at from [param point], or -1 for none.
 ##
-## Anywhere outside the dead zone and roughly towards a verb picks it: there is
-## no edge to miss and no gap between the slices to fall into. The player
-## pushes left, up or right and gets whichever verb lies most nearly that way;
+## Anywhere outside the dead zone and roughly towards a badge picks it: there
+## is no edge to miss and no gap between the slices to fall into. The player
+## pushes left, up or right and gets whichever badge lies most nearly that way;
 ## pushing down instead gets nothing, which is how the gesture is called off.
 func _slice_aimed_at(point: Vector2) -> int:
 	var aim: Vector2 = point - _anchor
@@ -293,6 +332,11 @@ func _slice_aimed_at(point: Vector2) -> int:
 	var smallest_angle: float = INF
 
 	for i in _buttons.size():
+		# A slice this object does not offer is not drawn, so it cannot be
+		# aimed at either. Aiming at where it would have been simply misses.
+		if not _buttons[i].visible:
+			continue
+
 		# Measured against where the badge actually ended up, not against the
 		# offset it was asked for: near a screen edge the badges are pushed
 		# back inside, and the direction has to follow them there.
@@ -323,19 +367,25 @@ func _highlight(slice: int) -> void:
 		# badge's own two styles, without a second set of art to maintain.
 		_buttons[i].button_pressed = i == _highlighted
 
-	aim_changed.emit(_labels[slice] if slice >= 0 else "")
+	var verb: int = _slot_verbs[slice] if slice >= 0 else Hotspot.Verb.NONE
+	aim_changed.emit(_words.get(verb, ""))
+
+
+func _load_icons() -> void:
+	for verb in _icon_paths:
+		var icon: Texture2D = load(_icon_paths[verb]) as Texture2D
+
+		if icon == null:
+			push_warning("Verb icon missing: %s. Falling back to words." % _icon_paths[verb])
+			_has_icons = false
+			continue
+
+		_icons[verb] = icon
 
 
 func _build_badges() -> void:
-	for i in _default_labels.size():
+	for slot in BADGE_OFFSETS.size():
 		var button := Button.new()
-		var icon: Texture2D = load(ICON_PATHS[i]) as Texture2D
-
-		if icon == null:
-			push_warning("Verb icon missing: %s. Falling back to words." % ICON_PATHS[i])
-			_has_icons = false
-
-		button.icon = icon
 
 		# The icon is drawn to the badge's size rather than its own. Without
 		# this a 96-pixel drawing would also become the button's minimum size
@@ -344,7 +394,7 @@ func _build_badges() -> void:
 
 		# Overrides the project-wide Nearest filtering, which is there for
 		# pixel art and would leave a smooth drawing with jagged edges. These
-		# four are the one part of the game that is not pixel art.
+		# nine drawings are the one part of the game that is not pixel art.
 		button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 		button.add_theme_stylebox_override("normal", _badge_style(false))
@@ -363,10 +413,12 @@ func _build_badges() -> void:
 		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.toggle_mode = true
 
+		var wanted: Vector2 = BADGE_SIZE if _has_icons else FALLBACK_SIZE
+		button.custom_minimum_size = wanted
+		button.size = wanted
+
 		add_child(button)
 		_buttons.append(button)
-
-	_resize_badges()
 
 
 func _badge_style(highlighted: bool) -> StyleBoxFlat:
@@ -391,16 +443,11 @@ func _badge_style(highlighted: bool) -> StyleBoxFlat:
 	return style
 
 
-func _resize_badges() -> void:
-	var wanted: Vector2 = BADGE_SIZE if _has_icons else FALLBACK_SIZE
-
-	for button in _buttons:
-		button.custom_minimum_size = wanted
-		button.size = wanted
-
-
 func _place_badges(at_position: Vector2) -> void:
 	for i in _buttons.size():
+		if not _buttons[i].visible:
+			continue
+
 		# The badge's own size, not the constant. A Control refuses to be
 		# smaller than the room its content needs, so what is measured here is
 		# what will actually be drawn — and the aim is measured against it too.
