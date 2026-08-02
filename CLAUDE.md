@@ -735,9 +735,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   per icona, e una tavolozza condivisa dalle nove così che si leggano come un
   insieme e non come nove disegni scollegati. Il motivo è che su un badge di
   ventiquattro unità, con il dito lì accanto e mezzo secondo di gesto, **il
-  colore arriva prima della forma**: la freccia turchese di "Vai" e quella
-  verde di "Premi" si distinguono ancora prima di essere riconosciute come
-  disegni, mentre due sagome dello stesso bianco vanno confrontate. Il
+  colore arriva prima della forma**: il rosso del pulsante di "Premi" e il
+  giallo del vano di "Apri" si distinguono ancora prima di essere riconosciuti
+  come disegni, mentre due sagome dello stesso bianco vanno confrontate. Il
   vocabolario è chiuso e le posizioni sono fisse, quindi il giocatore impara
   nove colori una volta e poi mira senza leggere — che è esattamente ciò su
   cui il premi-trascina-rilascia vive.
@@ -781,6 +781,10 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   partendo da un'immagine. A ventiquattro unità la differenza tra una forma
   riconoscibile e una macchia è di frazioni di unità, e l'occhio perdona meno
   dove il soggetto è familiare — una mano, una bocca, un occhio.
+  Tutte e nove vengono da immagini: Guarda un occhio, Prendi un palmo aperto,
+  Usa un ingranaggio, Premi una mano che schiaccia un pulsante, Tira un pugno
+  che tira una corda, Apri e Chiudi la stessa porta, Parla una bocca, Vai due
+  piedi che camminano.
   - **Continuare a disegnare a mano**: file da mezzo kilobyte, geometria
     leggibile e modificabile spostando un numero, tavolozza garantita.
     Vantaggi reali, ed è il motivo per cui Vai è rimasta così. Scartato per
@@ -805,11 +809,14 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     semilato. Senza questo passaggio le punte (dita, pollice, spigoli)
     attraversano il bordo illuminato, e il tracciamento non ha modo di
     saperlo da sé. È l'unica cosa che l'automatismo non sa fare.
-  - **Un'immagine può non dire il verbo**: il dorso di mano scelto per Premi
-    era una mano e nient'altro. Va composta — tagliata al polso
-    *perpendicolarmente all'asse dell'avambraccio*, non in orizzontale, girata
-    verso il basso e messa sopra un pulsante disegnato. Il bersaglio è ciò che
-    trasforma un soggetto in un gesto.
+  - **Un'immagine può mostrare il soggetto e non il verbo**, e allora il
+    rimedio è chiedere un'altra immagine, non aggiustarla. Il primo
+    riferimento per Premi era un dorso di mano e nient'altro: l'ho composto a
+    mano — tagliato al polso perpendicolarmente all'asse dell'avambraccio,
+    girato verso il basso e posato su un pulsante disegnato — e funzionava,
+    ma è stato sostituito appena arrivata un'immagine che il gesto lo mostrava
+    già. La regola che resta: **serve il bersaglio, non solo la mano**. Una
+    mano che preme senza qualcosa sotto non è distinguibile da una mano.
   - **Apri e Chiudi vengono dalla stessa immagine**: il battente della porta
     aperta è raddrizzato dentro il vano con una trasformazione prospettica, e
     traversa e soglia sono ricostruite ripetendo una colonna di telaio, perché
@@ -827,11 +834,16 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     solo il fatto che i riferimenti sono nati dallo stesso generatore. Se un
     domani un'icona arrivasse da un'immagine con altri colori, stonerebbe — e
     il rimedio è ridurne le tinte a quelle delle altre, non ridisegnarla.
-  - Resta aperto: **Vai è l'unica disegnata a mano** e si vede, perché è
-    piatta e in tinte accese mentre le altre otto hanno ombre e mezzi toni.
-    Da rifare da un'immagine per coerenza, o da tenere così se la si vuole
-    distinguere a colpo d'occhio dalle altre — è la sola casella che non ha
-    mai un compagno di famiglia, quindi il costo di lasciarla diversa è basso.
+  - **Un soggetto molto più alto che largo va ritagliato, non rimpicciolito**:
+    il badge è tondo, quindi un'immagine allungata ci entra inscritta nella
+    diagonale e diventa minuscola. I piedi di "Vai" sono tagliati alle
+    caviglie — a figura intera erano due strisce, ai soli piedi due blocchi
+    irriconoscibili. Il taglio giusto sta in mezzo e si trova guardando le
+    varianti alla dimensione vera, non ragionandoci.
+  - Nota metodo, e vale per il prossimo giro: le icone si giudicano **a 120
+    pixel**, che è quanto è grande un badge su un telefono (ventiquattro unità
+    a 5×). Ingrandite sembrano tutte buone; a quella dimensione due terzi dei
+    tentativi cadono.
   - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
     regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
     andrebbero ripensati due riempimenti su nove.
