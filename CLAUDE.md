@@ -770,6 +770,24 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     contorno che allarga le forme chiude i vuoti stretti, quindi due parti
     parallele si fondono per tutta la lunghezza e diventano una macchia. È
     l'apertura a ventaglio a scavare le valli che si vedono.
+  - **"Prendi" è l'unica delle nove che non è disegnata a mano**: è la
+    vettorizzazione di un'immagine scelta dallo sviluppatore, con lo sfondo
+    tolto per colore e le tinte ridotte a quattro piatte. Cinque tentativi di
+    disegnarla a mano — palmo aperto, guanto, pugno, mano dall'alto, mano con
+    oggetto — sono stati scartati uno dopo l'altro: una mano è la forma dove
+    l'occhio perdona meno, e a ventiquattro unità la differenza tra "mano" e
+    "macchia con dita" è di frazioni di unità. Partire da un'immagine è stato
+    più rapido che continuare ad avvicinarsi.
+    Conseguenze da sapere: il file pesa una ventina di kilobyte invece di
+    mezzo, ha un `viewBox` di 512 invece di 24 e i suoi tracciati **non si
+    modificano a mano** — per cambiare la mano si rifà il passaggio
+    dall'immagine. Il suo contorno è `#25343b`, il grigio-blu del
+    riferimento, non il `#2b2135` delle altre otto: su un badge scuro i due
+    non si distinguono, ma se il badge diventasse chiaro andrebbe allineato.
+  - Nota: quel percorso vale come precedente per le icone future. Se un
+    disegno si rivela ostico, vettorizzare un riferimento è una via legittima
+    — a patto di ridurre le tinte alla tavolozza e di rispettare l'ingombro
+    dentro il badge, che è l'unica cosa che il tracciamento non sa fare da sé.
   - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
     regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
     andrebbero ripensati due riempimenti su nove.
