@@ -38,12 +38,13 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 1. Sistema base: movimento *(fatto e **verificato sul dispositivo**:
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
-   mostra la descrizione)*, verb-coin UI *(fatta: tre verbi, due tocchi)*
+   mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
+   dispositivo**: tre verbi, premi-trascina-rilascia con scelta per direzione)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
-   multi-stanza *(fatto: radice `Game`, due stanze collegate da una porta,
-   cambiare personaggio porta nella sua stanza)*
+   multi-stanza *(fatto e **verificato sul dispositivo**: radice `Game`, due
+   stanze collegate da una porta, cambiare personaggio porta nella sua stanza)*
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
