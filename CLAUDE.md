@@ -770,24 +770,68 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     contorno che allarga le forme chiude i vuoti stretti, quindi due parti
     parallele si fondono per tutta la lunghezza e diventano una macchia. È
     l'apertura a ventaglio a scavare le valli che si vedono.
-  - **"Prendi" è l'unica delle nove che non è disegnata a mano**: è la
-    vettorizzazione di un'immagine scelta dallo sviluppatore, con lo sfondo
-    tolto per colore e le tinte ridotte a quattro piatte. Cinque tentativi di
-    disegnarla a mano — palmo aperto, guanto, pugno, mano dall'alto, mano con
-    oggetto — sono stati scartati uno dopo l'altro: una mano è la forma dove
-    l'occhio perdona meno, e a ventiquattro unità la differenza tra "mano" e
-    "macchia con dita" è di frazioni di unità. Partire da un'immagine è stato
-    più rapido che continuare ad avvicinarsi.
-    Conseguenze da sapere: il file pesa una ventina di kilobyte invece di
-    mezzo, ha un `viewBox` di 512 invece di 24 e i suoi tracciati **non si
-    modificano a mano** — per cambiare la mano si rifà il passaggio
-    dall'immagine. Il suo contorno è `#25343b`, il grigio-blu del
-    riferimento, non il `#2b2135` delle altre otto: su un badge scuro i due
-    non si distinguono, ma se il badge diventasse chiaro andrebbe allineato.
-  - Nota: quel percorso vale come precedente per le icone future. Se un
-    disegno si rivela ostico, vettorizzare un riferimento è una via legittima
-    — a patto di ridurre le tinte alla tavolozza e di rispettare l'ingombro
-    dentro il badge, che è l'unica cosa che il tracciamento non sa fare da sé.
+- **Le icone si vettorizzano da immagini di riferimento, non si disegnano a
+  mano** (revoca del modo di produrle, non dello stile: cartoon a colori,
+  contorno scuro spesso e tinte piatte restano). Otto delle nove — Guarda,
+  Prendi, Usa, Premi, Tira, Apri, Chiudi, Parla — sono il tracciamento di
+  immagini scelte dallo sviluppatore; solo Vai è ancora disegnata a mano.
+  Il motivo è misurato, non teorico: la sola mano di "Prendi" ha richiesto
+  sei tentativi disegnati (palmo aperto, guanto, pugno, mano dall'alto, mano
+  protesa, mano con oggetto), tutti scartati, e ha funzionato al primo colpo
+  partendo da un'immagine. A ventiquattro unità la differenza tra una forma
+  riconoscibile e una macchia è di frazioni di unità, e l'occhio perdona meno
+  dove il soggetto è familiare — una mano, una bocca, un occhio.
+  - **Continuare a disegnare a mano**: file da mezzo kilobyte, geometria
+    leggibile e modificabile spostando un numero, tavolozza garantita.
+    Vantaggi reali, ed è il motivo per cui Vai è rimasta così. Scartato per
+    le altre otto perché il costo non sta nel disegnare, sta nell'*avvicinarsi*:
+    ogni giro richiede di guardare il risultato sul badge e ricominciare, e su
+    soggetti familiari i giri non convergono.
+  - **Tenere le immagini come PNG** invece di tracciarle: nessuna perdita di
+    dettaglio e nessun passaggio in più. Scartato perché il badge si disegna
+    alla risoluzione reale della finestra, non a 384×216: un raster andrebbe
+    esportato per la scala peggiore e resterebbe l'unica cosa morbida dello
+    schermo. Il tracciato scala come il resto.
+  - Come si toglie lo sfondo, che è la parte non ovvia: **per colore, e con
+    due eccezioni che si contraddicono**. Il buco centrale di un ingranaggio
+    è azzurro come il fondo e deve diventare trasparente, quindi non basta
+    togliere ciò che è connesso al bordo; il bianco della sclera di un occhio
+    non è azzurro e deve restare, quindi non si può togliere tutto il chiaro.
+    La regola che regge entrambi: trasparente ciò che è azzurro, poi si tiene
+    la sola componente connessa più grande — che butta via la cornice del
+    riquadro e le stelline decorative senza nominarle.
+  - **L'ingombro nel badge va calcolato, non stimato**: si misura il raggio
+    massimo dei pixel opachi dal centro e si scala perché stia all'85% del
+    semilato. Senza questo passaggio le punte (dita, pollice, spigoli)
+    attraversano il bordo illuminato, e il tracciamento non ha modo di
+    saperlo da sé. È l'unica cosa che l'automatismo non sa fare.
+  - **Un'immagine può non dire il verbo**: il dorso di mano scelto per Premi
+    era una mano e nient'altro. Va composta — tagliata al polso
+    *perpendicolarmente all'asse dell'avambraccio*, non in orizzontale, girata
+    verso il basso e messa sopra un pulsante disegnato. Il bersaglio è ciò che
+    trasforma un soggetto in un gesto.
+  - **Apri e Chiudi vengono dalla stessa immagine**: il battente della porta
+    aperta è raddrizzato dentro il vano con una trasformazione prospettica, e
+    traversa e soglia sono ricostruite ripetendo una colonna di telaio, perché
+    nell'originale il battente le copre. Non sono due disegni che si
+    somigliano, è la stessa porta in due stati — che è la ragione per cui le
+    due parole condividono una casella.
+  - Conseguenze da sapere: i file pesano dai 15 ai 50 kilobyte invece di
+    mezzo, hanno `viewBox` 512 invece di 24, e i loro tracciati **non si
+    modificano a mano** — per cambiare un'icona si rifà il passaggio
+    dall'immagine. Il contorno non è più il `#2b2135` comune ma quello del
+    riferimento, diverso per ognuna: su un badge scuro non si distinguono, ma
+    se il badge diventasse chiaro andrebbero allineati tutti.
+  - Costo accettato: la **tavolozza condivisa non è più garantita**. Ogni
+    icona porta le tinte della propria immagine, e a tenerle insieme oggi c'è
+    solo il fatto che i riferimenti sono nati dallo stesso generatore. Se un
+    domani un'icona arrivasse da un'immagine con altri colori, stonerebbe — e
+    il rimedio è ridurne le tinte a quelle delle altre, non ridisegnarla.
+  - Resta aperto: **Vai è l'unica disegnata a mano** e si vede, perché è
+    piatta e in tinte accese mentre le altre otto hanno ombre e mezzi toni.
+    Da rifare da un'immagine per coerenza, o da tenere così se la si vuole
+    distinguere a colpo d'occhio dalle altre — è la sola casella che non ha
+    mai un compagno di famiglia, quindi il costo di lasciarla diversa è basso.
   - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
     regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
     andrebbero ripensati due riempimenti su nove.
