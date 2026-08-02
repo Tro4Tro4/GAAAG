@@ -564,6 +564,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   possano verificare premendo Play, ed evitare di scaricare sullo sviluppatore
   editing manuale lungo nell'editor quando si può esprimere la stessa cosa nel
   file di scena
+- **Allineare `main` a ogni push**: dopo aver pushato il branch di lavoro,
+  portare `main` allo stesso commit (fast-forward) e pushare anche quello,
+  senza chiedere. Deciso dopo che un `main` rimasto indietro ha fatto provare
+  sul dispositivo una versione vecchia del gioco per parecchi giri, con i
+  sintomi attribuiti al codice nuovo invece che al codice mancante
 - **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
   `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
   sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni
