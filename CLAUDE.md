@@ -271,7 +271,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **La moneta si usa con due tocchi**, non con premi-trascina-rilascia: un
   tocco sull'oggetto la apre, un tocco su un verbo lo esegue, un tocco altrove
   annulla. Si costruisce con normali nodi `Control`, perdona gli errori e non
-  richiede di seguire il dito.
+  richiede di seguire il dito. **Decisione superata** — vedi "Da due tocchi a
+  premi-trascina-rilascia" in fondo all'elenco. Il ragionamento resta valido
+  nei costi che indicava: sono stati accettati, non smentiti.
   - **Premi, trascina, rilascia** (il gesto originale di *Full Throttle*): più
     rapido una volta imparato e più fedele all'originale. Scartato perché va
     scritto a mano — tracciamento del dito e riconoscimento dello spicchio al
@@ -362,6 +364,43 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **`DoorHotspot` è il primo hotspot con uno script proprio**, ed è la
     conferma della decisione "hotspot come dati più segnale": due valori
     esportati e una riga di codice per la porta, niente per la cassa.
+- **Da due tocchi a premi-trascina-rilascia** (revoca della scelta di
+  interazione della verb-coin): si preme sull'oggetto, si tiene premuto, si
+  scivola sul verbo, si solleva. Sollevare altrove annulla. È il gesto
+  originale di *Full Throttle*, ed è **un gesto solo** invece di due tocchi
+  separati con uno stato in mezzo.
+  Non è caduta nessuna premessa tecnica: i costi che la decisione precedente
+  aveva individuato erano corretti e sono stati accettati consapevolmente.
+  - **Costo accettato: il dito copre lo spicchio.** A 384×216 un verbo è
+    34×13 pixel, e durante il gesto il dito resta sullo schermo. Mitigato in
+    due modi, entrambi necessari: l'area che risponde è più grande di quella
+    disegnata (`TOUCH_MARGIN`, 6 pixel su ogni lato), e lo spicchio sotto il
+    dito si illumina, così il riscontro c'è anche quando il testo non si vede.
+  - **Costo accettato: un tocco secco non fa più niente.** Premere e
+    rilasciare senza spostarsi apre e richiude la moneta. È inerente al gesto,
+    non un difetto dell'implementazione.
+  - **Selezione per direzione** invece che per rettangolo (si sceglie in base
+    a *dove* si è spostato il dito rispetto al punto di partenza, non a cosa
+    c'è sotto): sarebbe più tollerante di qualunque margine, e renderebbe
+    irrilevante il fatto che il dito copra il bersaglio. Non adottata perché
+    è una risposta a un problema che non è ancora stato misurato sul
+    dispositivo. Resta la prima cosa da provare se la selezione per rettangolo
+    risultasse imprecisa: si cambia solo `_slice_at()`.
+  - **Conseguenza tecnica non ovvia: il gesto si legge a mano in `_input()`**,
+    non attraverso i segnali dei `Button`. È obbligato. La pressione che apre
+    la moneta viene consumata dalla stanza **mentre la moneta è ancora
+    invisibile**, quindi Godot non registra mai la moneta come il `Control`
+    che sta trascinando (`gui.mouse_focus` resta vuoto) e il rilascio finale
+    verrebbe instradato altrove. Leggere gli eventi grezzi e fare da sé il
+    test sui rettangoli aggira del tutto la questione. I `Button` restano
+    quindi come sola grafica: `MOUSE_FILTER_IGNORE`, e l'illuminazione si
+    ottiene con `toggle_mode` più `button_pressed`, senza una seconda serie
+    di disegni da mantenere.
+  - Nota: il gesto dipende dal fatto che l'emulazione del mouse converta il
+    trascinamento del dito (`InputEventScreenDrag`) in `InputEventMouseMotion`.
+    Lo fa, ma è la stessa impostazione predefinita già annotata più sopra: se
+    qualcuno la disattivasse, oggi si perderebbe anche la scelta del verbo,
+    non solo il tocco.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
