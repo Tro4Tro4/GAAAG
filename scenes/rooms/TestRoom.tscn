@@ -48,7 +48,7 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="Default" type="Marker2D" parent="EntryPoints"]
 position = Vector2(48, 198)
 
-[node name="FromCorridor" type="Marker2D" parent="EntryPoints"]
+[node name="FromHallway" type="Marker2D" parent="EntryPoints"]
 position = Vector2(316, 132)
 
 [node name="CrateHotspot" type="Area2D" parent="."]
@@ -74,7 +74,7 @@ display_name = "Porta"
 look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
 use_text = "Apri la porta. Di là c'è un corridoio, il che è già un'informazione."
 talk_text = "Bussi. Dall'altra parte qualcuno bussa uguale, un attimo dopo."
-target_room = "res://scenes/rooms/Corridor.tscn"
+target_room = "res://scenes/rooms/Hallway.tscn"
 target_entry = &"FromTestRoom"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]

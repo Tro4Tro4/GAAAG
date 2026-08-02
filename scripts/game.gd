@@ -22,7 +22,7 @@ const BAG_LABEL: String = "Zaino"
 ## sentence is visible after the panel that started it has gone.
 const USING_TEMPLATE: String = "Usa %s con..."
 
-## Every recipe in the game. An @export filled in from Game.tscn rather than a
+## Every recipe in the game. An @export filled in from Main.tscn rather than a
 ## preload: a mistyped path then costs a combination that refuses, instead of a
 ## game that will not start.
 @export var combinations: CombinationBook = null

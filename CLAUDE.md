@@ -58,10 +58,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 project.godot        Configurazione progetto Godot (renderer, display)
 icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
-  Game               Scena di avvio: contiene i personaggi e la UI, e ospita
+  Main               Scena di avvio: contiene i personaggi e la UI, e ospita
                      la stanza corrente in RoomContainer
   rooms/TestRoom     Stanza di prova (navmesh, cassa, porta per il corridoio)
-  rooms/Corridor     Seconda stanza (distributore, cartello, porta di ritorno)
+  rooms/Hallway      Seconda stanza (distributore, cartello, porta di ritorno)
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
@@ -300,7 +300,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   Il silenzio, invece, si legge come un bug.
 - **Multi-stanza: radice `Game` persistente, stanze scambiate come figli, i
   personaggi non sono più figli della stanza.** Chiude la decisione che era
-  rimasta aperta. `Game.tscn` è la scena di avvio e contiene tre cose che
+  rimasta aperta. `Main.tscn` è la scena di avvio e contiene tre cose che
   sopravvivono al cambio stanza: `RoomContainer` (vuoto, ci entra la stanza
   corrente), `Characters` (tutti i personaggi giocabili, istanziati una volta
   per l'intera partita) e `UI` (un `CanvasLayer` con caption, verb-coin e barra
@@ -359,7 +359,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     `hotspot_activated`, e `Game` li collega a caption e verb-coin. Prima li
     prendeva con `$Caption` perché erano suoi figli; ora vivono più in alto.
     Conseguenza da ricordare: **una stanza non è più eseguibile da sola** — non
-    ha personaggi né UI. La scena su cui premere Play è `Game.tscn`.
+    ha personaggi né UI. La scena su cui premere Play è `Main.tscn`.
   - **I punti d'ingresso sono `Marker2D` sotto un nodo `EntryPoints`**, e la
     porta nomina quello di destinazione (`target_entry`) invece di indicare
     coordinate. Il punto d'arrivo si trascina nell'editor, nella stanza a cui

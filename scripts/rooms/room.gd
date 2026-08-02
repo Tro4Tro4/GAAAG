@@ -13,7 +13,7 @@ extends Node2D
 ## reports what it wants said and Game connects that to whatever is listening.
 ##
 ## A room is therefore no longer playable on its own: it holds no characters
-## and no interface. Game.tscn is the scene to press Play on.
+## and no interface. Main.tscn is the scene to press Play on.
 
 ## Emitted when the room has a line for the player.
 signal wants_to_say(text: String)
