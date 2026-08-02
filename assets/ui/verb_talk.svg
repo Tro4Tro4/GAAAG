@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-  <path d="M12 2.4C6 2.4 1.2 6.1 1.2 10.7c0 2.6 1.5 4.9 3.9 6.4l-1.2 4.9 5.5-3a13 13 0 0 0 2.6 .3c6 0 10.8-3.7 10.8-8.6S18 2.4 12 2.4z" fill="#ffffff"/>
-  <g fill="#15161f">
-    <circle cx="7.6" cy="10.7" r="1.5"/>
-    <circle cx="12" cy="10.7" r="1.5"/>
-    <circle cx="16.4" cy="10.7" r="1.5"/>
+  <!-- Parla: fumetto panna con tre puntini colorati. -->
+  <path d="M12 3C6.8 3 2.6 6.3 2.6 10.4c0 2.3 1.4 4.4 3.6 5.7l-1 4.5 4.7-2.5c.7.1 1.4.2 2.1.2 5.2 0 9.4-3.3 9.4-7.4S17.2 3 12 3z"
+        fill="#fdf3dc" stroke="#2b2135" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round"/>
+  <g stroke="#2b2135" stroke-width="0.7">
+    <circle cx="7.7" cy="10.4" r="1.45" fill="#e8564b"/>
+    <circle cx="12" cy="10.4" r="1.45" fill="#f7cf4a"/>
+    <circle cx="16.3" cy="10.4" r="1.45" fill="#45c4b0"/>
   </g>
 </svg>

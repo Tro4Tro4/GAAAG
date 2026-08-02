@@ -1,15 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-  <g fill="#ffffff">
-    <g>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(45 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(90 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(135 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(180 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(225 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(270 12 12)"/>
-      <rect x="10.4" y="0.6" width="3.2" height="5.4" rx="1" transform="rotate(315 12 12)"/>
+  <!-- Usa: ingranaggio cartoon. Denti sotto, corpo piu chiaro sopra di essi
+       (cosi le radici dei denti non si vedono), mozzo scuro, luce in alto. -->
+  <g stroke="#2b2135" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
+    <g fill="#e07f2c">
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(45 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(90 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(135 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(180 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(225 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(270 12 12)"/>
+      <rect x="10.3" y="1.4" width="3.4" height="5" rx="1" transform="rotate(315 12 12)"/>
     </g>
-    <path fill-rule="evenodd" d="M12 4.1a7.9 7.9 0 1 0 0 15.8 7.9 7.9 0 0 0 0-15.8zm0 4.6a3.3 3.3 0 1 1 0 6.6 3.3 3.3 0 0 1 0-6.6z"/>
+    <circle cx="12" cy="12" r="7" fill="#f2903c"/>
+    <circle cx="12" cy="12" r="3" fill="#241c2e"/>
   </g>
+  <ellipse cx="9" cy="9" rx="1.8" ry="0.9" transform="rotate(-45 9 9)" fill="#ffd09a"/>
 </svg>

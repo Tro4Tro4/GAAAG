@@ -730,6 +730,37 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     famiglia** (`look_text`, `hand_text`, `act_text`, `reach_text`). Quattro
     campi come prima, ma reggono nove parole invece di quattro.
 
+- **Le nove icone dei verbi sono cartoon a colori**, non sagome bianche:
+  riempimenti piatti e vivaci, contorno scuro spesso, un solo tocco di luce
+  per icona, e una tavolozza condivisa dalle nove così che si leggano come un
+  insieme e non come nove disegni scollegati. Il motivo è che su un badge di
+  ventiquattro unità, con il dito lì accanto e mezzo secondo di gesto, **il
+  colore arriva prima della forma**: la freccia turchese di "Vai" e quella
+  verde di "Premi" si distinguono ancora prima di essere riconosciute come
+  disegni, mentre due sagome dello stesso bianco vanno confrontate. Il
+  vocabolario è chiuso e le posizioni sono fisse, quindi il giocatore impara
+  nove colori una volta e poi mira senza leggere — che è esattamente ciò su
+  cui il premi-trascina-rilascia vive.
+  - **Sagome bianche monocromatiche** (com'erano): un colore solo, nessuna
+    tavolozza da mantenere, contrasto garantito su qualunque fondo e nessun
+    rischio di stonare con la pixel art che arriverà. Vantaggi veri. Scartate
+    perché buttano via il canale d'informazione più rapido che l'interfaccia
+    ha a disposizione, proprio nel punto in cui il tempo di lettura conta.
+  - **Contorno chiaro tipo adesivo** (un anello panna attorno a ogni sagoma):
+    farebbe staccare le icone da qualunque fondo, badge compreso. Scartato
+    perché a questa dimensione un anello in più per forma impasta i dettagli
+    interni — e non serve, dato che il badge scuro è sempre lì sotto.
+  - Il contorno è scuro (`#2b2135`) e quasi indistinguibile dal fondo del
+    badge: la silhouette la porta il riempimento chiaro, e il contorno lavora
+    **dentro** l'icona, a separare le parti. È il motivo per cui ogni
+    riempimento deve restare chiaro — un'icona in tinte scure sparirebbe.
+  - Vincolo per le icone future: stessa tavolozza, stesso spessore di
+    contorno, e massa del disegno entro un raggio di circa 11 unità dal
+    centro, o gli angoli spuntano fuori dal badge tondo.
+  - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
+    regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
+    andrebbero ripensati due riempimenti su nove.
+
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare

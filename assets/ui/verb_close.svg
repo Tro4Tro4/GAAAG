@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-  <g fill="#ffffff">
-    <path d="M2.4 2.2h7.2v2.9H5.3v13.8h4.3v2.9H2.4z"/>
-    <rect x="12.4" y="2.2" width="9.2" height="19.6" rx="0.8"/>
-    <circle cx="14.9" cy="12" r="1.35" fill="#15161f"/>
+  <!-- Chiudi: stesso stipite e stesso battente di Apri, accostato. -->
+  <g stroke="#2b2135" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M4.6 3.4h5v2.6H7v12h2.6v2.6h-5z" fill="#b9c2cf"/>
+    <rect x="11.6" y="3.4" width="8.2" height="17.2" rx="0.9" fill="#d99a52"/>
+    <rect x="14.2" y="5.8" width="4.2" height="12.4" rx="0.7" fill="#f0bd7a"/>
+    <circle cx="13" cy="12" r="1.15" fill="#f7cf4a"/>
   </g>
 </svg>

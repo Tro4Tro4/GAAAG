@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-  <g fill="#ffffff">
-    <path d="M13.6 15.4h-3.2V7H6.3L12 0l5.7 7h-4.1z"/>
-    <rect x="3" y="19" width="18" height="3.4" rx="1.7"/>
+  <!-- Tira: freccia arancione tirata su dalla piastra. -->
+  <g stroke="#2b2135" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M13.7 15.5h-3.4V8H6.8L12 1.7l5.2 6.3h-3.5z" fill="#f2903c"/>
+    <rect x="4.2" y="18.2" width="15.6" height="3.4" rx="1.7" fill="#b9c2cf"/>
   </g>
+  <rect x="6" y="19" width="5.4" height="1" rx="0.5" fill="#e6ecf5"/>
+  <rect x="10.9" y="9.3" width="1.1" height="5" rx="0.55" fill="#f9c07a"/>
 </svg>
