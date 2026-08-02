@@ -1,8 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://baggacorrid001"]
+[gd_scene load_steps=11 format=3 uid="uid://baggacorrid001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Resource" uid="uid://baggaitembutt1" path="res://resources/items/button.tres" id="5_button"]
+[ext_resource type="Resource" uid="uid://baggaitemlabl1" path="res://resources/items/labelled_button.tres" id="6_labelled_button"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
@@ -74,10 +77,13 @@ position = Vector2(0, 44)
 
 [node name="DispenserHotspot" type="Area2D" parent="."]
 position = Vector2(280, 70)
-script = ExtResource("2_hotspot")
+script = ExtResource("4_pickup")
 display_name = "Distributore"
 look_text = "Un distributore automatico. Sette pulsanti, tutti con la stessa etichetta illeggibile."
 use_text = "Premi un pulsante a caso. La macchina si illumina, ronza, e ti restituisce il pulsante."
+item = ExtResource("5_button")
+vanishes_when_taken = false
+taken_text = "Gli altri sei pulsanti restano al loro posto. Sembrano più uniti di prima."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DispenserHotspot"]
 shape = SubResource("RectangleShape2D_dispenser")
@@ -92,6 +98,10 @@ display_name = "Cartello"
 look_text = "Un cartello: LIVELLO 4. Qualcuno ha cancellato il 4 e ha riscritto 4, con più decisione."
 use_text = "È avvitato al muro. Molto avvitato."
 talk_text = "Il cartello non risponde. Insiste a sostenere di essere il livello 4."
+accepted_item = ExtResource("6_labelled_button")
+accepted_text = "Appiccichi il pulsante sotto la scritta. Adesso il cartello dice LIVELLO 4, NON IMPILARE: sembra molto meno un'informazione."
+consumes_accepted_item = true
+accepted_flag = &"sign_has_button"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SignHotspot"]
 shape = SubResource("RectangleShape2D_sign")

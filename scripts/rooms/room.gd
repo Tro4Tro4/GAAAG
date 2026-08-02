@@ -23,6 +23,11 @@ signal wants_to_say(text: String)
 ## not something living in this room's world.
 signal hotspot_activated(hotspot: Hotspot, at_screen_position: Vector2)
 
+## Emitted when the item the player was holding has been used, or given up on.
+## The room does not decide what "holding an item" means — it is told, and it
+## says when it is over.
+signal held_item_released
+
 ## The entry point used when a door names one this room does not have.
 const DEFAULT_ENTRY: StringName = &"Default"
 
@@ -39,6 +44,16 @@ var _pending_hotspot: Hotspot = null
 # The verb chosen for _pending_hotspot. Meaningless while that is null.
 var _pending_verb: int = Hotspot.Verb.LOOK
 
+# The item the player picked out of the inventory and has not yet aimed at
+# anything. While this is set, a tap on a hotspot means "use it on that" and
+# the verb-coin never opens: the sentence is already half written.
+var _held_item: InventoryItem = null
+
+# The item travelling with the character towards _pending_hotspot. Separate
+# from _held_item because the player may drop the errand mid-walk, and what
+# arrives has to be what was set out with.
+var _pending_item: InventoryItem = null
+
 # Who this room is currently driving. Handed over by Game rather than read
 # from GameState: during a room swap the active character briefly belongs to a
 # room that is not on screen, and only Game knows when that has settled.
@@ -48,8 +63,10 @@ var _character: PlayerCharacter = null
 ## Hands this room the character the player is controlling.
 func set_character(character: PlayerCharacter) -> void:
 	# The errand belonged to whoever was walking. Handing control over does
-	# not hand over the errand, so it is dropped rather than inherited.
+	# not hand over the errand, so it is dropped rather than inherited — and
+	# neither does an item held out of somebody else's bag.
 	_pending_hotspot = null
+	_pending_item = null
 
 	if _character != null and is_instance_valid(_character):
 		_character.destination_reached.disconnect(_on_destination_reached)
@@ -58,6 +75,11 @@ func set_character(character: PlayerCharacter) -> void:
 
 	if _character != null:
 		_character.destination_reached.connect(_on_destination_reached)
+
+
+## Tells the room which item, if any, the player is carrying in hand.
+func set_held_item(item: InventoryItem) -> void:
+	_held_item = item
 
 
 ## Sends the character to [param hotspot], to perform [param verb] on arrival.
@@ -122,6 +144,12 @@ func _handle_click(world_position: Vector2, screen_position: Vector2) -> void:
 
 	var hotspot: Hotspot = _hotspot_at(world_position)
 
+	if _held_item != null:
+		# The verb was chosen in the inventory, so the coin stays shut: half
+		# the sentence is written and this tap supplies the other half.
+		_aim_held_item_at(hotspot)
+		return
+
 	if hotspot != null:
 		# Nothing moves yet: the coin opens on the spot that was tapped, and
 		# the walk is ordered only once a verb has been chosen. Changing your
@@ -131,6 +159,21 @@ func _handle_click(world_position: Vector2, screen_position: Vector2) -> void:
 
 	_pending_hotspot = null
 	_walk_to(world_position)
+
+
+func _aim_held_item_at(hotspot: Hotspot) -> void:
+	_pending_hotspot = hotspot
+	_pending_item = null
+
+	if hotspot == null:
+		# Bare floor means never mind. The character does not walk there: one
+		# tap has to be able to mean "put it away" and nothing else, or calling
+		# the sentence off would send somebody across the room first.
+		held_item_released.emit()
+		return
+
+	_pending_item = _held_item
+	_walk_to(hotspot.get_approach_position())
 
 
 func _walk_to(destination: Vector2) -> void:
@@ -170,6 +213,19 @@ func _on_destination_reached() -> void:
 	# itself still pending when that second walk ends.
 	var hotspot: Hotspot = _pending_hotspot
 	_pending_hotspot = null
+
+	if _pending_item != null:
+		var item: InventoryItem = _pending_item
+		_pending_item = null
+
+		wants_to_say.emit(hotspot.get_text_for_item(item))
+		hotspot.use_item(item, _character)
+
+		# Released whether or not the hotspot wanted it: a refused item is
+		# still an attempt that is over, and leaving it in hand would make the
+		# next tap anywhere try the same thing again.
+		held_item_released.emit()
+		return
 
 	wants_to_say.emit(hotspot.get_text_for(_pending_verb))
 	hotspot.interact(_pending_verb, _character)

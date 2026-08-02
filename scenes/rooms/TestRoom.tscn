@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=8 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
-[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Resource" uid="uid://baggaitemstic1" path="res://resources/items/sticker.tres" id="5_sticker"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
@@ -52,10 +53,13 @@ position = Vector2(316, 132)
 
 [node name="CrateHotspot" type="Area2D" parent="."]
 position = Vector2(192, 160)
-script = ExtResource("2_hotspot")
+script = ExtResource("4_pickup")
 display_name = "Cassa"
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
-use_text = "Il coperchio non cede. Forse a tenerlo chiuso è proprio quel NON."
+use_text = "Il coperchio non cede di un millimetro. L'adesivo invece viene via subito."
+item = ExtResource("5_sticker")
+vanishes_when_taken = false
+taken_text = "Il coperchio continua a non cedere, e adesso non c'è nemmeno più scritto perché."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")

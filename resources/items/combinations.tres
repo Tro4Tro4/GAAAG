@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CombinationBook" load_steps=7 format=3 uid="uid://baggacombobk01"]
+
+[ext_resource type="Script" path="res://scripts/items/combination_book.gd" id="1_book"]
+[ext_resource type="Script" path="res://scripts/items/item_combination.gd" id="2_combination"]
+[ext_resource type="Resource" uid="uid://baggaitemstic1" path="res://resources/items/sticker.tres" id="3_sticker"]
+[ext_resource type="Resource" uid="uid://baggaitembutt1" path="res://resources/items/button.tres" id="4_button"]
+[ext_resource type="Resource" uid="uid://baggaitemlabl1" path="res://resources/items/labelled_button.tres" id="5_labelled_button"]
+
+[sub_resource type="Resource" id="Resource_sticker_on_button"]
+script = ExtResource("2_combination")
+first = ExtResource("3_sticker")
+second = ExtResource("4_button")
+result = ExtResource("5_labelled_button")
+text = "Stacchi l'adesivo e lo appiccichi sul pulsante. Adesso il pulsante dice NON IMPILARE."
+
+[resource]
+script = ExtResource("1_book")
+recipes = Array[ExtResource("2_combination")]([SubResource("Resource_sticker_on_button")])

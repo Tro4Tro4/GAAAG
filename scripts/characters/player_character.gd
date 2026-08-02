@@ -21,6 +21,10 @@ signal destination_reached
 ## the new room on screen if this is the character the player is controlling.
 signal room_changed(character: PlayerCharacter)
 
+## Emitted when this character picks something up or parts with it, so the
+## inventory panel can redraw without being told who did what.
+signal inventory_changed(character: PlayerCharacter)
+
 ## The name shown on the character-switching bar.
 @export var display_name: String = ""
 
@@ -35,6 +39,12 @@ signal room_changed(character: PlayerCharacter)
 ## record of where anybody is — there is no separate table of positions,
 ## because the character node itself is never unloaded.
 @export_file("*.tscn") var current_room: String = ""
+
+## What this character is carrying. One bag each, not one bag for everybody:
+## an object that has to get from one person to another is then a puzzle
+## instead of a formality, which is the reason the game has several characters
+## in the first place.
+var inventory: Array[InventoryItem] = []
 
 @onready var _body: Polygon2D = $Body
 
@@ -77,6 +87,29 @@ func move_to_room(room_path: String, entry_name: StringName) -> void:
 	current_room = room_path
 	_pending_entry = entry_name
 	room_changed.emit(self)
+
+
+## True when this character is carrying [param item].
+func is_carrying(item: InventoryItem) -> bool:
+	return item != null and item in inventory
+
+
+## Adds [param item] to this character's inventory.
+func take(item: InventoryItem) -> void:
+	if item == null or item in inventory:
+		return
+
+	inventory.append(item)
+	inventory_changed.emit(self)
+
+
+## Removes [param item] from this character's inventory.
+func give_up(item: InventoryItem) -> void:
+	if not item in inventory:
+		return
+
+	inventory.erase(item)
+	inventory_changed.emit(self)
 
 
 ## Returns the entry point owed to this character, and forgets it. Empty when

@@ -45,7 +45,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
    multi-stanza *(fatto e **verificato sul dispositivo**: radice `Game`, due
    stanze collegate da una porta, cambiare personaggio porta nella sua stanza)*
-3. Sistema inventario
+3. Sistema inventario *(fatto, **da verificare sul dispositivo**: un
+   inventario per personaggio, pannello a comparsa, verbi sugli oggetti,
+   combinazione fra oggetti, uso di un oggetto su un hotspot)*
 4. Sistema dialoghi con condizioni
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
@@ -65,8 +67,13 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
   game.gd            Scambia le stanze e collega stanza, personaggi e UI
   autoload/          Stato che sopravvive alle scene (game_state.gd)
-  rooms/             room.gd, hotspot.gd, door_hotspot.gd
-  ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd)
+  rooms/             room.gd, hotspot.gd, door_hotspot.gd, pickup_hotspot.gd
+  items/             inventory_item.gd, item_combination.gd,
+                     combination_book.gd — dati, non nodi
+  ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
+                     inventory_panel.gd)
+resources/           Risorse di dati (.tres), niente scene e niente codice
+  items/             Un file per oggetto, più combinations.tres con le ricette
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
 
@@ -423,18 +430,109 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     qualcuno la disattivasse, oggi si perderebbe anche la scelta del verbo,
     non solo il tocco.
 
+- **Inventario separato per personaggio**, non condiviso. Chiude il punto che
+  era rimasto aperto. Il motivo è che l'inventario condiviso renderebbe inutile
+  metà del sistema costruito fin qui: i personaggi sopravvivono alle stanze
+  perché uno possa stare di là mentre l'altro sta di qua, ma se le loro tasche
+  sono le stesse la distanza fra loro smette di essere un ostacolo, e l'esempio
+  di puzzle scritto in cima a questo file — uno passa un oggetto attraverso una
+  finestra, l'altro lo raccoglie — non è più un puzzle.
+  - **Inventario condiviso**: azzera l'attrito. Il giocatore non deve mai
+    ricordare chi ha cosa né tornare indietro con la persona giusta, e la UI è
+    una lista sola. Va anche detto che **non** ucciderebbe la cooperazione in
+    generale: "uno tiene giù la leva mentre l'altro passa" funziona lo stesso.
+    Scartato perché uccide la sottofamiglia degli enigmi *di trasporto*, che è
+    proprio quella che il progetto cita come esempio.
+  - **Ibrido** (fondo comune più oggetti personali): recupera entrambi.
+    Rimandato perché richiede di comunicare al giocatore quale oggetto è di
+    quale tipo — una regola in più da imparare prima di poter ragionare — e non
+    c'è ancora abbastanza gioco per sapere se serva.
+  - Costo accettato, e da pagare in fase di scrittura e non nel codice: se il
+    giocatore dovesse continuamente cambiare personaggio e camminare per
+    spostare oggetti, la difficoltà si sposterebbe dalla trovata alla
+    logistica. La risposta è **rendere lo scambio raro e interessante** — un
+    passaggio fisico che sia esso stesso l'enigma, non un comando di menù.
+  - Nota: da rivalutare verso l'ibrido se in scrittura emergesse che troppi
+    oggetti vogliono viaggiare liberi.
+- **Flag di gioco in `GameState`, solo alzabili**: `is_raised()` e
+  `raise_flag()`, un insieme di nomi. È il minimo che l'inventario rende
+  obbligatorio — una stanza viene ricostruita dal suo file ogni volta che ci si
+  torna, quindi senza flag una cassa svuotata si riempirebbe di nuovo e lo
+  stesso oggetto si potrebbe prendere due volte. Non è ancora il sistema
+  completo che servirà ai dialoghi: è la parte che quello estenderà.
+  - **Interruttori a due vie** invece di flag a senso unico: più generali.
+    Scartati perché ciò che può tornare indietro è *stato*, e lo stato
+    appartiene a chi lo possiede; un insieme globale di cose già accadute non
+    ha bisogno di poterle disfare, e non poterlo fare è metà della garanzia.
+  - Il flag di "già preso" **non si scrive a mano**: `PickupHotspot` lo ricava
+    dall'id dell'oggetto (`taken:<id>`). Un campo in meno da riempire e uno in
+    meno da tenere allineato.
+- **La frase "Usa X con Y" si costruisce in due tocchi separati**, non con un
+  trascinamento: si preme l'oggetto nell'inventario, si sceglie Usa con la
+  verb-coin di sempre, l'oggetto **resta in mano**, si chiude il pannello e si
+  tocca il bersaglio. Mentre qualcosa è in mano la verb-coin non si apre più
+  sugli hotspot: metà della frase è già scritta e il tocco fornisce l'altra
+  metà.
+  - **Trascinare l'oggetto dall'inventario sul bersaglio**: un gesto solo,
+    coerente con la verb-coin. Scartato perché costringerebbe l'inventario a
+    essere sempre visibile — non si può trascinare su un bersaglio che sta
+    sotto il pannello — e su uno schermo alto 216 pixel una striscia permanente
+    costa un decimo dell'altezza per qualcosa che si guarda di rado.
+  - Ne segue che l'oggetto in mano deve restare visibile quando il pannello è
+    chiuso: lo mostra il **bottone dello zaino**, che ne prende il nome. È
+    l'unico posto sempre presente sullo schermo.
+  - Toccare il pavimento con qualcosa in mano **rimette via l'oggetto e non fa
+    camminare nessuno**: annullare deve poter essere un gesto solo, o disdire
+    la frase manderebbe prima il personaggio dall'altra parte della stanza.
+  - Un oggetto rifiutato dal bersaglio viene comunque rimesso via: un tentativo
+    fallito è pur sempre un tentativo finito, e lasciarlo in mano farebbe
+    ripetere lo stesso errore al tocco successivo.
+- **La verb-coin sugli oggetti dell'inventario ha gli stessi tre verbi** della
+  verb-coin sugli hotspot, e Parla risponde con il rifiuto generico. Un elenco
+  di verbi variabile richiederebbe alla moneta di ricostruirsi ogni volta e al
+  giocatore di leggere prima di scegliere, mentre la scelta per direzione vive
+  proprio sul fatto che le tre posizioni siano sempre le stesse.
+- **Le ricette stanno in un libro solo** (`combinations.tres`), non sugli
+  oggetti che coinvolgono. Se un oggetto portasse le proprie ricette, le due
+  classi si nominerebbero a vicenda e il progetto dipenderebbe da come GDScript
+  risolve un riferimento ciclico — cosa che probabilmente fa, ma che non è
+  verificabile dalla macchina di sviluppo. In più, quando una combinazione non
+  funziona c'è un posto solo dove guardare.
+- **Un hotspot accetta un solo oggetto**, dichiarato come dato
+  (`accepted_item`, `accepted_text`, `consumes_accepted_item`,
+  `accepted_flag`). È la stessa scelta già presa per i verbi: il caso
+  serratura-e-chiave si esprime come dato, e qualunque cosa più complicata è un
+  hotspot con uno script suo.
+- **Le voci dell'inventario si leggono in `_input()` come nella verb-coin**, e
+  i `Button` degli slot sono `MOUSE_FILTER_IGNORE`. Non è solo coerenza: un
+  `Button` si annuncia al **rilascio**, e qui il gesto della verb-coin deve
+  partire dalla **pressione** — quando il dito si alza è troppo tardi per
+  cominciare a trascinare.
+
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
   una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
   distingue le coordinate del mondo da quelle dello schermo quando apre la
   verb-coin, e la UI sta su un `CanvasLayer` che la telecamera non muove
-- **Persistenza dello stato di una stanza**: oggi una stanza viene liberata
-  quando la si lascia e ricostruita da capo quando ci si torna, quindi
-  qualunque cambiamento fatto al suo interno (una cassa aperta, un oggetto
-  spostato) andrebbe perso. Non è un problema finché gli hotspot sono di soli
-  dati, lo diventa al primo puzzle con uno stato. La sede naturale è il
-  sistema di flag in `GameState`, da progettare insieme ai dialoghi
+- **Come si passa un oggetto da un personaggio all'altro**: è il buco lasciato
+  aperto dalla scelta dell'inventario separato, ed è il punto in cui il puzzle
+  cooperativo del prototipo verticale sta o cade. Oggi non esiste alcun modo:
+  chi raccoglie una cosa se la tiene. Opzioni: un hotspot "passaggio" che
+  sposta un oggetto in un hotspot gemello di un'altra stanza (la finestra, la
+  fessura, il tubo — il codice è quello di `DoorHotspot` applicato agli
+  oggetti); dare l'oggetto direttamente a un personaggio presente nella stessa
+  stanza; un congegno fisso stile cessi temporali di Day of the Tentacle. La
+  prima è quella che rende ogni scambio un enigma invece di un comando, ed è
+  quella su cui punterei — ma va decisa con il primo puzzle vero in mano
+- **Persistenza dello stato di una stanza, oltre al "già preso"**: i flag di
+  `GameState` coprono ora ciò che l'inventario richiedeva — un oggetto raccolto
+  resta raccolto anche uscendo e rientrando. Restano scoperti i cambiamenti che
+  non riguardano un oggetto: una porta che si è aperta, una leva abbassata, un
+  hotspot che deve cambiare descrizione. Il meccanismo c'è già (`accepted_flag`
+  viene alzato ma oggi nessuno lo legge); manca la parte che fa reagire una
+  stanza ai flag mentre si ricostruisce. Da progettare insieme ai dialoghi, che
+  useranno gli stessi flag come condizioni
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
 - Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è
@@ -451,7 +549,6 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   insieme all'eventuale localizzazione, che in Godot conviene impostare prima
   di avere testo sparso nelle scene
 - Durata finale del gioco (valutare dopo il prototipo)
-- Inventario condiviso vs per personaggio
 - Nome del progetto, dei personaggi, ambientazione specifica
 
 ## Comportamento di Claude Code su questo progetto
@@ -467,6 +564,12 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   possano verificare premendo Play, ed evitare di scaricare sullo sviluppatore
   editing manuale lungo nell'editor quando si può esprimere la stessa cosa nel
   file di scena
+- **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
+  `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
+  sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni
+  script toccato prima di committare — costa qualche secondo ed evita di
+  spedire allo sviluppatore un errore di sintassi che scoprirebbe premendo
+  Play. Non verifica i tipi né i nomi: solo la forma
 - Prima di implementare scelte architetturali importanti (es. come gestire
   lo stato dei personaggi, come strutturare i dialoghi), proporre alternative
   con pro/contro e motivare la scelta consigliata, non eseguire e basta

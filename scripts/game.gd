@@ -9,22 +9,50 @@ extends Node2D
 ## people in front of you, and Day of the Tentacle switching would be
 ## impossible.
 ##
-## This node owns no state. Who is active, and later the inventory and the
-## flags, stay in GameState. Game is only the place in the tree where the
-## pieces are held and wired to each other.
+## This node owns no state. Who is active, what has happened and who is
+## carrying what stay in GameState and in the characters. Game is only the
+## place in the tree where the pieces are held and wired to each other — plus
+## the one thing that belongs to no piece: which item the player has in hand
+## between choosing it in the bag and aiming it at something in the room.
+
+## What the bag button says when the player is not holding anything.
+const BAG_LABEL: String = "Zaino"
+
+## Shown when the bag closes with something in hand, so the half-written
+## sentence is visible after the panel that started it has gone.
+const USING_TEMPLATE: String = "Usa %s con..."
+
+## Every recipe in the game. An @export filled in from Game.tscn rather than a
+## preload: a mistyped path then costs a combination that refuses, instead of a
+## game that will not start.
+@export var combinations: CombinationBook = null
 
 @onready var _room_container: Node2D = $RoomContainer
 @onready var _caption: Caption = $UI/Caption
 @onready var _verb_coin: VerbCoin = $UI/VerbCoin
+@onready var _inventory_panel: InventoryPanel = $UI/InventoryPanel
+@onready var _inventory_button: Button = $UI/InventoryButton
 
 # The room currently in the tree, and the scene file it came from. The path is
 # what tells a real room change from switching to someone standing next to you.
 var _room: Room = null
 var _room_path: String = ""
 
+# The item taken out of the bag and not yet aimed at anything. It lives here
+# and not in the character because it is not something the character has — it
+# is a sentence the player has started and can still abandon.
+var _held_item: InventoryItem = null
+
 
 func _ready() -> void:
 	_verb_coin.verb_chosen.connect(_on_verb_chosen)
+	_verb_coin.item_verb_chosen.connect(_on_item_verb_chosen)
+
+	_inventory_button.pressed.connect(_on_inventory_button_pressed)
+	_inventory_panel.item_pressed.connect(_on_inventory_item_pressed)
+	_inventory_panel.combine_requested.connect(_on_combine_requested)
+	_inventory_panel.dismissed.connect(_on_inventory_dismissed)
+
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
 	# Characters register during their own _ready(), and children are ready
@@ -33,6 +61,7 @@ func _ready() -> void:
 	for character in GameState.characters:
 		character.room_changed.connect(_on_character_room_changed)
 
+	_refresh_inventory_button()
 	_show_room_of(GameState.active_character)
 
 
@@ -62,8 +91,12 @@ func _show_room_of(character: PlayerCharacter) -> void:
 	if character == null:
 		return
 
-	# A menu still open belonged to the errand you have just walked away from.
+	# A menu still open, and an item still in hand, belonged to the errand you
+	# have just walked away from. The item in particular came out of somebody
+	# else's bag, and handing over control does not hand over their pockets.
 	_verb_coin.close()
+	_inventory_panel.close()
+	_release_held_item()
 
 	if character.current_room != _room_path:
 		_swap_room_to(character.current_room)
@@ -112,6 +145,7 @@ func _swap_room_to(room_path: String) -> void:
 	# freed, and the room is freed above.
 	_room.wants_to_say.connect(_caption.show_text)
 	_room.hotspot_activated.connect(_verb_coin.open_for)
+	_room.held_item_released.connect(_release_held_item)
 
 	_room_container.add_child(_room)
 
@@ -134,3 +168,91 @@ func _place_characters() -> void:
 func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:
 	if _room != null:
 		_room.begin_action(verb, hotspot)
+
+
+func _on_inventory_button_pressed() -> void:
+	if _inventory_panel.is_open():
+		_inventory_panel.close()
+		_on_inventory_dismissed()
+		return
+
+	_inventory_panel.open()
+
+
+func _on_inventory_item_pressed(item: InventoryItem, at_screen_position: Vector2) -> void:
+	_verb_coin.open_for_item(item, at_screen_position)
+
+
+## Answers a verb aimed at something in the bag. Nothing walks anywhere: an
+## item is already in the character's hands, so there is nowhere to walk to.
+func _on_item_verb_chosen(verb: int, item: InventoryItem) -> void:
+	match verb:
+		Hotspot.Verb.LOOK:
+			_caption.show_text(item.look_text if not item.look_text.is_empty() else Hotspot.REFUSAL)
+		Hotspot.Verb.USE:
+			# USE on an item does not use it on anything yet — it picks it up
+			# ready to be aimed. The other half of the sentence is the next
+			# thing tapped, in the bag or in the room.
+			_hold_item(item)
+		_:
+			_caption.show_text(Hotspot.REFUSAL)
+
+
+func _on_combine_requested(first: InventoryItem, second: InventoryItem) -> void:
+	# The same item twice is the player pressing what they are holding: that
+	# means putting it back, not combining it with itself.
+	if first == second:
+		_release_held_item()
+		return
+
+	var recipe: ItemCombination = null
+	if combinations != null:
+		recipe = combinations.find(first, second)
+	else:
+		push_warning("Game has no combination book: every combination will refuse.")
+
+	var character: PlayerCharacter = GameState.active_character
+
+	if recipe == null or recipe.result == null or character == null:
+		_caption.show_text(CombinationBook.REFUSAL)
+		_release_held_item()
+		return
+
+	character.give_up(first)
+	character.give_up(second)
+	character.take(recipe.result)
+
+	_caption.show_text(recipe.text)
+	_release_held_item()
+
+
+func _on_inventory_dismissed() -> void:
+	if _held_item != null:
+		_caption.show_text(USING_TEMPLATE % _held_item.display_name)
+
+
+func _hold_item(item: InventoryItem) -> void:
+	_held_item = item
+	_inventory_panel.set_held_item(item)
+	_refresh_inventory_button()
+
+	if _room != null:
+		_room.set_held_item(item)
+
+
+func _release_held_item() -> void:
+	if _held_item == null:
+		return
+
+	_held_item = null
+	_inventory_panel.set_held_item(null)
+	_refresh_inventory_button()
+
+	if _room != null:
+		_room.set_held_item(null)
+
+
+func _refresh_inventory_button() -> void:
+	# The button doubles as the only place the held item is always visible: the
+	# bag is shut most of the time the player is carrying something out to use.
+	_inventory_button.text = _held_item.display_name if _held_item != null else BAG_LABEL

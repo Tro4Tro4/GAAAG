@@ -18,11 +18,24 @@ signal active_character_changed(character: PlayerCharacter)
 ## rebuild itself without knowing who did it.
 signal roster_changed
 
+## Emitted when a flag is raised, so anything watching for it can react without
+## being asked every frame.
+signal flag_raised(flag: StringName)
+
 ## Every playable character currently in the tree, in registration order.
 var characters: Array[PlayerCharacter] = []
 
 ## The one the player is controlling. Null only before anyone has registered.
 var active_character: PlayerCharacter = null
+
+# What has already happened, as a set of names. A room is thrown away when the
+# player leaves it and built again from its scene file when they come back, so
+# anything that changed inside it has to be remembered out here or it un-happens
+# — a crate emptied would refill itself, and the same item could be taken twice.
+#
+# Only ever raised, never lowered. That is what a flag is for; a switch that
+# can go both ways is state, and state belongs to whatever owns it.
+var _flags: Dictionary = {}
 
 
 ## Characters announce themselves as they enter the tree. The alternative —
@@ -58,3 +71,16 @@ func set_active_character(character: PlayerCharacter) -> void:
 
 	active_character = character
 	active_character_changed.emit(character)
+
+
+## True once [param flag] has been raised.
+func is_raised(flag: StringName) -> bool:
+	return _flags.has(flag)
+
+
+func raise_flag(flag: StringName) -> void:
+	if flag.is_empty() or _flags.has(flag):
+		return
+
+	_flags[flag] = true
+	flag_raised.emit(flag)

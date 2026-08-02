@@ -38,6 +38,12 @@ extends Control
 ## this project cannot verify from the development machine.
 signal verb_chosen(verb: int, hotspot: Hotspot)
 
+## The same, for a verb aimed at something in the inventory. A separate signal
+## rather than one carrying an Object: the two are answered in completely
+## different ways — one starts a walk across the room, the other never leaves
+## the interface — and a shared signal would only be un-shared at the far end.
+signal item_verb_chosen(verb: int, item: InventoryItem)
+
 const BUTTON_FONT_SIZE: int = 8
 const BUTTON_SIZE: Vector2 = Vector2(34, 13)
 
@@ -71,7 +77,10 @@ const BUTTON_OFFSETS: Array = [
 var _labels: Array[String] = ["Guarda", "Usa", "Parla"]
 var _verbs: Array[int] = [Hotspot.Verb.LOOK, Hotspot.Verb.USE, Hotspot.Verb.TALK]
 
+# What the coin was opened on. Exactly one of the two is set at a time.
 var _hotspot: Hotspot = null
+var _item: InventoryItem = null
+
 var _buttons: Array[Button] = []
 
 # Where the gesture started: the point the coin opened on. Every direction is
@@ -91,16 +100,29 @@ func _ready() -> void:
 ## Opens the coin for [param hotspot], centred on [param at_position].
 func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 	_hotspot = hotspot
-	_anchor = at_position
-	_place_buttons(at_position)
-	_highlight(-1)
-	visible = true
+	_item = null
+	_open_at(at_position)
+
+
+## Opens the coin for [param item] in the inventory, centred on its slot.
+func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
+	_item = item
+	_hotspot = null
+	_open_at(at_position)
 
 
 func close() -> void:
 	visible = false
 	_hotspot = null
+	_item = null
 	_highlight(-1)
+
+
+func _open_at(at_position: Vector2) -> void:
+	_anchor = at_position
+	_place_buttons(at_position)
+	_highlight(-1)
+	visible = true
 
 
 func _input(event: InputEvent) -> void:
@@ -145,12 +167,16 @@ func _choose(slice: int) -> void:
 	# Closed before the verb goes out, so the coin is gone before anyone reacts
 	# to the choice and an action that opens something else does not fight it.
 	var hotspot: Hotspot = _hotspot
+	var item: InventoryItem = _item
 	close()
 
-	if slice < 0 or hotspot == null:
+	if slice < 0:
 		return
 
-	verb_chosen.emit(_verbs[slice], hotspot)
+	if hotspot != null:
+		verb_chosen.emit(_verbs[slice], hotspot)
+	elif item != null:
+		item_verb_chosen.emit(_verbs[slice], item)
 
 
 ## The slice the finger is aiming at from [param point], or -1 for none.

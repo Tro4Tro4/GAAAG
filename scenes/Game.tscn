@@ -1,13 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=8 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/ui/caption.gd" id="3_caption"]
 [ext_resource type="Script" path="res://scripts/ui/character_bar.gd" id="4_bar"]
 [ext_resource type="Script" path="res://scripts/ui/verb_coin.gd" id="5_coin"]
+[ext_resource type="Script" path="res://scripts/ui/inventory_panel.gd" id="6_inventory"]
+[ext_resource type="Resource" uid="uid://baggacombobk01" path="res://resources/items/combinations.tres" id="7_combinations"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
+combinations = ExtResource("7_combinations")
 
 [node name="RoomContainer" type="Node2D" parent="."]
 
@@ -46,6 +49,47 @@ offset_bottom = 208.0
 mouse_filter = 2
 theme_override_constants/separation = 4
 script = ExtResource("4_bar")
+
+[node name="InventoryButton" type="Button" parent="UI"]
+offset_left = 296.0
+offset_top = 190.0
+offset_right = 376.0
+offset_bottom = 208.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 8
+text = "Zaino"
+
+[node name="InventoryPanel" type="Control" parent="UI"]
+offset_right = 384.0
+offset_bottom = 216.0
+script = ExtResource("6_inventory")
+
+[node name="Frame" type="Panel" parent="UI/InventoryPanel"]
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 344.0
+offset_bottom = 176.0
+
+[node name="Slots" type="GridContainer" parent="UI/InventoryPanel/Frame"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 296.0
+offset_bottom = 128.0
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="Empty" type="Label" parent="UI/InventoryPanel/Frame"]
+offset_left = 8.0
+offset_top = 60.0
+offset_right = 296.0
+offset_bottom = 76.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 8
+text = "Non hai niente."
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="VerbCoin" type="Control" parent="UI"]
 offset_right = 384.0
