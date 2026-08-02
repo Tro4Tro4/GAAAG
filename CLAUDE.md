@@ -389,12 +389,18 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     dispositivo**: è stata la misura che mancava per prendere questa
     decisione, non un ripensamento a tavolino.
   - **Sollevando si esegue lo spicchio illuminato**, non quello sotto il punto
-    di rilascio. Il primo tentativo rifaceva il test di posizione al
-    sollevamento, e sul dispositivo il verbo si accendeva ma non partiva: il
-    polpastrello **rotola di qualche pixel mentre lascia il vetro**, quindi il
-    rilascio cade poco distante dall'ultimo movimento. Regola generale, non
-    aggiustamento locale: in un gesto continuo lo stato è ciò che l'interfaccia
-    sta mostrando, e il rilascio lo conferma — non è l'occasione per ricalcolarlo.
+    di rilascio: in un gesto continuo lo stato è ciò che l'interfaccia sta
+    mostrando, e il rilascio lo conferma — non è l'occasione per ricalcolarlo.
+    Il primo tentativo rifaceva il test di posizione al sollevamento.
+  - **Le posizioni si leggono da `event.position` e non si convertono.** È il
+    bug che è costato più tempo di tutti: `make_input_local()` sembra la cosa
+    giusta da fare in un `Control`, ma un evento arriva **già** espresso nello
+    spazio 384×216, e riconvertirlo lo divide per il fattore di scala dello
+    schermo — cinque, su un telefono. Il risultato non è un errore di qualche
+    pixel: la direzione del gesto punta sempre in alto a sinistra, quindi
+    vince sempre il primo verbo. Diagnosi sbagliata lungo la strada: il
+    sintomo era stato attribuito al polpastrello che rotola al sollevamento,
+    che è un fenomeno reale ma non era questo.
   - **`Button` non sta nella dimensione che gli chiedi**: un `Control` rifiuta
     di essere più piccolo del suo contenuto, quindi un bottone richiesto
     34×13 esce più alto una volta che font e margini del tema hanno detto la

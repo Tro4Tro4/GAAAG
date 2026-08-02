@@ -24,6 +24,15 @@ extends Control
 ## mouse event, so nothing reaches the room underneath and a stray lift
 ## cancels instead of ordering a walk.
 
+## Every position here — the anchor, the buttons, the finger — is read
+## straight from [member InputEventMouse.position], with no conversion of any
+## kind. Do not reach for [method CanvasItem.make_input_local]: an event
+## arrives already expressed in the game's 384x216 space, and converting it
+## again divides it by the screen's scale factor. On a phone that is a factor
+## of five, and the effect is not a wobble but a gesture that always points up
+## and to the left, so the first verb wins every time. This cost a debugging
+## session; the note is here so it costs no more.
+
 ## Emitted when the player picks a verb. The verb is an int rather than
 ## Hotspot.Verb because an enum in a signal signature is one of the things
 ## this project cannot verify from the development machine.
@@ -106,7 +115,8 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventMouseMotion:
-		_highlight(_slice_aimed_at(_local_position(event)))
+		var motion: InputEventMouseMotion = event
+		_highlight(_slice_aimed_at(motion.position))
 		get_viewport().set_input_as_handled()
 		return
 
@@ -122,10 +132,10 @@ func _input(event: InputEvent) -> void:
 			close()
 		else:
 			# The highlighted slice, not a fresh look at where the finger is.
-			# A fingertip rolls a few pixels as it leaves the glass, so the
-			# release lands slightly away from the last movement — and asking
-			# again there would sometimes answer "nowhere" right after the
-			# player watched a verb light up. What is lit is what runs.
+			# In a continuous gesture the state is whatever the interface is
+			# showing, and the lift confirms it — it is not an opportunity to
+			# work it out again. A fingertip also rolls a pixel or two on its
+			# way off the glass, so the two answers need not agree.
 			_choose(_highlighted)
 
 		get_viewport().set_input_as_handled()
@@ -187,14 +197,6 @@ func _highlight(slice: int) -> void:
 		# style with nobody having pressed it. The highlight then comes from the
 		# theme, instead of needing a second set of art to maintain.
 		_buttons[i].button_pressed = i == _highlighted
-
-
-func _local_position(event: InputEvent) -> Vector2:
-	# The coin sits at the origin of a CanvasLayer, so today this changes
-	# nothing. It is written out anyway so that moving the node does not
-	# silently move every direction away from the buttons they point at.
-	var local_event := make_input_local(event) as InputEventMouse
-	return local_event.position
 
 
 func _build_buttons() -> void:
