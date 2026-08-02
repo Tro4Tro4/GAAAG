@@ -24,4 +24,3 @@ polygon = PackedVector2Array(-3, -26, 3, -26, 3, -20, -3, -20)
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 path_desired_distance = 4.0
 target_desired_distance = 4.0
-debug_enabled = true

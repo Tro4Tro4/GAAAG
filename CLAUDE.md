@@ -45,9 +45,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
    multi-stanza *(fatto e **verificato sul dispositivo**: radice `Game`, due
    stanze collegate da una porta, cambiare personaggio porta nella sua stanza)*
-3. Sistema inventario *(fatto, **da verificare sul dispositivo**: un
-   inventario per personaggio, pannello a comparsa, verbi sugli oggetti,
-   combinazione fra oggetti, uso di un oggetto su un hotspot)*
+3. Sistema inventario *(fatto e **verificato sul dispositivo**: un inventario
+   per personaggio, pannello a comparsa, verbi sugli oggetti, combinazione fra
+   oggetti, uso di un oggetto su un hotspot)*
 4. Sistema dialoghi con condizioni
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
