@@ -1,9 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=14 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
 [ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="6_passage"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="7_variant"]
 [ext_resource type="Resource" uid="uid://baggaitemstic1" path="res://resources/items/sticker.tres" id="5_sticker"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
@@ -20,6 +22,14 @@ size = Vector2(40, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
 size = Vector2(20, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_draft"]
+size = Vector2(64, 30)
+
+[sub_resource type="Resource" id="Resource_crate_peeled"]
+script = ExtResource("7_variant")
+conditions = PackedStringArray("taken:sticker")
+look_text = "Una cassa di metallo. Dove stava l'adesivo il grigio è più chiaro, e la cassa ha smesso di avere opinioni sull'impilamento."
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
@@ -68,6 +78,7 @@ act_verb = 3
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
 hand_text = "Il coperchio non cede di un millimetro. L'adesivo invece viene via subito."
 act_text = "Spingi il coperchio con tutte e due le mani. La cassa si sposta di un centimetro e si rimette dov'era."
+variants = Array[ExtResource("7_variant")]([SubResource("Resource_crate_peeled")])
 item = ExtResource("5_sticker")
 vanishes_when_taken = false
 taken_text = "Sul coperchio resta un rettangolo più pulito, che non dice niente a nessuno."
@@ -97,6 +108,23 @@ shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
 position = Vector2(0, 44)
+
+[node name="DraftHotspot" type="Area2D" parent="."]
+position = Vector2(316, 135)
+script = ExtResource("2_hotspot")
+display_name = "Spiffero"
+look_text = "Dalla porta aperta arriva aria tiepida che sa di moquette e di comunicazioni di servizio."
+present_if = PackedStringArray("on:hallway_door")
+
+[node name="Light" type="Polygon2D" parent="DraftHotspot"]
+color = Color(1, 0.93, 0.72, 0.16)
+polygon = PackedVector2Array(-20, -15, 20, -15, 32, 15, -32, 15)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DraftHotspot"]
+shape = SubResource("RectangleShape2D_draft")
+
+[node name="ApproachPoint" type="Marker2D" parent="DraftHotspot"]
+position = Vector2(0, 35)
 
 [node name="SlotHotspot" type="Area2D" parent="."]
 position = Vector2(358, 85)

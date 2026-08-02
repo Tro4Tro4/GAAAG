@@ -52,7 +52,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 3. Sistema inventario *(fatto e **verificato sul dispositivo**: un inventario
    per personaggio, pannello a comparsa, verbi sugli oggetti, combinazione fra
    oggetti, uso di un oggetto su un hotspot)*
-4. Sistema dialoghi con condizioni
+4. Sistema dialoghi con condizioni *(in corso: la grammatica delle condizioni e
+   la persistenza dello stato di stanza sono fatte — `Conditions`, `present_if`
+   e le varianti degli hotspot; restano i dialoghi veri e propri)*
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
@@ -70,9 +72,11 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
   game.gd            Scambia le stanze e collega stanza, personaggi e UI
+  conditions.gd      Grammatica delle condizioni ("solo se..."), soli metodi
+                     statici — condivisa fra stanze e dialoghi
   autoload/          Stato che sopravvive alle scene (game_state.gd)
-  rooms/             room.gd, hotspot.gd, door_hotspot.gd, pickup_hotspot.gd,
-                     passage_hotspot.gd
+  rooms/             room.gd, hotspot.gd, hotspot_variant.gd, door_hotspot.gd,
+                     pickup_hotspot.gd, passage_hotspot.gd
   items/             inventory_item.gd, item_combination.gd,
                      combination_book.gd — dati, non nodi
   ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
@@ -880,20 +884,120 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     progetto. Restano nella cronologia di git se un giorno le due parole
     tornassero.
 
+- **Una condizione è una stringa con un prefisso**, non una risorsa tipizzata:
+  `taken:sticker`, `!on:hallway_door`, `has:screwdriver`, `in:wall_slot`,
+  `who:Player2`. Senza prefisso è il nome di un flag. Una lista di condizioni è
+  un **AND**, e per un OR si scrive la voce due volte.
+  La grammatica sta tutta in `Conditions`, una classe di soli metodi statici —
+  GDScript non ha classi statiche, ma una classe che non si istanzia mai è
+  l'equivalente idiomatico. Non sta in `GameState` perché quello è tenuto di
+  soli dati, com'è scritto più sopra.
+  Il motivo della forma a stringa è che in questo progetto **un flag è già una
+  stringa dappertutto**: `accepted_flag`, `state_id`, `cache_id` sono tutti
+  `StringName` scritti a mano, e `PickupHotspot` costruisce `taken:<id>` da sé.
+  La forma tipizzata comprerebbe sicurezza su un caso su sei e la pagherebbe con
+  un blocco di sotto-risorsa su tutti e sei, in un progetto dove le scene si
+  scrivono come testo.
+  - **Risorsa `Condition` con enum e parametri tipizzati**: un riferimento a
+    `InventoryItem` si rompe rumorosamente se rinomini l'oggetto, e l'editor
+    saprebbe cosa offrirti. Vantaggi veri. Scartata per la verbosità: le
+    condizioni saranno centinaia e ognuna costerebbe otto righe, contro una.
+  - **Espressioni valutate con la classe `Expression` di Godot**: un campo solo
+    e sintassi arbitraria. Scartata perché è la strada che porta ad avere un
+    mini-linguaggio non documentato che fallisce a runtime.
+  - **Costo accettato, e non aggirabile: un refuso non viene segnalato.**
+    `taken:stiker` è una condizione perfettamente ben formata su un flag che
+    nessuno alzerà mai, e `hass:key` pure. L'unico controllo possibile è
+    sull'argomento vuoto (`on:`), che è sempre uno sbaglio; distinguere un nome
+    sbagliato da un nome non ancora alzato non si può, con nessuna delle tre
+    alternative.
+  - Nota: da rivedere verso la risorsa tipizzata se un giorno esistesse un
+    editor di condizioni, o se i refusi diventassero una fonte reale di tempo
+    perso invece di un rischio teorico.
+
+- **Persistenza dello stato di stanza: `present_if` e le varianti sull'hotspot**
+  — chiude il punto che era rimasto aperto. Ogni `Hotspot` porta due cose nuove:
+  un elenco di condizioni che devono valere perché sia lì (`present_if`) e un
+  elenco di `HotspotVariant`, ognuna con le proprie condizioni e i propri quattro
+  testi, che prendono il posto dei suoi mentre reggono. `GameState` guadagna
+  `switch_changed`, gemello di `flag_raised`.
+  Il motivo di metterlo **sull'hotspot** e non altrove è che l'oggetto che varia
+  è l'unico che sa di variare, e ogni hotspot lo eredita gratis senza uno script.
+  - **Un nodo `RoomRules` nella stanza**, con una tabella "se flag X → nascondi
+    il nodo Y": tutta la variazione di una stanza si leggerebbe in un punto solo,
+    che è un pregio reale. Scartata perché le regole nominerebbero i nodi per
+    percorso, e i percorsi stringa si rompono in silenzio quando un nodo viene
+    rinominato — esattamente ciò che il progetto ha già deciso di evitare per i
+    riferimenti.
+  - **Uno script per ogni hotspot che varia**: zero concetti nuovi, massima
+    libertà, ed è ciò che si stava già facendo. Scartata perché "cambia dopo che
+    è successo X" sarà la variazione più comune del gioco, e la decisione
+    "hotspot come dati più segnale" esiste proprio per non scrivere un file per
+    oggetto.
+  - **Le varianti si valutano quando si fa la domanda, non quando la stanza si
+    costruisce.** Se si calcolassero all'ingresso, aprire una porta e poi
+    guardarla darebbe la descrizione della porta ancora chiusa.
+  - **Le varianti cambiano i testi, mai quali verbi ci sono.** È la regola già
+    scritta più sopra: una parola può seguire uno stato **visibile**, ma uno
+    spicchio che compare solo quando funzionerebbe rivelerebbe la soluzione. Un
+    oggetto le cui parole devono davvero cambiare è un hotspot con uno script,
+    come `DoorHotspot`.
+  - **Un hotspot assente viene nascosto e smette di rispondere, non liberato**
+    (`collision_layer` a zero, differito perché un flag può essere alzato dentro
+    un passo di fisica). Così può tornare quando le condizioni si girano — cosa
+    che `queue_free()` rendeva impossibile. Ne segue una convenzione per le
+    stanze: **la figura di un hotspot va messa come suo figlio**, o resterebbe
+    visibile mentre nulla risponde.
+  - `PickupHotspot` perde il suo `_ready()` e il suo `queue_free()`: sparisce
+    perché alza il flag, come qualunque altro. Si tiene `taken_text`, che è la
+    scorciatoia per una variante su `taken:<id>` — due campi invece di un blocco,
+    e il flag lo ricava dall'oggetto.
+  - Limite noto e accettato: la presenza si ricalcola all'ingresso nella stanza,
+    a ogni flag, a ogni interruttore e al cambio di personaggio, **non** quando
+    qualcuno prende o posa un oggetto. Un `has:` in `present_if` sarebbe quindi
+    in ritardo. Non è un problema oggi perché "dipende da cosa hai in tasca"
+    appartiene alle varianti e ai dialoghi, che si valutano alla domanda.
+
+- **Dialoghi: risorse `.tres` per il modello, elenco di opzioni in basso per la
+  UI.** Una conversazione è un insieme di nodi; ogni nodo è una battuta più un
+  elenco di opzioni; ogni opzione ha testo, condizioni, effetti e dove porta.
+  Decisione presa prima dell'implementazione, che è il passo successivo.
+  - **File di testo con un formato minimo e un parser** (~150 righe): una
+    conversazione si leggerebbe come un copione, compatta e diffabile, ed è il
+    contenuto che crescerà di più. Vantaggio reale. **Rimandata, non scartata**:
+    il runtime consuma risorse, quindi un parser testo→risorsa si aggiunge dopo
+    senza toccarne una riga. Sceglierlo adesso significherebbe sceglierlo prima
+    di aver scritto un solo dialogo vero.
+  - **Dizionari GDScript dentro un `.gd`**: nessun parser e i refusi di forma li
+    prende `gdparse`. Scartata perché mette il contenuto dentro i file di codice
+    e non ha nessun tipo.
+  - **Un albero di nodi nella scena**: visibile nell'editor. Scartata perché un
+    dialogo non è spaziale, è dato, e le scene diventerebbero enormi.
+  - **UI: opzioni a raggiera come la verb-coin.** Sarebbe la scelta coerente col
+    gesto. Scartata perché le opzioni sono frasi, non icone, e oltre quattro non
+    ci stanno: la moneta vive su un vocabolario chiuso e fisso, un dialogo è
+    l'esatto contrario.
+  - **UI: opzioni sospese vicino al personaggio.** Più bella e non coprirebbe la
+    scena con un pannello. Scartata perché a 384×216 le frasi si accavallano.
+  - Costo accettato: l'elenco in basso mangia il terzo inferiore dello schermo,
+    ma solo mentre si parla. Le battute passano dalla `Caption` che esiste già, e
+    chi parla si distingue col colore; il testo sospeso sopra la testa è
+    lucidatura da fare dopo.
+  - Conseguenza: mentre un dialogo è aperto **la stanza smette di ascoltare** —
+    niente camminate, niente verb-coin, niente cambio personaggio. È un `Control`
+    a schermo pieno, la stessa tecnica che la moneta usa già.
+
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
   una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
   distingue le coordinate del mondo da quelle dello schermo quando apre la
   verb-coin, e la UI sta su un `CanvasLayer` che la telecamera non muove
-- **Persistenza dello stato di una stanza, oltre al "già preso"**: i flag di
-  `GameState` coprono ora ciò che l'inventario richiedeva — un oggetto raccolto
-  resta raccolto anche uscendo e rientrando. Restano scoperti i cambiamenti che
-  non riguardano un oggetto: una porta che si è aperta, una leva abbassata, un
-  hotspot che deve cambiare descrizione. Il meccanismo c'è già (`accepted_flag`
-  viene alzato ma oggi nessuno lo legge); manca la parte che fa reagire una
-  stanza ai flag mentre si ricostruisce. Da progettare insieme ai dialoghi, che
-  useranno gli stessi flag come condizioni
+- **Formato di scrittura dei dialoghi**: il runtime consumerà risorse `.tres`,
+  ma resta da vedere se scriverle a mano regga quando le conversazioni saranno
+  vere e lunghe. L'alternativa è un file di testo in formato copione con un
+  parser che produce le stesse risorse — si aggiunge senza toccare il runtime,
+  quindi la decisione si prende con in mano il primo dialogo vero e non prima
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
 - Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è

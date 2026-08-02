@@ -22,6 +22,12 @@ signal roster_changed
 ## being asked every frame.
 signal flag_raised(flag: StringName)
 
+## The same for a switch, and the twin of the signal above rather than a
+## variation on it: a hotspot that is only there while a door stands open has to
+## hear about the door being shut just as much as about it being opened, so this
+## one carries the new value.
+signal switch_changed(switch: StringName, on: bool)
+
 ## Every playable character currently in the tree, in registration order.
 var characters: Array[PlayerCharacter] = []
 
@@ -139,7 +145,15 @@ func set_switch(switch: StringName, on: bool) -> void:
 	if switch.is_empty():
 		return
 
+	# Nothing is announced when nothing changed. Going through a shut door opens
+	# it on the way and going through an open one sets it open again, so without
+	# this every walk through a doorway would tell the whole room to rethink
+	# itself for no reason.
+	if _switches.get(switch, false) == on:
+		return
+
 	_switches[switch] = on
+	switch_changed.emit(switch, on)
 
 
 ## True once [param flag] has been raised.

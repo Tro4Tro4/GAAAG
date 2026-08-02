@@ -91,6 +91,33 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 @export_multiline var act_text: String = ""
 @export_multiline var reach_text: String = ""
 
+@export_group("What has happened since")
+
+## Lines that take the place of the ones above while their conditions hold —
+## how a hotspot remembers, through GameState, what was done to it before the
+## room was thrown away and rebuilt.
+##
+## The first variant that both holds and has something to say for the slice
+## being asked about wins. A variant may therefore fill in only the line it
+## changes and leave the rest to fall through, and two variants may look after
+## different slices under different conditions.
+@export var variants: Array[HotspotVariant] = []
+
+## All of these must hold for the hotspot to be in the room at all. Empty — the
+## usual case — means it is always there.
+##
+## An absent hotspot is hidden and stops answering clicks, rather than being
+## freed, so that it can come back when the conditions swing the other way.
+## Note what "hidden" reaches: its own children. A hotspot whose picture is a
+## sibling node goes on being visible while nothing responds to it, which is
+## the wrong half. Put the picture under the hotspot.
+##
+## Worked out on entering the room and again whenever a flag is raised, a switch
+## flips, or control passes to somebody else. Not on picking something up: a
+## condition about what is in a pocket belongs in a variant or, later, in a line
+## of dialogue, both of which are worked out afresh every time they are asked.
+@export var present_if: PackedStringArray = PackedStringArray()
+
 @export_group("Reaction to an item")
 
 ## The one item this hotspot does something about. One and not a list, for the
@@ -109,6 +136,58 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 ## thrown away and rebuilt. Optional: leave it empty for a hotspot whose
 ## reaction is only a line of text.
 @export var accepted_flag: StringName = &""
+
+# The collision layer this hotspot was authored with, so that one which is not
+# currently there can be handed it back when it comes into being again.
+var _own_collision_layer: int = 0
+
+# Whether the hotspot is in the room right now. Starts true so that the first
+# check applies the real answer precisely when it differs from the default.
+var _present: bool = true
+
+
+func _ready() -> void:
+	_own_collision_layer = collision_layer
+
+	# unbind() drops the arguments a signal carries. The answer is worked out
+	# from scratch whatever changed, so there is nothing to do with the name of
+	# the flag — and this way one method serves three signals of three different
+	# shapes. There is no C# equivalent; a Callable in GDScript can be reshaped
+	# before it is connected.
+	#
+	# Nothing is ever disconnected: Godot drops a connection when either end is
+	# freed, and a hotspot is freed with its room.
+	GameState.flag_raised.connect(_refresh_presence.unbind(1))
+	GameState.switch_changed.connect(_refresh_presence.unbind(2))
+	GameState.active_character_changed.connect(_refresh_presence.unbind(1))
+
+	_refresh_presence()
+
+
+## Whether this hotspot is in the room at all. Data covers the ordinary case;
+## this is here to be overridden by a hotspot that comes and goes for a reason
+## of its own, the way one holding an item that has been taken does.
+func is_present() -> bool:
+	return Conditions.all_hold(present_if, GameState.active_character)
+
+
+func _refresh_presence() -> void:
+	var present: bool = is_present()
+
+	if present == _present:
+		return
+
+	_present = present
+	visible = present
+
+	# The layer is set deferred for the reason Game defers swapping rooms: a
+	# flag can be raised in the middle of a physics step, because an action runs
+	# when a walk ends and a walk ends inside _physics_process. Handing a shape
+	# to the physics server while it is answering queries is not allowed.
+	#
+	# Zero and not the shape's disabled flag: a body on no layer at all is
+	# matched by no query, and there may be more than one shape under a hotspot.
+	set_deferred(&"collision_layer", _own_collision_layer if present else 0)
 
 
 ## The verb sitting in [param slot] on this hotspot, or NONE for an empty
@@ -140,19 +219,91 @@ func get_default_verb() -> int:
 
 ## The line to show for [param verb], or the generic refusal if this hotspot
 ## has nothing to say about it.
+##
+## Variants are consulted at the moment the question is asked, not when the room
+## was built. Otherwise opening a door and then looking at it would give the
+## description of a door that is still shut.
 func get_text_for(verb: int) -> String:
-	var text: String = ""
+	var slot: int = _slot_of(verb)
 
-	if verb == Verb.LOOK:
-		text = look_text
-	elif verb != Verb.NONE and verb == get_verb_for(Slot.HAND):
-		text = hand_text
-	elif verb != Verb.NONE and verb == get_verb_for(Slot.ACT):
-		text = act_text
-	elif verb != Verb.NONE and verb == get_verb_for(Slot.REACH):
-		text = reach_text
+	if slot < 0:
+		return REFUSAL
+
+	var text: String = _variant_text(slot)
+
+	if text.is_empty():
+		text = _own_text(slot)
 
 	return text if not text.is_empty() else REFUSAL
+
+
+## Which slice [param verb] came out of, or -1 for a verb this hotspot does not
+## offer. LOOK is not looked up: every hotspot is worth looking at.
+func _slot_of(verb: int) -> int:
+	if verb == Verb.LOOK:
+		return Slot.LOOK
+
+	# Checked before the comparisons below, or a verb of NONE would match every
+	# empty slice this hotspot has.
+	if verb == Verb.NONE:
+		return -1
+
+	if verb == get_verb_for(Slot.HAND):
+		return Slot.HAND
+
+	if verb == get_verb_for(Slot.ACT):
+		return Slot.ACT
+
+	if verb == get_verb_for(Slot.REACH):
+		return Slot.REACH
+
+	return -1
+
+
+func _variant_text(slot: int) -> String:
+	var character: PlayerCharacter = GameState.active_character
+
+	for variant in variants:
+		if variant == null or not variant.holds(character):
+			continue
+
+		var text: String = _text_of(variant, slot)
+		if not text.is_empty():
+			return text
+
+	return ""
+
+
+func _own_text(slot: int) -> String:
+	match slot:
+		Slot.LOOK:
+			return look_text
+		Slot.HAND:
+			return hand_text
+		Slot.ACT:
+			return act_text
+		Slot.REACH:
+			return reach_text
+
+	return ""
+
+
+# Written out rather than shared with _own_text() through a table of property
+# names. The two are four lines apart in the same file, so they cannot drift
+# without it being obvious, and the slot enum stays the only thing that decides
+# the order.
+func _text_of(variant: HotspotVariant, slot: int) -> String:
+	match slot:
+		Slot.LOOK:
+			return variant.look_text
+		Slot.HAND:
+			return variant.hand_text
+		Slot.ACT:
+			return variant.act_text
+		Slot.REACH:
+			return variant.reach_text
+
+	return ""
 
 
 ## The line to show when [param item] is used on this hotspot.
@@ -190,9 +341,8 @@ func use_item(item: InventoryItem, character: PlayerCharacter) -> void:
 func get_approach_position() -> Vector2:
 	# Looked up on the spot rather than held in an @onready field. It costs a
 	# node lookup per interaction, which is nothing at the rate a player clicks,
-	# and it buys something worth more: this class has no _ready(), so a
-	# subclass can write its own without having to remember to call super()
-	# to keep a field it cannot see initialised.
+	# and it keeps one more thing out of _ready() — which a subclass now has to
+	# remember to call super() from, since presence is set up there.
 	var marker: Node = get_node_or_null("ApproachPoint")
 
 	# Without one the character would walk into the object itself — and some
