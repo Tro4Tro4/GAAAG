@@ -1,22 +1,30 @@
+class_name Room
 extends Node2D
 
-## A single game location.
+## A single game location: scenery, hotspots and a navigation mesh.
 ##
-## The room is the arbiter of the click. It decides whether the player tapped
-## a hotspot or the bare floor, sends the character to the right place, and
-## runs the action once the character has arrived. Neither the character nor
-## the hotspots know anything about input.
-
-## The line of text at the top of the screen.
+## The room is the arbiter of the click. It decides whether the player tapped a
+## hotspot or the bare floor, sends the character to the right place, and runs
+## the action once the character has arrived. Neither the character nor the
+## hotspots know anything about input.
 ##
-## Resolved with @onready rather than @export: a node reference written by
-## hand into a .tscn is not reliably available yet when the scene root's
-## _ready() runs, and this one is needed exactly there.
-@onready var caption: Caption = $Caption
+## It knows nothing about the interface either. Rooms are loaded and unloaded
+## while the caption, the verb-coin and the switch bar are not, so the room
+## reports what it wants said and Game connects that to whatever is listening.
+##
+## A room is therefore no longer playable on its own: it holds no characters
+## and no interface. Game.tscn is the scene to press Play on.
 
-## The verb menu. It covers the whole screen while open, so it also acts as
-## the thing that swallows a click meant to cancel.
-@onready var verb_coin: VerbCoin = $VerbCoin
+## Emitted when the room has a line for the player.
+signal wants_to_say(text: String)
+
+## Emitted when a hotspot was tapped, before anything moves. The position is in
+## screen coordinates, because what opens on it is a Control on a CanvasLayer,
+## not something living in this room's world.
+signal hotspot_activated(hotspot: Hotspot, at_screen_position: Vector2)
+
+## The entry point used when a door names one this room does not have.
+const DEFAULT_ENTRY: StringName = &"Default"
 
 # How many overlapping shapes a single point query may report. Hotspots are
 # not meant to overlap; the allowance is there so that a mistake in a room
@@ -31,30 +39,19 @@ var _pending_hotspot: Hotspot = null
 # The verb chosen for _pending_hotspot. Meaningless while that is null.
 var _pending_verb: int = Hotspot.Verb.LOOK
 
-# Who this room is currently driving. Held separately from
-# GameState.active_character because the room needs the outgoing character
-# too, to take its signal connection back off.
+# Who this room is currently driving. Handed over by Game rather than read
+# from GameState: during a room swap the active character briefly belongs to a
+# room that is not on screen, and only Game knows when that has settled.
 var _character: PlayerCharacter = null
 
 
-func _ready() -> void:
-	verb_coin.verb_chosen.connect(_on_verb_chosen)
-	GameState.active_character_changed.connect(_take_control_of)
-
-	# Characters register during their own _ready(), which runs before this
-	# one, so the first active character was chosen before this room could
-	# hear about it. Picking it up by hand is what covers that gap.
-	_take_control_of(GameState.active_character)
-
-
-func _take_control_of(character: PlayerCharacter) -> void:
+## Hands this room the character the player is controlling.
+func set_character(character: PlayerCharacter) -> void:
 	# The errand belonged to whoever was walking. Handing control over does
-	# not hand over the errand, so it is dropped rather than inherited — and
-	# a coin still open belonged to that errand too.
+	# not hand over the errand, so it is dropped rather than inherited.
 	_pending_hotspot = null
-	verb_coin.close()
 
-	if _character != null:
+	if _character != null and is_instance_valid(_character):
 		_character.destination_reached.disconnect(_on_destination_reached)
 
 	_character = character
@@ -63,8 +60,43 @@ func _take_control_of(character: PlayerCharacter) -> void:
 		_character.destination_reached.connect(_on_destination_reached)
 
 
+## Sends the character to [param hotspot], to perform [param verb] on arrival.
+func begin_action(verb: int, hotspot: Hotspot) -> void:
+	if _character == null or hotspot == null:
+		return
+
+	_pending_hotspot = hotspot
+	_pending_verb = verb
+	_walk_to(hotspot.get_approach_position())
+
+
+## Where a character arriving through a door named [param entry_name] stands.
+##
+## The point is a Marker2D under EntryPoints, so it is dragged into place in
+## the editor rather than typed in as a pair of numbers — which matters when
+## the editor is a phone.
+func get_entry_position(entry_name: StringName) -> Vector2:
+	var marker: Marker2D = _entry_marker(entry_name)
+
+	if marker == null:
+		marker = _entry_marker(DEFAULT_ENTRY)
+
+	if marker != null:
+		return marker.global_position
+
+	push_warning("Room %s has no entry point named %s and no %s." % [
+		name, entry_name, DEFAULT_ENTRY
+	])
+	return global_position
+
+
+func _entry_marker(entry_name: StringName) -> Marker2D:
+	var node: Node = get_node_or_null(NodePath("EntryPoints/" + String(entry_name)))
+	return node as Marker2D
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	# _unhandled_input and not _input: the UI (verb-coin, inventory) gets to
+	# _unhandled_input and not _input: the UI (verb-coin, switch bar) gets to
 	# consume a click first, so pressing a button never also walks the
 	# character to the floor underneath it.
 	#
@@ -76,31 +108,29 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			_handle_click(get_global_mouse_position())
+			# Two coordinate spaces, on purpose: the physics query and the
+			# walk destination live in this room's world, the verb-coin lives
+			# on the screen. They coincide today and would stop coinciding the
+			# first time a room is wider than the screen and scrolls.
+			_handle_click(get_global_mouse_position(), mouse_event.position)
 			get_viewport().set_input_as_handled()
 
 
-func _handle_click(click_position: Vector2) -> void:
+func _handle_click(world_position: Vector2, screen_position: Vector2) -> void:
 	if _character == null:
 		return
 
-	var hotspot: Hotspot = _hotspot_at(click_position)
+	var hotspot: Hotspot = _hotspot_at(world_position)
 
 	if hotspot != null:
 		# Nothing moves yet: the coin opens on the spot that was tapped, and
 		# the walk is ordered only once a verb has been chosen. Changing your
 		# mind before that costs nothing.
-		verb_coin.open_for(hotspot, click_position)
+		hotspot_activated.emit(hotspot, screen_position)
 		return
 
 	_pending_hotspot = null
-	_walk_to(click_position)
-
-
-func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:
-	_pending_hotspot = hotspot
-	_pending_verb = verb
-	_walk_to(hotspot.get_approach_position())
+	_walk_to(world_position)
 
 
 func _walk_to(destination: Vector2) -> void:
@@ -141,5 +171,5 @@ func _on_destination_reached() -> void:
 	var hotspot: Hotspot = _pending_hotspot
 	_pending_hotspot = null
 
-	caption.show_text(hotspot.get_text_for(_pending_verb))
-	hotspot.interact(_pending_verb)
+	wants_to_say.emit(hotspot.get_text_for(_pending_verb))
+	hotspot.interact(_pending_verb, _character)

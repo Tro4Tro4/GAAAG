@@ -40,9 +40,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(fatta: tre verbi, due tocchi)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
-   cambio, due personaggi nella stessa stanza)*, stato indipendente per
-   personaggio *(parziale: ognuno ha la sua posizione; il resto arriverà con
-   inventario e flag)*, multi-stanza *(da fare)*
+   cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
+   posizione e la sua stanza; il resto arriverà con inventario e flag)*,
+   multi-stanza *(fatto: radice `Game`, due stanze collegate da una porta,
+   cambiare personaggio porta nella sua stanza)*
 3. Sistema inventario
 4. Sistema dialoghi con condizioni
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
@@ -54,12 +55,16 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 project.godot        Configurazione progetto Godot (renderer, display)
 icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
-  rooms/TestRoom     Stanza di prova, scena di avvio del progetto
-                     (navmesh, due hotspot, riga di testo)
+  Game               Scena di avvio: contiene i personaggi e la UI, e ospita
+                     la stanza corrente in RoomContainer
+  rooms/TestRoom     Stanza di prova (navmesh, cassa, porta per il corridoio)
+  rooms/Corridor     Seconda stanza (distributore, cartello, porta di ritorno)
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
+  game.gd            Scambia le stanze e collega stanza, personaggi e UI
   autoload/          Stato che sopravvive alle scene (game_state.gd)
+  rooms/             room.gd, hotspot.gd, door_hotspot.gd
   ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd)
 assets/              sprites/ backgrounds/ audio/ fonts/
 ```
@@ -283,12 +288,93 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   muto: in un punta-e-clicca la maggior parte degli oggetti rifiuta la maggior
   parte dei verbi, e scrivere tre testi per ogni hotspot sarebbe insostenibile.
   Il silenzio, invece, si legge come un bug.
+- **Multi-stanza: radice `Game` persistente, stanze scambiate come figli, i
+  personaggi non sono più figli della stanza.** Chiude la decisione che era
+  rimasta aperta. `Game.tscn` è la scena di avvio e contiene tre cose che
+  sopravvivono al cambio stanza: `RoomContainer` (vuoto, ci entra la stanza
+  corrente), `Characters` (tutti i personaggi giocabili, istanziati una volta
+  per l'intera partita) e `UI` (un `CanvasLayer` con caption, verb-coin e barra
+  di cambio). Una stanza torna a essere solo ciò che una stanza deve essere:
+  sfondo, hotspot, navmesh, punti d'ingresso.
+  Il criterio che ha deciso non è il caricamento delle stanze — su quello ogni
+  alternativa se la cava — ma il fatto che questa è l'unica in cui **la vita
+  dei personaggi si stacca dalla vita delle stanze**. Da lì discende tutto il
+  resto: il roster non si svuota mai, quindi la barra continua a offrire chi
+  sta altrove (presupposto dello switch stile Day of the Tentacle); la
+  posizione di chi non è in scena non va salvata da nessuna parte, perché è la
+  `position` di un nodo che continua a esistere; e `GameState` non cambia di
+  una riga.
+  - **`change_scene_to_file()` + posizioni serializzate in `GameState`**: è la
+    via che Godot documenta e mostra in ogni tutorial, una chiamata sola e
+    zero infrastruttura. Scartata perché ogni personaggio andrebbe istanziato
+    in ogni stanza in cui *potrebbe* trovarsi, con quelli di troppo che si
+    cancellano da soli all'avvio — la scena mente su chi c'è e la verità sta
+    altrove. In più la UI andrebbe replicata in ogni stanza, e il cambio scena
+    è differito a fine frame: il codice dopo la chiamata gira ancora nella
+    vecchia stanza.
+  - **Tutte le stanze caricate insieme, si mostra e si nasconde**: fa sparire
+    del tutto il problema della persistenza — niente si scarica, quindi niente
+    va conservato — ed è l'implementazione più corta in assoluto. Scartata per
+    la navigazione: **tutti i `NavigationRegion2D` presenti nell'albero
+    confluiscono nella stessa navigation map** del `World2D`, quindi con due
+    stanze disegnate alle stesse coordinate `map_get_closest_point()` può
+    restituire un punto del pavimento dell'altra stanza. Se ne esce dando a
+    ogni stanza una mappa propria (codice non ovvio) o distanziando le stanze
+    in coordinate globali (un'altra decisione da prendere). Si aggiunge che
+    `visible = false` non ferma `_physics_process`.
+  - **Stanze istanziate una volta e staccate/riattaccate all'albero**
+    (`remove_child()` senza `queue_free()`): conserverebbe ogni stato senza
+    salvarne nessuno, e il ritorno in una stanza già visitata sarebbe
+    istantaneo. Scartata perché `_enter_tree()`/`_exit_tree()` scattano a ogni
+    scambio, non una volta sola: la registrazione dei personaggi andrebbe
+    disfatta comunque, pagando la complessità di questa per riottenere ciò che
+    la scelta adottata ha per costruzione. Resta valida come ottimizzazione
+    *sopra* la soluzione attuale, se un giorno ricaricare una stanza risultasse
+    lento.
+  - Il nodo `Game` **non è** la risurrezione dell'alternativa scartata più
+    sopra, sotto "Stato dei personaggi in un autoload": quella era `Game` come
+    *proprietario dello stato*, e quel giudizio resta. Qui `Game` non possiede
+    niente — personaggio attivo, inventario e flag restano in `GameState`. È
+    solo il punto dell'albero dove le stanze si attaccano e la UI non muore.
+  - **Cambiare personaggio porta alla sua stanza** (come in Day of the
+    Tentacle). Ne segue che la stanza mostrata non è uno stato a sé: è sempre
+    `active_character.current_room`, e non esiste una seconda variabile da
+    tenere allineata.
+  - **Ogni personaggio porta il proprio `current_room`** (percorso della scena)
+    e chi non è nella stanza mostrata viene nascosto *e* messo in
+    `PROCESS_MODE_DISABLED`: nascondere e basta non basta, perché la
+    visibilità non ferma `_physics_process` e un personaggio invisibile
+    continuerebbe a camminare su una navmesh non più caricata.
+  - **La stanza non conosce più l'interfaccia**: emette `wants_to_say` e
+    `hotspot_activated`, e `Game` li collega a caption e verb-coin. Prima li
+    prendeva con `$Caption` perché erano suoi figli; ora vivono più in alto.
+    Conseguenza da ricordare: **una stanza non è più eseguibile da sola** — non
+    ha personaggi né UI. La scena su cui premere Play è `Game.tscn`.
+  - **I punti d'ingresso sono `Marker2D` sotto un nodo `EntryPoints`**, e la
+    porta nomina quello di destinazione (`target_entry`) invece di indicare
+    coordinate. Il punto d'arrivo si trascina nell'editor, nella stanza a cui
+    appartiene, invece di essere digitato come coppia di numeri — la stessa
+    ragione per cui le forme degli hotspot sono `CollisionShape2D`.
+  - **`Hotspot.interact()` riceve anche il personaggio**, e `interacted` lo
+    porta nel segnale: con più personaggi giocabili "chi l'ha fatto" è metà
+    della risposta. La porta deve spostare chi l'ha aperta, e raccogliere un
+    oggetto dovrà metterlo nelle mani di qualcuno.
+  - **`DoorHotspot` è il primo hotspot con uno script proprio**, ed è la
+    conferma della decisione "hotspot come dati più segnale": due valori
+    esportati e una riga di codice per la porta, niente per la cassa.
 
 ## Decisioni ancora aperte
-- **Multi-stanza**: come si caricano e scaricano le stanze, dove vivono i
-  personaggi che non sono nella stanza mostrata, e come si conserva la loro
-  posizione mentre la loro stanza non è caricata. Oggi i personaggi sono figli
-  della stanza, il che va bene finché la stanza è una sola
+- **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
+  (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
+  una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
+  distingue le coordinate del mondo da quelle dello schermo quando apre la
+  verb-coin, e la UI sta su un `CanvasLayer` che la telecamera non muove
+- **Persistenza dello stato di una stanza**: oggi una stanza viene liberata
+  quando la si lascia e ricostruita da capo quando ci si torna, quindi
+  qualunque cambiamento fatto al suo interno (una cassa aperta, un oggetto
+  spostato) andrebbe perso. Non è un problema finché gli hotspot sono di soli
+  dati, lo diventa al primo puzzle con uno stato. La sede naturale è il
+  sistema di flag in `GameState`, da progettare insieme ai dialoghi
 - Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
   e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
 - Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è

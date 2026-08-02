@@ -19,7 +19,11 @@ enum Verb { LOOK, USE, TALK }
 
 ## Emitted after the character has reached this hotspot and acted on it. The
 ## verb is an int rather than Verb for the same reason as in VerbCoin.
-signal interacted(verb: int)
+##
+## The character is carried along because with several playable characters
+## "who did it" is half the answer: a door has to move the person who opened
+## it, and picking something up will have to put it in somebody's hands.
+signal interacted(verb: int, character: PlayerCharacter)
 
 ## Said when a verb leads nowhere. Most objects in an adventure game refuse
 ## most verbs, and one generic line is how the genre has always covered it.
@@ -56,10 +60,11 @@ func get_text_for(verb: int) -> String:
 	return text if not text.is_empty() else REFUSAL
 
 
-## Runs [param verb] on this hotspot. The text is the room's business; this
-## is the hook for hotspots that actually do something.
-func interact(verb: int) -> void:
-	interacted.emit(verb)
+## Runs [param verb] on this hotspot, on behalf of [param character]. The text
+## is the room's business; this is the hook for hotspots that actually do
+## something, either by connecting to [signal interacted] or by overriding.
+func interact(verb: int, character: PlayerCharacter) -> void:
+	interacted.emit(verb, character)
 
 
 ## The point the character should walk to before acting on this hotspot.

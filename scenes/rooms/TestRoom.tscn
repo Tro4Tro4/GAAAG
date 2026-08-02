@@ -1,11 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=7 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
-[ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
-[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="3_hotspot"]
-[ext_resource type="Script" path="res://scripts/ui/caption.gd" id="4_caption"]
-[ext_resource type="Script" path="res://scripts/ui/character_bar.gd" id="5_bar"]
-[ext_resource type="Script" path="res://scripts/ui/verb_coin.gd" id="6_coin"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
@@ -45,9 +42,17 @@ polygon = PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
 
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(48, 198)
+
+[node name="FromCorridor" type="Marker2D" parent="EntryPoints"]
+position = Vector2(316, 132)
+
 [node name="CrateHotspot" type="Area2D" parent="."]
 position = Vector2(192, 160)
-script = ExtResource("3_hotspot")
+script = ExtResource("2_hotspot")
 display_name = "Cassa"
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
 use_text = "Il coperchio non cede. Forse a tenerlo chiuso è proprio quel NON."
@@ -60,49 +65,16 @@ position = Vector2(0, 32)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(316, 88)
-script = ExtResource("3_hotspot")
+script = ExtResource("3_door")
 display_name = "Porta"
 look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
-use_text = "Chiusa. La maniglia gira a vuoto, con un rumore di ingranaggi delusi."
+use_text = "Apri la porta. Di là c'è un corridoio, il che è già un'informazione."
 talk_text = "Bussi. Dall'altra parte qualcuno bussa uguale, un attimo dopo."
+target_room = "res://scenes/rooms/Corridor.tscn"
+target_entry = &"FromTestRoom"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
 position = Vector2(0, 44)
-
-[node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(48, 198)
-display_name = "Tizio"
-body_color = Color(0.92, 0.55, 0.2, 1)
-
-[node name="Player2" parent="." instance=ExtResource("2_player")]
-position = Vector2(320, 200)
-display_name = "Caio"
-body_color = Color(0.35, 0.62, 0.85, 1)
-
-[node name="Caption" type="Label" parent="."]
-offset_left = 8.0
-offset_top = 6.0
-offset_right = 376.0
-offset_bottom = 22.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 8
-horizontal_alignment = 1
-vertical_alignment = 1
-script = ExtResource("4_caption")
-
-[node name="CharacterBar" type="HBoxContainer" parent="."]
-offset_left = 8.0
-offset_top = 190.0
-offset_right = 200.0
-offset_bottom = 208.0
-mouse_filter = 2
-theme_override_constants/separation = 4
-script = ExtResource("5_bar")
-
-[node name="VerbCoin" type="Control" parent="."]
-offset_right = 384.0
-offset_bottom = 216.0
-script = ExtResource("6_coin")

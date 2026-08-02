@@ -1,0 +1,100 @@
+[gd_scene load_steps=8 format=3 uid="uid://baggacorrid001"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dispenser"]
+size = Vector2(40, 60)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sign"]
+size = Vector2(50, 20)
+
+[node name="Corridor" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Wall" type="Polygon2D" parent="."]
+color = Color(0.1, 0.18, 0.2, 1)
+polygon = PackedVector2Array(0, 0, 384, 0, 384, 100, 0, 100)
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color(0.24, 0.26, 0.28, 1)
+polygon = PackedVector2Array(0, 100, 384, 100, 384, 216, 0, 216)
+
+[node name="FloorEdge" type="Polygon2D" parent="."]
+color = Color(0.31, 0.33, 0.35, 1)
+polygon = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
+
+[node name="Door" type="Polygon2D" parent="."]
+color = Color(0.35, 0.24, 0.18, 1)
+polygon = PackedVector2Array(24, 36, 64, 36, 64, 100, 24, 100)
+
+[node name="Dispenser" type="Polygon2D" parent="."]
+color = Color(0.45, 0.45, 0.5, 1)
+polygon = PackedVector2Array(260, 40, 300, 40, 300, 100, 260, 100)
+
+[node name="Sign" type="Polygon2D" parent="."]
+color = Color(0.85, 0.8, 0.35, 1)
+polygon = PackedVector2Array(120, 30, 170, 30, 170, 50, 120, 50)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(200, 180)
+
+[node name="FromTestRoom" type="Marker2D" parent="EntryPoints"]
+position = Vector2(44, 112)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(44, 68)
+script = ExtResource("3_door")
+display_name = "Porta"
+look_text = "La porta da cui sei arrivato. Da questo lato non c'è scritto niente."
+use_text = "Torni dentro."
+target_room = "res://scenes/rooms/TestRoom.tscn"
+target_entry = &"FromCorridor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 44)
+
+[node name="DispenserHotspot" type="Area2D" parent="."]
+position = Vector2(280, 70)
+script = ExtResource("2_hotspot")
+display_name = "Distributore"
+look_text = "Un distributore automatico. Sette pulsanti, tutti con la stessa etichetta illeggibile."
+use_text = "Premi un pulsante a caso. La macchina si illumina, ronza, e ti restituisce il pulsante."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DispenserHotspot"]
+shape = SubResource("RectangleShape2D_dispenser")
+
+[node name="ApproachPoint" type="Marker2D" parent="DispenserHotspot"]
+position = Vector2(0, 50)
+
+[node name="SignHotspot" type="Area2D" parent="."]
+position = Vector2(145, 40)
+script = ExtResource("2_hotspot")
+display_name = "Cartello"
+look_text = "Un cartello: LIVELLO 4. Qualcuno ha cancellato il 4 e ha riscritto 4, con più decisione."
+use_text = "È avvitato al muro. Molto avvitato."
+talk_text = "Il cartello non risponde. Insiste a sostenere di essere il livello 4."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SignHotspot"]
+shape = SubResource("RectangleShape2D_sign")
+
+[node name="ApproachPoint" type="Marker2D" parent="SignHotspot"]
+position = Vector2(0, 80)
