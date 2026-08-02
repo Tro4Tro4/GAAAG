@@ -24,8 +24,8 @@ protagonista qualunque catapultato in situazioni incomprensibili.
 Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
-- Punta-e-clicca classico con **verb-coin** a tre verbi: Guarda, Usa, Parla
-  (camminare non è un verbo: si clicca il pavimento)
+- Punta-e-clicca classico con **verb-coin** a quattro verbi: Guarda, Prendi,
+  Usa, Parla (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
   diversi (es. uno passa un oggetto attraverso una finestra, l'altro lo
@@ -39,7 +39,8 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    click-to-walk con navmesh, l'ostacolo viene aggirato)*, stanze *(scena
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
-   dispositivo**: tre verbi, premi-trascina-rilascia con scelta per direzione)*
+   dispositivo**: quattro verbi, premi-trascina-rilascia con scelta per
+   direzione)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
@@ -268,7 +269,8 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Verb-coin con tre verbi: Guarda, Usa, Parla** — il set della *Maledizione
   di Monkey Island*. "Prendi" sta dentro "Usa", e camminare non è un verbo: si
   clicca il pavimento. Chiude il punto che era rimasto aperto sulla lista dei
-  verbi. Meno verbi significa anche meno testi da scrivere per ogni oggetto,
+  verbi. **Decisione superata** — vedi "Da tre verbi a quattro" in fondo
+  all'elenco: il costo che questa voce indicava è reale, ed è stato accettato. Meno verbi significa anche meno testi da scrivere per ogni oggetto,
   che è il costo vero di questa scelta e si paga a ogni hotspot del gioco.
   - **Quattro verbi, con "Prendi" separato**: distingue raccogliere da
     azionare, cosa che il giocatore a volte apprezza. Scartata perché aggiunge
@@ -388,11 +390,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     non un difetto dell'implementazione.
   - **Si sceglie per direzione, non per rettangolo**: conta *dove* si è
     spostato il dito rispetto al punto in cui la moneta si è aperta, non cosa
-    si trova sotto di esso. I tre verbi distano 81° l'uno dall'altro e ne
-    accettano 70 ciascuno, quindi non c'è un bordo da mancare né un buco tra
-    gli spicchi in cui cadere; sotto 12 pixel di spostamento non si sceglie
-    niente, e il cono che punta verso il basso non appartiene a nessun verbo,
-    così trascinare in giù e sollevare è il modo di dire di no.
+    si trova sotto di esso. I verbi distano una cinquantina di gradi l'uno
+    dall'altro e ne accettano 50 ciascuno, quindi non c'è un bordo da mancare
+    né un buco tra gli spicchi in cui cadere; sotto 12 pixel di spostamento non
+    si sceglie niente, e il cono che punta verso il basso non appartiene a
+    nessun verbo, così trascinare in giù e sollevare è il modo di dire di no.
     La selezione per rettangolo, provata per prima, era **imprecisa sul
     dispositivo**: è stata la misura che mancava per prendere questa
     decisione, non un ripensamento a tavolino.
@@ -487,8 +489,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Un oggetto rifiutato dal bersaglio viene comunque rimesso via: un tentativo
     fallito è pur sempre un tentativo finito, e lasciarlo in mano farebbe
     ripetere lo stesso errore al tocco successivo.
-- **La verb-coin sugli oggetti dell'inventario ha gli stessi tre verbi** della
-  verb-coin sugli hotspot, e Parla risponde con il rifiuto generico. Un elenco
+- **La verb-coin sugli oggetti dell'inventario ha gli stessi verbi** della
+  verb-coin sugli hotspot, e quelli che non hanno senso su un oggetto già in
+  mano — Prendi e Parla — rispondono con il rifiuto generico. Un elenco
   di verbi variabile richiederebbe alla moneta di ricostruirsi ogni volta e al
   giocatore di leggere prima di scegliere, mentre la scelta per direzione vive
   proprio sul fatto che le tre posizioni siano sempre le stesse.
@@ -508,6 +511,36 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   `Button` si annuncia al **rilascio**, e qui il gesto della verb-coin deve
   partire dalla **pressione** — quando il dito si alza è troppo tardi per
   cominciare a trascinare.
+
+- **Da tre verbi a quattro: Guarda, Prendi, Usa, Parla** (revoca della scelta
+  sul set di verbi). Il motivo è che "Usa" che significa anche "prendi" è
+  ambiguo esattamente dove il giocatore ha più bisogno di chiarezza: davanti a
+  un oggetto raccoglibile non sa se sta per infilarselo in tasca o azionarlo, e
+  lo scopre solo dopo. Con "Prendi" separato, ogni verbo dice una cosa sola.
+  Nessuna premessa è caduta: il costo che la decisione precedente aveva
+  individuato — un testo in più da scrivere per ogni hotspot, e spicchi più
+  stretti da colpire — è reale, e viene pagato consapevolmente.
+  - **Costo accettato: un testo in più per oggetto.** Ogni hotspot ha ora
+    quattro campi invece di tre, e il rifiuto generico ne copre la maggior
+    parte. Su un gioco intero è il costo vero di questa scelta, e si paga in
+    fase di scrittura.
+  - **Costo accettato: spicchi più vicini.** Da 81° a una cinquantina, con 50°
+    di tolleranza per ciascuno. Resta più largo del divario che li separa,
+    quindi non nascono buchi, ma il gesto è meno grossolano di prima.
+  - **I quattro spicchi stanno tutti nella metà superiore**, a sinistra,
+    alto-sinistra, alto-destra, destra. Scartata la disposizione a croce con
+    un verbo *sotto* il punto toccato: sarebbe la più larga da colpire (90°
+    l'uno dall'altro) ma metterebbe uno spicchio sotto il dito, che quindi non
+    si vedrebbe illuminare — e toglierebbe il cono verso il basso, che oggi è
+    il modo di annullare.
+  - Conseguenza da ricordare: **non c'è niente dritto in alto.** Con un numero
+    pari di spicchi disposti simmetricamente il vertice è sempre un confine.
+    Si mira ai bottoni, che sono visibili, quindi non è un problema — ma
+    spingere esattamente in su non è un gesto definito.
+  - **`PickupHotspot` risponde a Prendi e non più a Usa**, ed è la ragione per
+    cui questa decisione andava presa adesso e non dopo: ogni hotspot
+    raccoglibile scritto da qui in avanti avrebbe avuto il testo nel campo
+    sbagliato.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo

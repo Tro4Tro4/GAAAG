@@ -55,27 +55,36 @@ const SCREEN_MARGIN: float = 2.0
 const DEAD_ZONE: float = 12.0
 
 ## How far off a verb's direction the finger may be and still pick it. The
-## three verbs are 81 degrees apart, so 70 leaves each one a generous target
-## and still leaves a cone pointing downwards that picks nothing: dragging
-## down and away from the coin is how the player says no.
+## four verbs are between 52 and 59 degrees apart, so 50 leaves each one a
+## target wider than the gap to its neighbour and still leaves a cone pointing
+## downwards that picks nothing: dragging down and away is how the player
+## says no.
 ##
 ## Kept in degrees rather than as a radian constant: a const is worked out at
 ## parse time, and whether a built-in call is allowed there is not something
 ## this project can check from the development machine.
-const MAX_AIM_DEGREES: float = 70.0
+const MAX_AIM_DEGREES: float = 50.0
 
-# Where each button sits relative to the touched point: two at the sides and
-# one above. Below would put the button under the player's own finger — which
-# matters more now than it did, because the finger stays down the whole time.
+# Where each button sits relative to the touched point: four spread across the
+# half-circle above it. Nothing goes below, because that is where the player's
+# own finger is and it stays down for the whole gesture — which also leaves the
+# downward cone free to mean "never mind".
+#
+# There is deliberately nothing at straight up: with an even number of slices
+# laid out symmetrically, the top is always a boundary. Aiming is done at the
+# buttons, which are visible, so it costs nothing.
 const BUTTON_OFFSETS: Array = [
-	Vector2(-38, -6),
-	Vector2(0, -26),
-	Vector2(38, -6),
+	Vector2(-52, -8),
+	Vector2(-26, -46),
+	Vector2(26, -46),
+	Vector2(52, -8),
 ]
 
-# The three slices, in the order they are laid out.
-var _labels: Array[String] = ["Guarda", "Usa", "Parla"]
-var _verbs: Array[int] = [Hotspot.Verb.LOOK, Hotspot.Verb.USE, Hotspot.Verb.TALK]
+# The four slices, in the order they are laid out, left to right.
+var _labels: Array[String] = ["Guarda", "Prendi", "Usa", "Parla"]
+var _verbs: Array[int] = [
+	Hotspot.Verb.LOOK, Hotspot.Verb.TAKE, Hotspot.Verb.USE, Hotspot.Verb.TALK
+]
 
 # What the coin was opened on. Exactly one of the two is set at a time.
 var _hotspot: Hotspot = null

@@ -1,7 +1,7 @@
 class_name PickupHotspot
 extends Hotspot
 
-## A hotspot that hands over an item the first time it is used.
+## A hotspot that hands over an item the first time it is taken.
 ##
 ## Covers both shapes the genre needs. A key lying on the floor *is* the item,
 ## so it goes away once taken ([member vanishes_when_taken]); a crate you take
@@ -18,8 +18,8 @@ extends Hotspot
 ## Whether the hotspot itself disappears once the item is gone.
 @export var vanishes_when_taken: bool = true
 
-## What USE says afterwards, for a hotspot that stays. Falls back to the
-## ordinary [member Hotspot.use_text] when empty.
+## What TAKE says afterwards, for a hotspot that stays. Falls back to the
+## ordinary [member Hotspot.take_text] when empty.
 @export_multiline var taken_text: String = ""
 
 
@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func get_text_for(verb: int) -> String:
-	if verb == Verb.USE and _already_taken() and not taken_text.is_empty():
+	if verb == Verb.TAKE and _already_taken() and not taken_text.is_empty():
 		return taken_text
 
 	return super(verb)
@@ -38,7 +38,7 @@ func get_text_for(verb: int) -> String:
 func interact(verb: int, character: PlayerCharacter) -> void:
 	super(verb, character)
 
-	if verb != Verb.USE or item == null or character == null:
+	if verb != Verb.TAKE or item == null or character == null:
 		return
 
 	if _already_taken():

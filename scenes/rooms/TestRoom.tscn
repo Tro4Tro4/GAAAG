@@ -56,10 +56,11 @@ position = Vector2(192, 160)
 script = ExtResource("4_pickup")
 display_name = "Cassa"
 look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
-use_text = "Il coperchio non cede di un millimetro. L'adesivo invece viene via subito."
+take_text = "Il coperchio non cede di un millimetro. L'adesivo invece viene via subito."
+use_text = "Spingi il coperchio con tutte e due le mani. La cassa si sposta di un centimetro e si rimette dov'era."
 item = ExtResource("5_sticker")
 vanishes_when_taken = false
-taken_text = "Il coperchio continua a non cedere, e adesso non c'è nemmeno più scritto perché."
+taken_text = "Sul coperchio resta un rettangolo più pulito, che non dice niente a nessuno."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")
@@ -72,6 +73,7 @@ position = Vector2(316, 88)
 script = ExtResource("3_door")
 display_name = "Porta"
 look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
+take_text = "La porta resta dov'è. Le porte lo fanno di mestiere."
 use_text = "Apri la porta. Di là c'è un corridoio, il che è già un'informazione."
 talk_text = "Bussi. Dall'altra parte qualcuno bussa uguale, un attimo dopo."
 target_room = "res://scenes/rooms/Hallway.tscn"

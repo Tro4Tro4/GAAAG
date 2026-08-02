@@ -12,10 +12,11 @@ extends Area2D
 ## not listen for its own clicks: the room decides what a click means, so the
 ## priority between hotspot and floor lives in one place.
 
-## What the player can do to a hotspot. Three verbs, as in The Curse of Monkey
-## Island: "take" lives inside USE, and walking is not a verb — you click the
-## floor for that.
-enum Verb { LOOK, USE, TALK }
+## What the player can do to a hotspot. Walking is not among them: you click
+## the floor for that.
+##
+## Listed in the order the verbs are laid out on the coin, left to right.
+enum Verb { LOOK, TAKE, USE, TALK }
 
 ## Emitted after the character has reached this hotspot and acted on it. The
 ## verb is an int rather than Verb for the same reason as in VerbCoin.
@@ -42,6 +43,7 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 @export var display_name: String = ""
 
 @export_multiline var look_text: String = ""
+@export_multiline var take_text: String = ""
 @export_multiline var use_text: String = ""
 @export_multiline var talk_text: String = ""
 
@@ -73,6 +75,8 @@ func get_text_for(verb: int) -> String:
 	match verb:
 		Verb.LOOK:
 			text = look_text
+		Verb.TAKE:
+			text = take_text
 		Verb.USE:
 			text = use_text
 		Verb.TALK:
