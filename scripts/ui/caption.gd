@@ -19,6 +19,21 @@ func _ready() -> void:
 	text = ""
 
 
+## Shows [param new_text] and leaves it there until somebody says otherwise.
+##
+## Used while a gesture is in progress: the verb-coin's badges carry pictures,
+## so the word for the slice under the finger has to be written here, and it
+## must not fade out from under a player who is thinking.
+func show_persistent(new_text: String) -> void:
+	_current_timer = null
+	text = new_text
+
+
+func clear() -> void:
+	_current_timer = null
+	text = ""
+
+
 ## Shows [param new_text], replacing whatever was on screen.
 func show_text(new_text: String) -> void:
 	text = new_text

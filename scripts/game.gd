@@ -47,6 +47,7 @@ var _held_item: InventoryItem = null
 func _ready() -> void:
 	_verb_coin.verb_chosen.connect(_on_verb_chosen)
 	_verb_coin.item_verb_chosen.connect(_on_item_verb_chosen)
+	_verb_coin.aim_changed.connect(_on_aim_changed)
 
 	_inventory_button.pressed.connect(_on_inventory_button_pressed)
 	_inventory_panel.item_pressed.connect(_on_inventory_item_pressed)
@@ -168,6 +169,18 @@ func _place_characters() -> void:
 func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:
 	if _room != null:
 		_room.begin_action(verb, hotspot)
+
+
+## Writes the word for the slice the finger is on. The badges show pictures,
+## which say what a verb generally is; this is where the object's own word for
+## it appears — and the top of the screen is the one place a finger never
+## covers, so a long word costs nothing.
+func _on_aim_changed(label: String) -> void:
+	if label.is_empty():
+		_caption.clear()
+		return
+
+	_caption.show_persistent(label)
 
 
 func _on_inventory_button_pressed() -> void:

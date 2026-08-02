@@ -79,6 +79,8 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
 assets/              sprites/ backgrounds/ audio/ fonts/
+  ui/                Le quattro icone dei verbi, in SVG — l'unica arte del
+                     progetto che non è pixel art
 ```
 
 ## Decisioni prese (e perché)
@@ -654,6 +656,38 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **I due capi della stessa porta condividono lo `state_id`**, così aprirla
     da un lato la apre anche dall'altro. È la stessa idea del `cache_id` dei
     passaggi.
+
+- **Gli spicchi della moneta sono badge tondi con un'icona, non parole**, e la
+  parola contestuale la scrive la caption in alto mentre si trascina. Un'icona
+  si legge in un colpo d'occhio e non va tradotta, ma può dire solo il verbo
+  generico; il nome che *quell'oggetto* dà a quel verbo — "Apri" invece di
+  "Usa" — va quindi dove c'è spazio e dove il dito non arriva mai.
+  Le due cose insieme risolvono due problemi che si tenevano in ostaggio a
+  vicenda: l'icona dà il riconoscimento immediato della posizione, la caption
+  toglie il limite degli otto caratteri che un'etichetta disegnata sullo
+  spicchio aveva.
+  - **Un'icona per ogni verbo contestuale** (una per "Apri", una per "Ritira",
+    una per "Svita"): sarebbe la soluzione più diretta. Scartata perché è una
+    richiesta d'arte senza fine, e perché metà dei verbi che si vogliono
+    scrivere non ha un disegno ovvio — "Raddrizza" non si illustra.
+  - **Tenere le parole sugli spicchi**: nessun lavoro e nessun asset.
+    Scartata perché a font 8 uno spicchio tiene sì e no otto caratteri, e
+    perché durante il gesto il dito ne copre metà: la parola c'era ma non si
+    leggeva quando serviva.
+  - **Le icone sono SVG e non pixel art.** Un badge è ventiquattro unità di
+    gioco, ma con `stretch/mode = canvas_items` il disegno avviene alla
+    risoluzione reale della finestra, non a 384×216: su un telefono quelle
+    ventiquattro unità sono più di cento pixel veri. Un'icona disegnata a
+    ventiquattro pixel sarebbe l'unica cosa sgranata dello schermo.
+  - Ne segue una conseguenza tecnica che vale la pena ricordare: il progetto
+    imposta il filtro texture su `Nearest` per tutta la pixel art, e su queste
+    quattro va sovrascritto a `TEXTURE_FILTER_LINEAR` sul nodo, o il vettore
+    arriva con i bordi a scaletta e tanto valeva disegnarlo a mano.
+  - **Se le icone non si caricano la moneta torna alle parole**, con un avviso.
+    Un'immagine che manca deve costare le immagini, non il gioco.
+  - La disposizione non cambia: stesse quattro direzioni, stessi angoli. I
+    badge sono più piccoli delle etichette che sostituiscono, quindi la moneta
+    occupa meno schermo di prima.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
