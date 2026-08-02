@@ -4,7 +4,13 @@ extends Control
 ## The little menu of verbs that opens on the object you touched.
 ##
 ## One gesture, as in Full Throttle: press on the object, keep the finger down,
-## slide onto a verb, lift. Lifting anywhere else cancels.
+## push towards a verb, lift.
+##
+## Towards, not onto. The verb is chosen by the direction the finger has moved
+## from the point the coin opened on, not by what happens to be underneath it.
+## At this resolution a verb is a few dozen pixels wide and the finger covers
+## it, so asking the player to land on a rectangle asks for precision they
+## cannot have and cannot see. A direction they can aim without looking.
 ##
 ## The whole gesture is read in _input(), by hand, instead of letting the
 ## buttons report their own presses. That is not a preference, it is forced:
@@ -29,10 +35,19 @@ const BUTTON_SIZE: Vector2 = Vector2(34, 13)
 ## Kept away from the screen edge so a button is never half off-screen.
 const SCREEN_MARGIN: float = 2.0
 
-## How far outside a verb still counts as being on it. A verb is 34x13 pixels
-## at this resolution and a fingertip is nowhere near that precise, so the area
-## that answers is deliberately larger than the area that is drawn.
-const TOUCH_MARGIN: float = 6.0
+## How far the finger has to travel before it is aiming at anything. Under
+## this it is still a press in place, which means "never mind".
+const DEAD_ZONE: float = 12.0
+
+## How far off a verb's direction the finger may be and still pick it. The
+## three verbs are 81 degrees apart, so 70 leaves each one a generous target
+## and still leaves a cone pointing downwards that picks nothing: dragging
+## down and away from the coin is how the player says no.
+##
+## Kept in degrees rather than as a radian constant: a const is worked out at
+## parse time, and whether a built-in call is allowed there is not something
+## this project can check from the development machine.
+const MAX_AIM_DEGREES: float = 70.0
 
 # Where each button sits relative to the touched point: two at the sides and
 # one above. Below would put the button under the player's own finger — which
@@ -50,8 +65,12 @@ var _verbs: Array[int] = [Hotspot.Verb.LOOK, Hotspot.Verb.USE, Hotspot.Verb.TALK
 var _hotspot: Hotspot = null
 var _buttons: Array[Button] = []
 
-# The slice the finger is currently over, or -1 for none. Lifting the finger
-# turns this into the verb that runs, so it is the whole state of the gesture.
+# Where the gesture started: the point the coin opened on. Every direction is
+# measured from here.
+var _anchor: Vector2 = Vector2.ZERO
+
+# The slice the finger is aiming at, or -1 for none. Lifting runs this one, so
+# it is the whole state of the gesture — and it is the one the player can see.
 var _highlighted: int = -1
 
 
@@ -63,6 +82,7 @@ func _ready() -> void:
 ## Opens the coin for [param hotspot], centred on [param at_position].
 func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 	_hotspot = hotspot
+	_anchor = at_position
 	_place_buttons(at_position)
 	_highlight(-1)
 	visible = true
@@ -86,7 +106,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventMouseMotion:
-		_highlight(_slice_at(_local_position(event)))
+		_highlight(_slice_aimed_at(_local_position(event)))
 		get_viewport().set_input_as_handled()
 		return
 
@@ -101,7 +121,12 @@ func _input(event: InputEvent) -> void:
 			# "never mind" is the safe way out.
 			close()
 		else:
-			_choose(_slice_at(_local_position(event)))
+			# The highlighted slice, not a fresh look at where the finger is.
+			# A fingertip rolls a few pixels as it leaves the glass, so the
+			# release lands slightly away from the last movement — and asking
+			# again there would sometimes answer "nowhere" right after the
+			# player watched a verb light up. What is lit is what runs.
+			_choose(_highlighted)
 
 		get_viewport().set_input_as_handled()
 
@@ -118,25 +143,35 @@ func _choose(slice: int) -> void:
 	verb_chosen.emit(_verbs[slice], hotspot)
 
 
-## The slice under [param point], or -1 when the finger is not on one.
-func _slice_at(point: Vector2) -> int:
+## The slice the finger is aiming at from [param point], or -1 for none.
+##
+## Anywhere outside the dead zone and roughly towards a verb picks it: there is
+## no edge to miss and no gap between the slices to fall into. The player
+## pushes left, up or right and gets whichever verb lies most nearly that way;
+## pushing down instead gets nothing, which is how the gesture is called off.
+func _slice_aimed_at(point: Vector2) -> int:
+	var aim: Vector2 = point - _anchor
+	if aim.length() < DEAD_ZONE:
+		return -1
+
 	var chosen: int = -1
-	var best_distance: float = INF
+	var smallest_angle: float = INF
 
 	for i in _buttons.size():
-		var area: Rect2 = Rect2(_buttons[i].position, BUTTON_SIZE).grow(TOUCH_MARGIN)
-		if not area.has_point(point):
+		# Measured against where the button actually ended up, not against the
+		# offset it was asked for: near a screen edge the buttons are pushed
+		# back inside, and the direction has to follow them there.
+		var towards_button: Vector2 = _buttons[i].get_rect().get_center() - _anchor
+		if towards_button.is_zero_approx():
 			continue
 
-		# Where two enlarged areas overlap, the nearer centre wins. Without
-		# this the answer would depend on the order the buttons were built in,
-		# which is not something the player can see or predict.
-		var distance: float = point.distance_squared_to(
-			_buttons[i].position + BUTTON_SIZE * 0.5
-		)
-		if distance < best_distance:
-			best_distance = distance
+		var difference: float = absf(rad_to_deg(aim.angle_to(towards_button)))
+		if difference < smallest_angle:
+			smallest_angle = difference
 			chosen = i
+
+	if smallest_angle > MAX_AIM_DEGREES:
+		return -1
 
 	return chosen
 
@@ -157,7 +192,7 @@ func _highlight(slice: int) -> void:
 func _local_position(event: InputEvent) -> Vector2:
 	# The coin sits at the origin of a CanvasLayer, so today this changes
 	# nothing. It is written out anyway so that moving the node does not
-	# silently move every hit area away from what is drawn.
+	# silently move every direction away from the buttons they point at.
 	var local_event := make_input_local(event) as InputEventMouse
 	return local_event.position
 
@@ -185,12 +220,18 @@ func _build_buttons() -> void:
 
 func _place_buttons(at_position: Vector2) -> void:
 	for i in _buttons.size():
-		var top_left: Vector2 = at_position + BUTTON_OFFSETS[i] - BUTTON_SIZE * 0.5
-		_buttons[i].position = _kept_on_screen(top_left)
+		# The button's own size, not BUTTON_SIZE. A Control refuses to be
+		# smaller than the room its content needs, so a Button asked for 34x13
+		# comes out taller once the font and the theme margins have had their
+		# say. Centring on the requested size would leave every slice sitting
+		# slightly below where the code thinks it is.
+		var button_size: Vector2 = _buttons[i].size
+		var top_left: Vector2 = at_position + BUTTON_OFFSETS[i] - button_size * 0.5
+		_buttons[i].position = _kept_on_screen(top_left, button_size)
 
 
-func _kept_on_screen(top_left: Vector2) -> Vector2:
-	var limit: Vector2 = size - BUTTON_SIZE - Vector2(SCREEN_MARGIN, SCREEN_MARGIN)
+func _kept_on_screen(top_left: Vector2, button_size: Vector2) -> Vector2:
+	var limit: Vector2 = size - button_size - Vector2(SCREEN_MARGIN, SCREEN_MARGIN)
 	return Vector2(
 		clampf(top_left.x, SCREEN_MARGIN, limit.x),
 		clampf(top_left.y, SCREEN_MARGIN, limit.y)

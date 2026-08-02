@@ -372,20 +372,34 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   Non è caduta nessuna premessa tecnica: i costi che la decisione precedente
   aveva individuato erano corretti e sono stati accettati consapevolmente.
   - **Costo accettato: il dito copre lo spicchio.** A 384×216 un verbo è
-    34×13 pixel, e durante il gesto il dito resta sullo schermo. Mitigato in
-    due modi, entrambi necessari: l'area che risponde è più grande di quella
-    disegnata (`TOUCH_MARGIN`, 6 pixel su ogni lato), e lo spicchio sotto il
-    dito si illumina, così il riscontro c'è anche quando il testo non si vede.
+    34×13 pixel, e durante il gesto il dito resta sullo schermo. La risposta
+    è la selezione per direzione descritta sotto, più lo spicchio che si
+    illumina — il riscontro c'è anche quando il testo non si vede.
   - **Costo accettato: un tocco secco non fa più niente.** Premere e
     rilasciare senza spostarsi apre e richiude la moneta. È inerente al gesto,
     non un difetto dell'implementazione.
-  - **Selezione per direzione** invece che per rettangolo (si sceglie in base
-    a *dove* si è spostato il dito rispetto al punto di partenza, non a cosa
-    c'è sotto): sarebbe più tollerante di qualunque margine, e renderebbe
-    irrilevante il fatto che il dito copra il bersaglio. Non adottata perché
-    è una risposta a un problema che non è ancora stato misurato sul
-    dispositivo. Resta la prima cosa da provare se la selezione per rettangolo
-    risultasse imprecisa: si cambia solo `_slice_at()`.
+  - **Si sceglie per direzione, non per rettangolo**: conta *dove* si è
+    spostato il dito rispetto al punto in cui la moneta si è aperta, non cosa
+    si trova sotto di esso. I tre verbi distano 81° l'uno dall'altro e ne
+    accettano 70 ciascuno, quindi non c'è un bordo da mancare né un buco tra
+    gli spicchi in cui cadere; sotto 12 pixel di spostamento non si sceglie
+    niente, e il cono che punta verso il basso non appartiene a nessun verbo,
+    così trascinare in giù e sollevare è il modo di dire di no.
+    La selezione per rettangolo, provata per prima, era **imprecisa sul
+    dispositivo**: è stata la misura che mancava per prendere questa
+    decisione, non un ripensamento a tavolino.
+  - **Sollevando si esegue lo spicchio illuminato**, non quello sotto il punto
+    di rilascio. Il primo tentativo rifaceva il test di posizione al
+    sollevamento, e sul dispositivo il verbo si accendeva ma non partiva: il
+    polpastrello **rotola di qualche pixel mentre lascia il vetro**, quindi il
+    rilascio cade poco distante dall'ultimo movimento. Regola generale, non
+    aggiustamento locale: in un gesto continuo lo stato è ciò che l'interfaccia
+    sta mostrando, e il rilascio lo conferma — non è l'occasione per ricalcolarlo.
+  - **`Button` non sta nella dimensione che gli chiedi**: un `Control` rifiuta
+    di essere più piccolo del suo contenuto, quindi un bottone richiesto
+    34×13 esce più alto una volta che font e margini del tema hanno detto la
+    loro. Le posizioni si calcolano leggendo `size` a cose fatte, mai la
+    costante richiesta, o il disegnato e il calcolato divergono in silenzio.
   - **Conseguenza tecnica non ovvia: il gesto si legge a mano in `_input()`**,
     non attraverso i segnali dei `Button`. È obbligato. La pressione che apre
     la moneta viene consumata dalla stanza **mentre la moneta è ancora
