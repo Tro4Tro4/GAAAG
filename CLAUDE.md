@@ -757,6 +757,19 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Vincolo per le icone future: stessa tavolozza, stesso spessore di
     contorno, e massa del disegno entro un raggio di circa 11 unità dal
     centro, o gli angoli spuntano fuori dal badge tondo.
+  - **Un'icona fatta di più parti che devono leggersi come una sola sagoma si
+    disegna due volte**: prima tutte le parti con riempimento *e* contorno
+    scuri, che allargandole le fonde in un'unica silhouette, poi le stesse
+    parti in colore sopra, senza contorno. Ne resta un contorno continuo e
+    nessuna giunzione interna. È il modo di ottenere l'unione di forme senza
+    operazioni booleane, che l'SVG non ha. La mano di "Prendi" è nata così
+    dopo che tre tentativi a rettangoli affiancati erano rimasti illeggibili:
+    le dita si vedevano incollate al palmo invece di uscirne.
+  - Corollario di quella tecnica, e vale per qualunque cosa abbia dita o
+    rebbi: **le parti vanno attaccate alla base e divaricate in punta**. Il
+    contorno che allarga le forme chiude i vuoti stretti, quindi due parti
+    parallele si fondono per tutta la lunghezza e diventano una macchia. È
+    l'apertura a ventaglio a scavare le valli che si vedono.
   - Nota: da rivedere se il badge diventasse chiaro. Il contorno scuro
     regge, ma il panna dell'occhio e del fumetto perderebbe contrasto e
     andrebbero ripensati due riempimenti su nove.
