@@ -30,8 +30,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
   diversi (es. uno passa un oggetto attraverso una finestra, l'altro lo
   raccoglie dall'altro lato)
-- Inventario: **da decidere** se condiviso tra personaggi o separato per
-  ciascuno
+- Inventario **separato per personaggio**, e gli oggetti passano da uno
+  all'altro solo attraverso punti di passaggio collocati nelle stanze
+- Ne segue un vincolo per la storia: i personaggi devono stare
+  **strutturalmente separati**, non solo trovarsi in stanze diverse per caso
 - Dialoghi ad albero con condizioni legate a flag/stato di gioco
 
 ## Ordine di sviluppo previsto
@@ -68,7 +70,8 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
   game.gd            Scambia le stanze e collega stanza, personaggi e UI
   autoload/          Stato che sopravvive alle scene (game_state.gd)
-  rooms/             room.gd, hotspot.gd, door_hotspot.gd, pickup_hotspot.gd
+  rooms/             room.gd, hotspot.gd, door_hotspot.gd, pickup_hotspot.gd,
+                     passage_hotspot.gd
   items/             inventory_item.gd, item_combination.gd,
                      combination_book.gd — dati, non nodi
   ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
@@ -542,22 +545,63 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     raccoglibile scritto da qui in avanti avrebbe avuto il testo nel campo
     sbagliato.
 
+- **Gli oggetti passano da un personaggio all'altro solo attraverso punti di
+  passaggio collocati** — una fessura, una finestra, un tubo — e mai
+  direttamente. Chiude il punto che era rimasto aperto. Due `PassageHotspot`
+  in due stanze che condividono un `cache_id` sono i due capi della stessa
+  fessura: quello che uno imbuca, l'altro lo ritira dall'altra parte.
+  Il motivo è che un meccanismo di trasferimento sempre disponibile non
+  risolve gli enigmi di trasporto, li **elimina**. Se il giocatore ha comunque
+  un modo di passare un oggetto, "chi ha cosa" smette di essere un ostacolo e
+  diventa una pratica da sbrigare: l'inventario separato tornerebbe a essere
+  un inventario condiviso con più passi. Qui invece la domanda non è mai "come
+  glielo do" ma "**da dove** può passare, e cosa ci passa", e le proprietà del
+  passaggio diventano vincoli di enigma gratuiti — sotto la porta passa solo
+  qualcosa di piatto, nel tubo solo qualcosa che rotola.
+  - **Consegna a mano** (usa l'oggetto sull'altro personaggio presente nella
+    stanza): ovvia, non va spiegata, ed evita la scena assurda di due che si
+    guardano senza potersi passare una chiave inglese. Costa poco. Scartata
+    perché si autodistrugge: o i due **possono** trovarsi nella stessa stanza,
+    e allora ogni enigma di trasporto si scioglie portandoli lì; oppure **non
+    possono**, e allora quel codice non si attiva mai. Dannosa o inutile, e nel
+    mezzo c'è solo il caso peggiore, in cui a volte si può e a volte no e il
+    giocatore non sa quale regola valga dove.
+  - **Un congegno fisso unico** stile cessi temporali di Day of the Tentacle:
+    il trasferimento è sempre possibile, quindi nessun blocco inspiegabile, e
+    il congegno diventa un elemento riconoscibile con la sua gag. Scartato
+    perché, saputo dov'è, il trasferimento torna a essere un comando: cammini,
+    usi, cambi personaggio, cammini. Costo in logistica, zero in trovata. È
+    anche la soluzione meno originale disponibile. Nota: **è lo stesso codice
+    della scelta adottata** — la differenza fra le due non è implementativa,
+    è quanti passaggi ci sono e se sono sempre raggiungibili.
+  - **Posare l'oggetto per terra** e farlo raccogliere a chiunque passi: la più
+    generale di tutte, e regala il "lo lascio qui per dopo". Scartata perché
+    costringe a decidere subito la persistenza dello stato di una stanza, che
+    è ancora aperta, e perché ha lo stesso difetto della consegna a mano senza
+    averne la naturalezza: "posa" sarebbe un quinto verbo.
+  - **Nessun trasferimento**, con la cooperazione affidata solo alle azioni
+    simultanee (uno tiene la leva, l'altro passa): scelta legittima e a costo
+    zero. Scartata perché butta via l'esempio che il progetto cita come proprio
+    e con esso metà del vocabolario del genere.
+  - **Conseguenza accettata, ed è una richiesta alla storia che ancora non
+    esiste**: i personaggi devono stare *strutturalmente* separati — piani
+    diversi, lati opposti di una barriera, momenti diversi — non semplicemente
+    trovarsi in stanze diverse. Se possono riunirsi quando vogliono, questa
+    decisione non regge e conviene il congegno fisso. In Day of the Tentacle
+    sono tre epoche, e non è colore: è ciò che rende sensato il resto.
+  - Regalo collaterale: un passaggio con **un capo solo** è un nascondiglio.
+    "Lascio qui il badge per dopo" funziona senza una riga in più.
+  - I `cache_id` sono il secondo pezzo di stato persistente in `GameState`
+    dopo i flag. Un oggetto imbucato non è in nessun inventario e in nessuna
+    stanza: esiste solo lì in mezzo, ed è per questo che gli serve una casa
+    che sopravviva allo scarico delle stanze.
+
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
   una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
   distingue le coordinate del mondo da quelle dello schermo quando apre la
   verb-coin, e la UI sta su un `CanvasLayer` che la telecamera non muove
-- **Come si passa un oggetto da un personaggio all'altro**: è il buco lasciato
-  aperto dalla scelta dell'inventario separato, ed è il punto in cui il puzzle
-  cooperativo del prototipo verticale sta o cade. Oggi non esiste alcun modo:
-  chi raccoglie una cosa se la tiene. Opzioni: un hotspot "passaggio" che
-  sposta un oggetto in un hotspot gemello di un'altra stanza (la finestra, la
-  fessura, il tubo — il codice è quello di `DoorHotspot` applicato agli
-  oggetti); dare l'oggetto direttamente a un personaggio presente nella stessa
-  stanza; un congegno fisso stile cessi temporali di Day of the Tentacle. La
-  prima è quella che rende ogni scambio un enigma invece di un comando, ed è
-  quella su cui punterei — ma va decisa con il primo puzzle vero in mano
 - **Persistenza dello stato di una stanza, oltre al "già preso"**: i flag di
   `GameState` coprono ora ciò che l'inventario richiedeva — un oggetto raccolto
   resta raccolto anche uscendo e rientrando. Restano scoperti i cambiamenti che

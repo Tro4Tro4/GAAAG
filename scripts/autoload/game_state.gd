@@ -37,6 +37,17 @@ var active_character: PlayerCharacter = null
 # can go both ways is state, and state belongs to whatever owns it.
 var _flags: Dictionary = {}
 
+# Items left in a passage and not yet collected, keyed by the passage's name.
+# This is where an object lives between one character posting it through a slot
+# and another taking it out on the far side: it belongs to nobody in the
+# meantime, so it can be in neither inventory and in no room.
+#
+# The arrays are kept untyped on purpose. A typed array put into a Dictionary
+# comes back out as a plain Variant, and this project cannot check from the
+# development machine how strict GDScript is about handing it back; the copy
+# returned by cache_contents() is typed, which is where it matters.
+var _caches: Dictionary = {}
+
 
 ## Characters announce themselves as they enter the tree. The alternative —
 ## a list configured by hand somewhere — would have to be kept in step with
@@ -71,6 +82,40 @@ func set_active_character(character: PlayerCharacter) -> void:
 
 	active_character = character
 	active_character_changed.emit(character)
+
+
+## What is waiting in the passage called [param cache_id], as a copy.
+func cache_contents(cache_id: StringName) -> Array[InventoryItem]:
+	var contents: Array[InventoryItem] = []
+
+	if _caches.has(cache_id):
+		contents.assign(_caches[cache_id])
+
+	return contents
+
+
+func cache_is_empty(cache_id: StringName) -> bool:
+	return cache_contents(cache_id).is_empty()
+
+
+## Leaves [param item] in the passage called [param cache_id].
+func put_in_cache(cache_id: StringName, item: InventoryItem) -> void:
+	if cache_id.is_empty() or item == null:
+		return
+
+	if not _caches.has(cache_id):
+		_caches[cache_id] = []
+
+	var contents: Array = _caches[cache_id]
+	if not item in contents:
+		contents.append(item)
+
+
+## Takes everything out of [param cache_id] and returns it.
+func empty_cache(cache_id: StringName) -> Array[InventoryItem]:
+	var taken: Array[InventoryItem] = cache_contents(cache_id)
+	_caches.erase(cache_id)
+	return taken
 
 
 ## True once [param flag] has been raised.

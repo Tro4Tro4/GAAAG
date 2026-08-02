@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://baggaroom00001"]
+[gd_scene load_steps=10 format=3 uid="uid://baggaroom00001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="6_passage"]
 [ext_resource type="Resource" uid="uid://baggaitemstic1" path="res://resources/items/sticker.tres" id="5_sticker"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
@@ -16,6 +17,9 @@ size = Vector2(64, 40)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(40, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
+size = Vector2(20, 30)
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
@@ -35,6 +39,10 @@ polygon = PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208)
 [node name="Door" type="Polygon2D" parent="."]
 color = Color(0.35, 0.24, 0.18, 1)
 polygon = PackedVector2Array(296, 56, 336, 56, 336, 120, 296, 120)
+
+[node name="Slot" type="Polygon2D" parent="."]
+color = Color(0.08, 0.09, 0.14, 1)
+polygon = PackedVector2Array(348, 70, 368, 70, 368, 100, 348, 100)
 
 [node name="Obstacle" type="Polygon2D" parent="."]
 color = Color(0.55, 0.35, 0.22, 1)
@@ -84,3 +92,21 @@ shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
 position = Vector2(0, 44)
+
+[node name="SlotHotspot" type="Area2D" parent="."]
+position = Vector2(358, 85)
+script = ExtResource("6_passage")
+display_name = "Fessura"
+look_text = "Una fessura nel muro, all'altezza del petto. Sotto, una targhetta smaltata: MODULISTICA."
+use_text = "Ci soffi dentro. Dall'altra parte non risponde nessuno."
+talk_text = "Parli nella fessura. La fessura ti restituisce la voce mezzo secondo dopo, con un tono leggermente scettico."
+take_text = "Ci infili la mano fino al polso. Dentro c'è solo muro."
+cache_id = &"wall_slot"
+posted_text = "Infili l'oggetto nella fessura. Si sente un tonfo dall'altra parte, poi silenzio."
+waiting_text = "Dalla fessura spunta qualcosa. Qualcuno l'ha imbucato dall'altro lato."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SlotHotspot"]
+shape = SubResource("RectangleShape2D_slot")
+
+[node name="ApproachPoint" type="Marker2D" parent="SlotHotspot"]
+position = Vector2(0, 45)
