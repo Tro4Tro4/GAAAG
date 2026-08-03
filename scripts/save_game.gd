@@ -41,6 +41,30 @@ static func exists(slot: StringName) -> bool:
 	return FileAccess.file_exists(path_for(slot))
 
 
+## The slot last written to, or empty if neither has been. What "Continua"
+## means: the game you were in, whether you asked for it to be kept or the game
+## kept it for you.
+static func newest_slot() -> StringName:
+	var manual: bool = exists(MANUAL_SLOT)
+	var auto: bool = exists(AUTO_SLOT)
+
+	if not manual and not auto:
+		return &""
+
+	if not auto:
+		return MANUAL_SLOT
+
+	if not manual:
+		return AUTO_SLOT
+
+	var manual_time: int = FileAccess.get_modified_time(path_for(MANUAL_SLOT))
+	var auto_time: int = FileAccess.get_modified_time(path_for(AUTO_SLOT))
+
+	# A tie goes to the manual one: if both were written in the same second, the
+	# one somebody chose is the one they meant.
+	return AUTO_SLOT if auto_time > manual_time else MANUAL_SLOT
+
+
 ## Writes the game as it stands into [param slot]. True when it got there.
 static func write(slot: StringName) -> bool:
 	var file := ConfigFile.new()

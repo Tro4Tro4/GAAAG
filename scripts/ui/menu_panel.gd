@@ -1,12 +1,12 @@
 class_name MenuPanel
 extends Control
 
-## Save, load, start again.
+## Save, load, settings, start again, stop.
 ##
-## The first piece of the shell around the game — there is no title screen and
-## no pause yet — and it exists now because a save nobody can ask for cannot be
-## tested. It is built to grow into the pause menu rather than to be thrown
-## away: the entries are a table, and settings will be another row.
+## This is the pause menu: it swallows every click while it is up, so the game
+## behind it is not merely covered but unreachable. It grew out of the panel
+## that existed only to make saving testable, and it grew the way it was built
+## to — the entries are a table, and each new one is a row.
 ##
 ## Input is read raw in _input() with the buttons left as visuals, as in the
 ## other three panels. Tapping outside puts it away, exactly as the bag does.
@@ -20,6 +20,8 @@ const SAVE: StringName = &"save"
 const LOAD: StringName = &"load"
 const LOAD_AUTO: StringName = &"load_auto"
 const NEW_GAME: StringName = &"new_game"
+const SETTINGS: StringName = &"settings"
+const QUIT: StringName = &"quit"
 
 const ENTRY_FONT_SIZE: int = 8
 const ENTRY_MINIMUM_SIZE: Vector2 = Vector2(0, 14)
@@ -30,7 +32,9 @@ var _entries: Array = [
 	{&"action": SAVE, &"text": "MENU_SAVE"},
 	{&"action": LOAD, &"text": "MENU_LOAD"},
 	{&"action": LOAD_AUTO, &"text": "MENU_LOAD_AUTO"},
+	{&"action": SETTINGS, &"text": "MENU_SETTINGS"},
 	{&"action": NEW_GAME, &"text": "MENU_NEW_GAME"},
+	{&"action": QUIT, &"text": "MENU_QUIT"},
 ]
 
 @onready var _frame: Panel = $Frame

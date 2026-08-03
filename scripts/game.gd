@@ -52,6 +52,8 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _dialogue_panel: DialoguePanel = $UI/DialoguePanel
 @onready var _menu_button: Button = $UI/MenuButton
 @onready var _menu_panel: MenuPanel = $UI/MenuPanel
+@onready var _settings_panel: SettingsPanel = $UI/SettingsPanel
+@onready var _title_screen: TitleScreen = $UI/TitleScreen
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
@@ -87,6 +89,7 @@ func _ready() -> void:
 
 	_menu_button.pressed.connect(_on_menu_button_pressed)
 	_menu_panel.action_chosen.connect(_on_menu_action)
+	_title_screen.action_chosen.connect(_on_title_action)
 
 	# The bag button is written from here, so unlike the labels sitting in
 	# Main.tscn it does not retranslate itself when the language changes.
@@ -102,6 +105,13 @@ func _ready() -> void:
 
 	_refresh_inventory_button()
 	_show_room_of(GameState.active_character)
+
+	# Last, and over a game that is already standing up. The title is an overlay,
+	# not a scene of its own, so "Continua" has somewhere to load into instead of
+	# having to start a game and then tell it what to become.
+	if TitleScreen.should_ask():
+		_set_ordinary_ui_visible(false)
+		_title_screen.open()
 
 
 func _on_active_character_changed(character: PlayerCharacter) -> void:
@@ -237,6 +247,8 @@ func _on_dialogue_finished() -> void:
 	_set_ordinary_ui_visible(true)
 
 
+## Everything that is only there while the player is actually playing. Hidden
+## during a conversation, and while the title is up.
 func _set_ordinary_ui_visible(is_ui_visible: bool) -> void:
 	_character_bar.visible = is_ui_visible
 	_inventory_button.visible = is_ui_visible
@@ -259,8 +271,34 @@ func _on_menu_action(action: StringName) -> void:
 			_load_from(SaveGame.MANUAL_SLOT)
 		MenuPanel.LOAD_AUTO:
 			_load_from(SaveGame.AUTO_SLOT)
+		MenuPanel.SETTINGS:
+			_settings_panel.open()
 		MenuPanel.NEW_GAME:
 			_start_new_game()
+		MenuPanel.QUIT:
+			get_tree().quit()
+
+
+func _on_title_action(action: StringName) -> void:
+	match action:
+		TitleScreen.CONTINUE:
+			_load_from(SaveGame.newest_slot())
+			_leave_title()
+		TitleScreen.NEW_GAME:
+			# Nothing to reset: the title is only ever up over a game that has
+			# just been built from its scenes, which is what a new game is.
+			_leave_title()
+		TitleScreen.SETTINGS:
+			# The title stays underneath. Settings is drawn last of everything
+			# in the interface, so it covers the title as it covers the room.
+			_settings_panel.open()
+		TitleScreen.QUIT:
+			get_tree().quit()
+
+
+func _leave_title() -> void:
+	_title_screen.close()
+	_set_ordinary_ui_visible(true)
 
 
 func _load_from(slot: StringName) -> void:
@@ -283,6 +321,10 @@ func _load_from(slot: StringName) -> void:
 
 func _start_new_game() -> void:
 	GameState.clear()
+
+	# Told not to ask again: somebody who has just chosen "new game" does not
+	# want to be shown the title and asked the same question.
+	TitleScreen.skip_once = true
 
 	# The whole scene is built again rather than every character being put back
 	# by hand: where somebody starts is written in Main.tscn and nowhere else,
