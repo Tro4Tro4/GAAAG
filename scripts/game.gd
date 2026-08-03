@@ -55,6 +55,7 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _settings_panel: SettingsPanel = $UI/SettingsPanel
 @onready var _title_screen: TitleScreen = $UI/TitleScreen
 @onready var _fade: Fade = $UI/Fade
+@onready var _camera: GameCamera = $Camera
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
@@ -174,6 +175,11 @@ func _show_room_of(character: PlayerCharacter) -> void:
 
 	if _room != null:
 		_room.set_character(character)
+		_camera.frame_room(_room.room_size)
+
+	# After the room has been framed, or the first snap would be clamped to the
+	# old room's edges.
+	_camera.follow(character)
 
 
 func _swap_room_to(room_path: String) -> void:

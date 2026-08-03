@@ -1,0 +1,91 @@
+[gd_scene load_steps=7 format=3 uid="uid://baggalonghal01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(8, 100, 760, 100, 760, 208, 8, 208)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 100, 760, 100, 760, 208, 8, 208)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_window"]
+size = Vector2(60, 44)
+
+[node name="LongHall" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+room_size = Vector2(768, 216)
+depth_top_y = 100.0
+depth_bottom_y = 208.0
+depth_top_scale = 0.78
+depth_bottom_scale = 1.1
+
+[node name="Wall" type="Polygon2D" parent="."]
+color = Color(0.12, 0.14, 0.19, 1)
+polygon = PackedVector2Array(0, 0, 768, 0, 768, 100, 0, 100)
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color(0.22, 0.23, 0.27, 1)
+polygon = PackedVector2Array(0, 100, 768, 100, 768, 216, 0, 216)
+
+[node name="FloorEdge" type="Polygon2D" parent="."]
+color = Color(0.29, 0.3, 0.34, 1)
+polygon = PackedVector2Array(8, 100, 760, 100, 760, 208, 8, 208)
+
+[node name="Door" type="Polygon2D" parent="."]
+color = Color(0.35, 0.24, 0.18, 1)
+polygon = PackedVector2Array(20, 36, 60, 36, 60, 100, 20, 100)
+
+[node name="Stripe" type="Polygon2D" parent="."]
+color = Color(0.34, 0.36, 0.4, 1)
+polygon = PackedVector2Array(0, 92, 768, 92, 768, 100, 0, 100)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(64, 150)
+
+[node name="FromHallway" type="Marker2D" parent="EntryPoints"]
+position = Vector2(64, 130)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(40, 68)
+script = ExtResource("3_door")
+display_name = "ROOM_LONG_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "ROOM_LONG_DOOR_LOOK"
+reach_text = "ROOM_LONG_DOOR_REACH"
+target_room = "res://scenes/rooms/Hallway.tscn"
+target_entry = &"FromLongHall"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 44)
+
+[node name="WindowHotspot" type="Area2D" parent="."]
+position = Vector2(620, 100)
+script = ExtResource("2_hotspot")
+display_name = "ROOM_LONG_WINDOW"
+look_text = "ROOM_LONG_WINDOW_LOOK"
+
+[node name="Picture" type="Polygon2D" parent="WindowHotspot"]
+color = Color(0.4, 0.52, 0.56, 1)
+polygon = PackedVector2Array(-30, -60, 30, -60, 30, -16, -30, -16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WindowHotspot"]
+position = Vector2(0, -38)
+shape = SubResource("RectangleShape2D_window")
+
+[node name="ApproachPoint" type="Marker2D" parent="WindowHotspot"]
+position = Vector2(0, 40)

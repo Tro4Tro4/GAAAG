@@ -36,6 +36,12 @@ signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
 ## The entry point used when a door names one this room does not have.
 const DEFAULT_ENTRY: StringName = &"Default"
 
+## How big this room is, in game units. The camera fences itself inside it.
+## The default is exactly one screen, which is what every room was before there
+## was a camera — and a room that size leaves the camera nowhere to go, so
+## nothing about it changes.
+@export var room_size: Vector2 = Vector2(384, 216)
+
 @export_group("Depth")
 
 ## The two floor heights between which the room has perspective, and how big

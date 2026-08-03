@@ -58,6 +58,10 @@ polygon = PackedVector2Array(24, 36, 64, 36, 64, 100, 24, 100)
 color = Color(0.05, 0.11, 0.12, 1)
 polygon = PackedVector2Array(76, 55, 96, 55, 96, 85, 76, 85)
 
+[node name="FarDoor" type="Polygon2D" parent="."]
+color = Color(0.32, 0.22, 0.16, 1)
+polygon = PackedVector2Array(330, 36, 370, 36, 370, 100, 330, 100)
+
 [node name="Dispenser" type="Polygon2D" parent="."]
 color = Color(0.45, 0.45, 0.5, 1)
 polygon = PackedVector2Array(260, 40, 300, 40, 300, 100, 260, 100)
@@ -76,6 +80,9 @@ position = Vector2(200, 180)
 
 [node name="FromTestRoom" type="Marker2D" parent="EntryPoints"]
 position = Vector2(44, 112)
+
+[node name="FromLongHall" type="Marker2D" parent="EntryPoints"]
+position = Vector2(350, 112)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(44, 68)
@@ -159,6 +166,23 @@ shape = SubResource("RectangleShape2D_clerk")
 
 [node name="ApproachPoint" type="Marker2D" parent="ClerkHotspot"]
 position = Vector2(0, 12)
+
+[node name="FarDoorHotspot" type="Area2D" parent="."]
+position = Vector2(350, 68)
+script = ExtResource("3_door")
+display_name = "ROOM_HALL_FARDOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "ROOM_HALL_FARDOOR_LOOK"
+reach_text = "ROOM_HALL_FARDOOR_REACH"
+target_room = "res://scenes/rooms/LongHall.tscn"
+target_entry = &"FromHallway"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FarDoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="FarDoorHotspot"]
+position = Vector2(0, 44)
 
 [node name="SlotHotspot" type="Area2D" parent="."]
 position = Vector2(86, 70)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=15 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://scripts/ui/settings_panel.gd" id="11_settings"]
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="12_title"]
 [ext_resource type="Script" path="res://scripts/ui/fade.gd" id="13_fade"]
+[ext_resource type="Script" path="res://scripts/game_camera.gd" id="14_camera"]
 
 [node name="Game" type="Node2D"]
 y_sort_enabled = true
@@ -37,6 +38,9 @@ position = Vector2(240, 190)
 display_name = "CHAR_PLAYER2"
 body_color = Color(0.35, 0.62, 0.85, 1)
 current_room = "res://scenes/rooms/Hallway.tscn"
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("14_camera")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
