@@ -127,13 +127,15 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   disegnato con l'origine ai piedi, e la figura va messa come **figlio**
   dell'hotspot, non come fratello.
 - **I personaggi hanno quattro direzioni** (giù, sinistra, destra, su) e tre
-  stati (fermo, cammina, parla). Il codice che li consumerà esiste già ed è
-  `PlayerCharacter._refresh_visual()`: oggi muove dei poligoni, e il giorno
-  degli sprite diventa un nome passato a un `AnimatedSprite2D`.
-- **Il formato del foglio è una decisione ancora aperta** (quante pose per
-  direzione, se l'idle è animato): sta in "Decisioni ancora aperte" di
-  `CLAUDE.md`. Prima di produrre un foglio definitivo va chiusa — con una
-  proposta, non a caso.
+  stati (fermo, cammina, parla). `PlayerCharacter._refresh_visual()` ne compone
+  il nome dell'animazione e lo passa all'`AnimatedSprite2D`.
+- **Il formato del foglio è deciso e implementato**: nove animazioni chiamate
+  `<stato>_<direzione>` con gli stati `idle`, `walk`, `talk` e le direzioni
+  `down`, `side`, `up`; `walk` ha quattro fotogrammi, `talk` due, `idle` uno.
+  Il sinistra è il destra ribaltato con `flip_h`, quindi **niente di asimmetrico
+  addosso a un personaggio**. Celle 24×44, corpo alto 40 con i piedi sull'ultima
+  riga. Non disegnare un foglio a mano: `tools/make_character_sheets.py` lo
+  produce **e scrive lo `SpriteFrames`**, e le due cose devono restare una sola.
 - **Vincolo IP**: i contenuti visivi non fanno eccezione. Prima di committare
   arte con soggetti riconoscibili, passa dalla skill `vincolo-ip`.
 

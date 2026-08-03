@@ -115,12 +115,14 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
                      e catalogue.tres con l'elenco di tutti gli oggetti
+  characters/        Un .tres di SpriteFrames per personaggio, scritto da tools/
   dialogues/         Un file per conversazione
   sequences/         Un file per scena scriptata
   text/              it.tres e en.tres — tutte le frasi del gioco
 tools/               Script che producono asset, da eseguire dalla radice
   make_lobby_background.py  Immagine esterna -> texture dello sfondo
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
+  make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, .webp 1920x1080, filtro lineare
   ui/                Le sette icone dei verbi, in SVG
@@ -1635,6 +1637,55 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     pavimento a 146, porta 36×58 centrata a 313 — perché sono ciò che lega
     l'immagine alla scena, e un'immagine nuova va confrontata con quelle.
 
+- **Il foglio dei personaggi: nove animazioni, tre direzioni disegnate, la
+  quarta specchiata.** Chiude il punto che era rimasto aperto sull'arte dei
+  personaggi. Le animazioni si chiamano `<stato>_<direzione>` con gli stati
+  `idle`, `walk`, `talk` e le direzioni `down`, `side`, `up`; `walk` ha quattro
+  fotogrammi, `talk` due, `idle` uno. `_refresh_visual()` è diventato quello che
+  era stato progettato per diventare: compone un nome e lo passa a un
+  `AnimatedSprite2D`.
+  - **Il sinistra è il destra ribaltato** (`flip_h`), quindi un personaggio costa
+    tre disegni e non quattro. Regge finché niente nel personaggio è asimmetrico:
+    una borsa a tracolla o una benda su un occhio farebbero saltare il trucco, ed
+    è un vincolo di design dei personaggi, non un dettaglio tecnico.
+  - **Quattro fotogrammi per la camminata e non sei o otto**: contatto, passaggio,
+    contatto opposto, passaggio, con il corpo che si alza di un pixel sui
+    passaggi. È il ciclo "arcade" che la skill descrive, e a 40 unità di altezza
+    la differenza con un ciclo completo non si vede. Otto fotogrammi
+    raddoppierebbero il disegno per una lettura che lo schermo non ha.
+  - **L'idle è un fotogramma solo**, per ora. Un respiro a due fotogrammi si
+    aggiunge dopo senza toccare niente: è una riga nella tabella delle animazioni.
+  - **Frontale e di spalle non hanno un "avanti" dove andare**, quindi il passo lì
+    non è una falcata ma un piede sollevato di un pixel. Provato prima ad
+    allargare le gambe, e veniva un personaggio che camminava a gambe larghe.
+  - **La direzione della luce dello sprite è quella della stanza** — dall'alto e
+    un po' da sinistra, come il neon dell'atrio. È la regola già registrata sulla
+    tavolozza madre, applicata all'ombreggiatura invece che ai colori.
+  - **Ogni personaggio è la stessa scena con un foglio diverso**, passato come
+    `@export var frames: SpriteFrames` sull'istanza. `body_color` sparisce: serviva
+    a distinguere due poligoni. Un personaggio nuovo costa una risorsa, non un
+    nodo.
+  - **Lo `SpriteFrames` .tres lo scrive lo stesso script che disegna il foglio**,
+    perché le coordinate delle celle sono la stessa informazione due volte e
+    scriverle a mano vuol dire vederle divergere.
+  - **L'ombra di contatto è un nodo separato sotto `Visual`**, non dipinta dentro
+    i fotogrammi: dipinta dentro salirebbe e scenderebbe con il sobbalzo della
+    camminata, e un'ombra che rimbalza col personaggio è peggio di nessuna ombra.
+    È pixel art a due livelli di trasparenza e non una macchia sfumata, perché con
+    il filtro `Nearest` una sfumatura sarebbe l'unica cosa morbida dello sprite.
+
+- **Nora diventa Lino**, ed è un ragazzo: capelli biondi, occhi chiari, cappellino.
+  Costa quello che la localizzazione aveva promesso costasse — una chiave in
+  `it.tres` e `en.tres`, il nome del nodo in `Main.tscn` e nient'altro — con
+  l'unica eccezione di un participio: *"la porta da cui sei entrata"* è diventato
+  *"entrato"*. Il resto dei testi del prototipo era già neutro, non per fortuna ma
+  perché parlano di oggetti e non di chi guarda.
+  - I nomi restano provvisori come già scritto: la storia completa è il punto 6, e
+    finché è aperta un nome è una chiave in due file.
+  - **Cesare ha un foglio anche lui**, ma è una prima passata a colori diversi e
+    senza cappello: serviva a non lasciare un personaggio disegnato e uno fatto di
+    poligoni. Si ridisegna cambiando un dizionario, quando sarà descritto.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1642,20 +1693,23 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   che produce le stesse risorse — si aggiunge senza toccare il runtime, quindi
   la decisione si prende con in mano il primo dialogo vero e non prima. Lo
   stesso vale per le sequenze, che hanno lo stesso problema in piccolo
-- **Arte dei personaggi**: lo strato di direzione e stati c'è ed è verificato,
-  ma i personaggi sono ancora due poligoni. Quando arriveranno gli sprite andrà
-  deciso il formato del foglio (quante pose per direzione, se l'idle è animato)
-  e `_refresh_visual()` diventerà un nome passato a un `AnimatedSprite2D`
 - **La scala per profondità contro la pixel art**, ed è il vero conflitto aperto
   dallo stile ibrido. La prospettiva delle stanze scala la figura del personaggio
-  di un fattore continuo (oggi da 0,78 a 1,1), e questo rompe la regola per cui
-  un pixel di texture è un'unità di gioco: a 0,78 alcuni pixel escono più grandi
-  di altri. Tre vie: tenerla continua e accettare l'irregolarità, che a 40 unità
-  di altezza e in movimento potrebbe non vedersi; quantizzarla a pochi gradini
-  scelti a mano; o togliere la scala per profondità e affidare la distanza alla
-  sola posizione. **Da decidere guardando il primo sprite vero sul dispositivo**,
-  non a tavolino: è una differenza che si giudica con l'occhio, e cambiarla è una
-  funzione sola (`_depth_scale()`)
+  di un fattore continuo (nell'atrio da 0,85 a 1,05), e questo rompe la regola per
+  cui un pixel di texture è un'unità di gioco: a 0,85 su uno schermo 5× un pixel
+  di texture diventa 4,25 pixel veri, quindi alcuni escono 4 e altri 5.
+  **Ora c'è lo sprite per giudicare, e la prova è fatta**: l'irregolarità si vede,
+  e si vede peggio dove meno serve — sul viso, dove un occhio esce largo quattro
+  pixel e l'altro cinque, che l'occhio umano legge come asimmetria della faccia e
+  non come rumore. Resta da guardarla **sul dispositivo e in movimento**, perché
+  un personaggio che cammina cambia scala di continuo e potrebbe nasconderla.
+  La mia raccomandazione, da confermare guardandola: **nell'atrio metterla a 1 e
+  1**. Un intervallo del 24% su 60 unità di pavimento non si legge come
+  prospettiva, quindi oggi si pagano artefatti visibili per un effetto invisibile;
+  la funzione resta, e si accende nelle stanze con un pavimento davvero profondo.
+  Nota sulla via di mezzo: **quantizzare a pochi gradini non risolve**, perché il
+  fattore intero dipende anche dalla dimensione della finestra — 0,8 è esatto a 5×
+  e non lo è a 3×. Cambiarla resta una funzione sola (`_depth_scale()`)
 - **Layer di parallasse negli sfondi**: la telecamera scorre già e il corridoio
   dei tubi è largo due schermate, quindi è il posto dove si vedrebbe. Additivo e
   opzionale — il progetto non ha nessun `Parallax2D` — ma **da decidere prima di

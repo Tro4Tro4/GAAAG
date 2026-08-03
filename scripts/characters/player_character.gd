@@ -33,23 +33,16 @@ enum Facing { DOWN, LEFT, RIGHT, UP }
 ## What the character is doing, which is what an animation would be chosen by.
 enum State { IDLE, WALKING, TALKING }
 
-## How far the placeholder bobs while walking, and how fast.
-##
-## The bob is not the point — it will be gone the day there are sprites. The
-## point is that facing and state exist, are worked out from what the character
-## is actually doing, and drive something visible: swapping the polygons for an
-## AnimatedSprite2D then becomes a change of art rather than a change of design.
-const BOB_HEIGHT: float = 2.0
-const BOB_SPEED: float = 12.0
-
-## How far the nose sticks out to the side of the head when facing that way.
-const NOSE_OFFSET: float = 6.0
-
 ## The name shown on the character-switching bar.
 @export var display_name: String = ""
 
-## Placeholder until there are sprites: tells one character from another.
-@export var body_color: Color = Color(0.92, 0.55, 0.2)
+## This character's drawings. Every character shares one scene and differs only
+## by the sheet it is given, so a new character costs a resource and not a node.
+##
+## The sheet holds nine animations, named <state>_<direction> with the
+## directions down, side and up: left is the side flipped, which is why there
+## are three drawings for four ways of facing.
+@export var frames: SpriteFrames
 
 ## Pixels per second, expressed at the game's 384x216 base resolution.
 @export var walk_speed: float = 55.0
@@ -83,8 +76,7 @@ var _depth_bottom_scale: float = 1.0
 var inventory: Array[InventoryItem] = []
 
 @onready var _visual: Node2D = $Visual
-@onready var _body: Polygon2D = $Visual/Body
-@onready var _nose: Polygon2D = $Visual/Nose
+@onready var _sprite: AnimatedSprite2D = $Visual/Sprite
 
 # Resolved with @onready rather than @export: a node reference written by
 # hand into a .tscn is not reliably resolved, and the agent is part of this
@@ -100,13 +92,8 @@ var _is_walking: bool = false
 var _pending_entry: StringName = &""
 
 
-# How long this character has been walking, for the bob. Reset on stopping so
-# that every walk starts on the same foot.
-var _walk_time: float = 0.0
-
-
 func _ready() -> void:
-	_body.color = body_color
+	_sprite.sprite_frames = frames
 	_refresh_visual()
 	GameState.register_character(self)
 
@@ -123,7 +110,6 @@ func walk_to(global_target: Vector2) -> void:
 	# target_position is in global coordinates, not local to this node.
 	_agent.target_position = global_target
 	_is_walking = true
-	_walk_time = 0.0
 	set_state(State.WALKING)
 
 
@@ -269,8 +255,6 @@ func _physics_process(delta: float) -> void:
 		_stop_walking()
 		return
 
-	_walk_time += delta
-
 	# The agent returns the next corner of the path, never the final
 	# destination directly: steering corner by corner is what makes the
 	# character go around an obstacle instead of into it.
@@ -302,43 +286,43 @@ func _face_along(direction: Vector2) -> void:
 		facing = Facing.DOWN if direction.y > 0.0 else Facing.UP
 
 
-## Puts the placeholder into the shape that says which way it is turned and
-## whether it is moving. The day there are sprites this is the one function
-## that changes: it becomes a name handed to an AnimatedSprite2D.
+## Chooses the drawing that says which way the character is turned and what they
+## are doing. This is the whole of what facing and state are for: everything
+## else in this script works out those two values, and this turns them into a
+## name.
 func _refresh_visual() -> void:
 	# Called from _ready() before the first frame and from _physics_process
 	# after, so the nodes are always there by now — but a character can be
 	# turned by a save being loaded before it has entered the tree.
-	if _nose == null:
+	if _sprite == null:
 		return
 
+	var direction: String = "down"
 	match facing:
-		Facing.LEFT:
-			_nose.position = Vector2(-NOSE_OFFSET, -1)
-			_nose.visible = true
-		Facing.RIGHT:
-			_nose.position = Vector2(NOSE_OFFSET, -1)
-			_nose.visible = true
-		Facing.DOWN:
-			_nose.position = Vector2(0, 1)
-			_nose.visible = true
+		Facing.LEFT, Facing.RIGHT:
+			direction = "side"
 		Facing.UP:
-			# The back of a head has no nose on it, and that is the whole of
-			# how you tell somebody walking away from somebody walking towards.
-			_nose.visible = false
+			direction = "up"
+
+	var doing: String = "idle"
+	if state == State.WALKING:
+		doing = "walk"
+	elif state == State.TALKING:
+		doing = "talk"
+
+	# The side is drawn facing right and mirrored for the left, which halves the
+	# drawing. It works because nothing about these characters is asymmetric —
+	# a bag on one shoulder would end the trick.
+	_sprite.flip_h = facing == Facing.LEFT
+
+	var wanted: StringName = StringName(doing + "_" + direction)
+	if _sprite.animation != wanted or not _sprite.is_playing():
+		_sprite.play(wanted)
 
 	# Only the picture is scaled, never the node: the collision shape and the
 	# navigation agent are how big the character is *as a thing in the room*,
 	# and perspective is about how big they look.
 	_visual.scale = Vector2.ONE * _depth_scale()
-
-	var bob: float = 0.0
-	if state == State.WALKING:
-		# absf, so the bob only ever lifts: a walk that also dipped would look
-		# like the floor giving way.
-		bob = -BOB_HEIGHT * absf(sin(_walk_time * BOB_SPEED))
-
-	_visual.position = Vector2(0.0, bob)
 
 
 ## How big the character is at the height they are standing at. A straight line
@@ -361,7 +345,6 @@ func _cancel_walk() -> void:
 	# about to stop being the one on screen.
 	_is_walking = false
 	velocity = Vector2.ZERO
-	_walk_time = 0.0
 
 	if state == State.WALKING:
 		set_state(State.IDLE)
