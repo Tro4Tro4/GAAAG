@@ -19,8 +19,8 @@ extends Control
 ## where a long word still fits.
 ##
 ## Only what the object actually offers is drawn, and it is packed: the first
-## verb goes to the right of the touched point and the rest fan round from there
-## towards the left, sixty degrees apart, with nothing left empty in between. A
+## verb goes to the left of the touched point and the rest fan round from there
+## towards the right, sixty degrees apart, with nothing left empty in between. A
 ## hotspot with two verbs therefore shows two badges side by side rather than two
 ## badges with a hole where a third would have been.
 ##
@@ -93,11 +93,13 @@ const MAX_VERBS: int = 4
 ## How far the badges sit from the point the coin opened on.
 const BADGE_RADIUS: float = 38.0
 
-## The angle between one badge and the next. The fan starts at the right of the
-## touched point and turns upwards and leftwards, so four verbs reach exactly to
-## the left and no arrangement ever puts a badge below the finger — which is
-## both where the player's own hand is and the direction reserved for calling
-## the gesture off.
+## Where the first badge goes: straight to the left of the touched point.
+const FAN_START_DEGREES: float = 180.0
+
+## The angle between one badge and the next, turning from the left up and over
+## towards the right. Four verbs therefore reach exactly to the right, and no
+## arrangement ever puts a badge below the finger — which is both where the
+## player's own hand is and the direction reserved for calling the gesture off.
 const FAN_STEP_DEGREES: float = 60.0
 
 # The whole vocabulary of the game, in one table: the word the player reads
@@ -140,24 +142,24 @@ var _item: InventoryItem = null
 var _buttons: Array[Button] = []
 
 # The verbs on offer this time, in the order they are fanned out — first one at
-# the right. Shorter than MAX_VERBS whenever the subject offers fewer, which is
+# the left. Shorter than MAX_VERBS whenever the subject offers fewer, which is
 # most of the time; the buttons past the end are hidden.
 #
 # This is the whole of the change from fixed positions: a verb no longer knows
 # where it will be drawn, it only knows it comes before or after another one.
 var _verbs: Array[int] = []
 
-# The order the fan is filled in: whatever a thing leads to or who it is first,
-# then what you do to it, then what you do with your hands, and looking last.
-# Read from the right leftwards, that is the same order the four families sat
-# in when they had fixed places — so an object offering all four looks exactly
-# as it always did, and only the gappy ones change.
+# The order the fan is filled in: looking first, then what you do with your
+# hands, then what you do to the thing, and where it leads or who it is last.
+# That is the same order the four families sat in when they had fixed places,
+# read the same way — so an object offering all four looks exactly as it always
+# did, and only the gappy ones change.
 #
 # A var and not a const for the reason the word table below is: it holds values
 # belonging to another class, and whether that is allowed at parse time is not
 # something this project can check from the development machine.
 var _fan_order: Array[int] = [
-	Hotspot.Slot.REACH, Hotspot.Slot.ACT, Hotspot.Slot.HAND, Hotspot.Slot.LOOK
+	Hotspot.Slot.LOOK, Hotspot.Slot.HAND, Hotspot.Slot.ACT, Hotspot.Slot.REACH
 ]
 
 # False when the icons could not be loaded, in which case the badges fall back
@@ -218,12 +220,12 @@ func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
 	_default_verb = Hotspot.Verb.LOOK
 
 	# In fan order, so the two land where the same two verbs would land on a
-	# hotspot offering only those: acting to the right, looking next to it.
+	# hotspot offering only those: looking to the left, acting next to it.
 	#
 	# Built as a typed local rather than passed as a literal: GDScript will fill
 	# an Array[int] from a literal, but it will not always hand a bare literal to
 	# a parameter that asks for one.
-	var verbs: Array[int] = [Hotspot.Verb.USE, Hotspot.Verb.LOOK]
+	var verbs: Array[int] = [Hotspot.Verb.LOOK, Hotspot.Verb.USE]
 	_set_verbs(verbs)
 
 	_open_at(at_position)
@@ -482,7 +484,9 @@ func _place_badges(at_position: Vector2) -> void:
 ## coin opened on. Worked out rather than looked up in a table, because the
 ## table would have to have one row per number of verbs on offer.
 func _badge_offset(slice: int) -> Vector2:
-	var angle: float = deg_to_rad(slice * FAN_STEP_DEGREES)
+	# Subtracted, not added: the fan starts on the left and comes down towards
+	# the right, so each badge is at a smaller angle than the one before it.
+	var angle: float = deg_to_rad(FAN_START_DEGREES - slice * FAN_STEP_DEGREES)
 
 	# The sine is negated because Y grows downwards on screen: without it the
 	# fan would open into the floor instead of over the object.

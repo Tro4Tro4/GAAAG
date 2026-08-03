@@ -25,7 +25,7 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
 - Punta-e-clicca classico con **verb-coin** a ventaglio — solo i verbi che
-  l'oggetto offre, compattati a partire da destra — e un vocabolario chiuso di
+  l'oggetto offre, compattati a partire da sinistra — e un vocabolario chiuso di
   sette parole in quattro famiglie: Guarda / Prendi / Usa, Apri, Chiudi /
   Parla, Vai (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
@@ -45,7 +45,7 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
    dispositivo**: premi-trascina-rilascia con scelta per direzione, badge con
    icone, vocabolario di sette parole in quattro famiglie, ventaglio compattato
-   da destra)*
+   da sinistra)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
@@ -614,7 +614,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   fessura dice "Ritira" — ma lo spicchio resta nella sua direzione e chiama lo
   stesso verbo. Cambia il vocabolario, non la geometria. **Superata due volte**
   — da "Vocabolario chiuso di nove parole" (le parole non sono più stringhe
-  libere per hotspot) e poi da "Il ventaglio si compatta a partire da destra",
+  libere per hotspot) e poi da "Il ventaglio si compatta a partire da sinistra",
   in fondo all'elenco, che toglie anche la metà che qui era il punto: le
   posizioni non sono più fisse.
   Il motivo è che la scelta per direzione vive sul fatto che le quattro
@@ -710,7 +710,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   posizione fissa sulla moneta, e una parola non cambia mai direzione.
   **Parzialmente superata due volte** — da "Da nove parole a sette", che porta
   l'elenco a sette togliendo Premi e Tira, e da "Il ventaglio si compatta a
-  partire da destra", che toglie le posizioni fisse. Le **famiglie** restano, e
+  partire da sinistra", che toglie le posizioni fisse. Le **famiglie** restano, e
   restano l'unità di cui si parla: quello che cambia è che il loro ordine
   decide la sequenza del ventaglio invece di quattro direzioni sullo schermo.
   Nove parole che il giocatore impara una volta valgono più di parole inventate
@@ -866,7 +866,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Da nove parole a sette: Premi e Tira sono eliminati** (revoca parziale del
   vocabolario chiuso, non del suo principio: famiglie e posizioni fisse
   restano — le posizioni fisse solo fino a "Il ventaglio si compatta a partire
-  da destra", più sotto, e restano **Guarda**; **Prendi**; **Usa, Apri, Chiudi**;
+  da sinistra", più sotto, e restano **Guarda**; **Prendi**; **Usa, Apri, Chiudi**;
   **Parla, Vai**). Le due parole stavano nella stessa famiglia di Usa, quindi
   **non compravano una posizione sulla moneta**: qualunque cosa facessero, la
   facevano dalla stessa casella e con lo stesso gesto di Usa. Il costo invece
@@ -1052,20 +1052,21 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     cui esisterà una schermata di impostazioni, "velocità dei testi" sono questi
     due numeri in un posto solo e non una ricerca nel codice.
 
-- **Il ventaglio si compatta a partire da destra** (revoca delle posizioni fisse
-  sulla verb-coin, che erano il cuore di due decisioni più sopra). Si disegnano
-  solo i verbi che l'oggetto offre davvero: il primo a destra del punto toccato,
-  gli altri a ventaglio verso l'alto e verso sinistra, 60° l'uno dall'altro e
-  senza buchi in mezzo. L'ordine di riempimento è quello delle famiglie letto da
-  destra — dove porta o chi è, poi cosa gli fai, poi le mani, e guardare per
-  ultimo — quindi **un oggetto che offre tutti e quattro i verbi ha esattamente
-  il disegno di prima**, e cambiano solo quelli che prima mostravano dei vuoti.
+- **Il ventaglio si compatta a partire da sinistra** (revoca delle posizioni
+  fisse sulla verb-coin, che erano il cuore di due decisioni più sopra). Si
+  disegnano solo i verbi che l'oggetto offre davvero: il primo a sinistra del
+  punto toccato, gli altri a ventaglio verso l'alto e verso destra, 60° l'uno
+  dall'altro e senza buchi in mezzo. L'ordine di riempimento è quello delle
+  famiglie nel loro ordine di sempre — guardare, poi le mani, poi cosa gli fai,
+  poi dove porta o chi è — quindi **un oggetto che offre tutti e quattro i verbi
+  ha esattamente il disegno di prima**, e cambiano solo quelli che prima
+  mostravano dei vuoti.
   Il motivo è che le caselle vuote non si leggevano come "questo oggetto non fa
   quella cosa": si leggevano come una moneta rotta, e lasciavano direzioni morte
   in mezzo al gesto.
   - **Tenere le posizioni fisse con i buchi** (com'era): è la scelta che regge
     "si mira senza leggere", ed era un vantaggio reale — con l'elenco chiuso il
-    giocatore imparava una volta che Guarda è a sinistra e non doveva più
+    giocatore imparava una volta dove sta ogni famiglia e non doveva più
     guardare. Scartata perché quel vantaggio si paga su *ogni* oggetto, e la
     maggioranza degli oggetti usa due o tre famiglie su quattro: il caso raro
     era pieno, il caso normale era bucato.
@@ -1073,16 +1074,25 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     l'uno dall'altro, tre a 90°): darebbe i bersagli più larghi possibili.
     Scartata perché un verbo finirebbe in una direzione diversa a seconda di
     quanti ce ne sono, mentre così **l'i-esimo spicchio è sempre allo stesso
-    angolo**: il primo è sempre a destra, il secondo sempre in alto a destra. Si
-    perde la memoria della famiglia, non si perde ogni memoria.
-  - **Ventaglio da sinistra invece che da destra**: identico per costo.
-    Scartato perché con quattro verbi rovescerebbe l'ordine attuale, e perché
-    la mano che tiene il telefono copre più facilmente il lato da cui parte.
-  - Costo accettato, ed è quello che le decisioni precedenti temevano: **la
-    stessa parola non sta più sempre nello stesso posto.** Guarda è a sinistra
-    su un oggetto con quattro verbi e a destra su uno che ha solo quello. La
-    scelta resta per direzione e i badge restano visibili, quindi il gesto non
-    cambia — ma va guardato più di prima, almeno finché non ci si abitua.
+    angolo**: il primo è sempre a sinistra, il secondo sempre in alto a
+    sinistra. Si perde la memoria della famiglia, non si perde ogni memoria.
+  - **Ventaglio da destra invece che da sinistra**: identico per costo, ed è
+    come è stato scritto la prima volta. L'argomento a favore era che la mano
+    che tiene il telefono copre più facilmente il lato da cui il ventaglio
+    parte. Scartato perché partire da sinistra tiene **Guarda al suo posto di
+    sempre** — è il verbo più usato del gioco e l'unico che ogni oggetto offre,
+    quindi è quello che vale la pena non spostare mai. Da destra, Guarda era il
+    solo che finiva in una posizione diversa a ogni oggetto.
+  - Costo accettato, ed è quello che le decisioni precedenti temevano: **una
+    parola non sta più sempre nello stesso posto.** Parla è a destra su un
+    oggetto con quattro verbi e in alto a sinistra su uno che offre solo Guarda
+    e Parla. La scelta resta per direzione e i badge restano visibili, quindi il
+    gesto non cambia — ma va guardato più di prima, almeno finché non ci si
+    abitua.
+  - Il costo però **non tocca Guarda**, ed è il regalo di questa direzione:
+    Guarda è il primo della fila e ogni oggetto lo offre, quindi è sempre il
+    badge di sinistra. Il verbo più usato del gioco resta l'unico che si può
+    ancora tirare senza guardare.
   - Effetto collaterale tecnico: il passo passa da ~50° a 60°, cioè i bersagli
     sono più distanti fra loro di prima e non più vicini. La tolleranza resta 50°
     perché non è un confine — vince il badge più vicino — ma è la distanza oltre
