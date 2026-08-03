@@ -1,0 +1,141 @@
+[gd_scene load_steps=13 format=3 uid="uid://baggalobby0001"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Resource" uid="uid://baggaitemfblk1" path="res://resources/items/form_blank.tres" id="5_form_blank"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="6_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="7_thud"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
+size = Vector2(44, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rack"]
+size = Vector2(28, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chairs"]
+size = Vector2(68, 22)
+
+[node name="Lobby" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("6_hum")
+depth_top_y = 110.0
+depth_bottom_y = 208.0
+depth_top_scale = 0.8
+depth_bottom_scale = 1.1
+
+[node name="Wall" type="Polygon2D" parent="."]
+color = Color(0.16, 0.15, 0.19, 1)
+polygon = PackedVector2Array(0, 0, 384, 0, 384, 110, 0, 110)
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color(0.26, 0.24, 0.25, 1)
+polygon = PackedVector2Array(0, 110, 384, 110, 384, 216, 0, 216)
+
+[node name="FloorEdge" type="Polygon2D" parent="."]
+color = Color(0.33, 0.31, 0.32, 1)
+polygon = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
+
+[node name="Skirting" type="Polygon2D" parent="."]
+color = Color(0.21, 0.2, 0.24, 1)
+polygon = PackedVector2Array(0, 102, 384, 102, 384, 110, 0, 110)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(140, 180)
+
+[node name="FromTubes" type="Marker2D" parent="EntryPoints"]
+position = Vector2(300, 150)
+
+[node name="NoticeHotspot" type="Area2D" parent="."]
+position = Vector2(80, 55)
+script = ExtResource("2_hotspot")
+display_name = "PROTO_LOBBY_NOTICE"
+look_text = "PROTO_LOBBY_NOTICE_LOOK"
+
+[node name="Picture" type="Polygon2D" parent="NoticeHotspot"]
+color = Color(0.86, 0.84, 0.72, 1)
+polygon = PackedVector2Array(-22, -16, 22, -16, 22, 16, -22, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NoticeHotspot"]
+shape = SubResource("RectangleShape2D_notice")
+
+[node name="ApproachPoint" type="Marker2D" parent="NoticeHotspot"]
+position = Vector2(0, 85)
+
+[node name="FormRackHotspot" type="Area2D" parent="."]
+position = Vector2(170, 60)
+script = ExtResource("4_pickup")
+display_name = "PROTO_LOBBY_FORMS"
+sound = ExtResource("7_thud")
+hand_verb = 2
+look_text = "PROTO_LOBBY_FORMS_LOOK"
+hand_text = "PROTO_LOBBY_FORMS_HAND"
+item = ExtResource("5_form_blank")
+vanishes_when_taken = false
+taken_text = "PROTO_LOBBY_FORMS_TAKEN"
+
+[node name="Picture" type="Polygon2D" parent="FormRackHotspot"]
+color = Color(0.52, 0.55, 0.6, 1)
+polygon = PackedVector2Array(-14, -22, 14, -22, 14, 22, -14, 22)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FormRackHotspot"]
+shape = SubResource("RectangleShape2D_rack")
+
+[node name="ApproachPoint" type="Marker2D" parent="FormRackHotspot"]
+position = Vector2(0, 80)
+
+[node name="ChairsHotspot" type="Area2D" parent="."]
+position = Vector2(110, 190)
+script = ExtResource("2_hotspot")
+display_name = "PROTO_LOBBY_CHAIRS"
+look_text = "PROTO_LOBBY_CHAIRS_LOOK"
+
+[node name="Picture" type="Polygon2D" parent="ChairsHotspot"]
+color = Color(0.45, 0.38, 0.3, 1)
+polygon = PackedVector2Array(-34, -22, 34, -22, 34, 0, -34, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChairsHotspot"]
+position = Vector2(0, -11)
+shape = SubResource("RectangleShape2D_chairs")
+
+[node name="ApproachPoint" type="Marker2D" parent="ChairsHotspot"]
+position = Vector2(0, 14)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(320, 60)
+script = ExtResource("3_door")
+display_name = "PROTO_LOBBY_DOOR"
+sound = ExtResource("7_thud")
+reach_verb = 7
+default_verb = 7
+look_text = "PROTO_LOBBY_DOOR_LOOK"
+reach_text = "PROTO_LOBBY_DOOR_REACH"
+target_room = "res://scenes/rooms/Tubes.tscn"
+target_entry = &"FromLobby"
+state_id = &"lobby_door"
+
+[node name="Picture" type="Polygon2D" parent="DoorHotspot"]
+color = Color(0.35, 0.26, 0.2, 1)
+polygon = PackedVector2Array(-20, -50, 20, -50, 20, 50, -20, 50)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 80)

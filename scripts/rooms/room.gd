@@ -289,7 +289,8 @@ func _on_destination_reached() -> void:
 
 	# A scene replaces the line too, and for the same reason a conversation does:
 	# what the hotspot has to say is inside it.
-	if _pending_verb == hotspot.sequence_verb and hotspot.sequence != null:
+	if _pending_verb == hotspot.sequence_verb and hotspot.sequence != null \
+			and Conditions.all_hold(hotspot.sequence_if, _character):
 		hotspot.interact(_pending_verb, _character)
 		wants_to_run.emit(hotspot.sequence, _character)
 		return

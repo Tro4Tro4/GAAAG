@@ -162,6 +162,15 @@ const ITEM_REFUSAL: String = "GENERIC_ITEM_REFUSAL"
 ## when somebody merely looked.
 @export var sequence_verb: Verb = Verb.NONE
 
+## What has to be true for the scene to play. Empty means always.
+##
+## Nearly every scene wants this: a lever that works only once needs
+## "!already_pulled" as much as it needs the reason for pulling it, and without
+## somewhere to say so the whole scene would run again on the second tap. When
+## the conditions do not hold the hotspot falls back to saying its line, which
+## is where the refusal goes.
+@export var sequence_if: PackedStringArray = PackedStringArray()
+
 @export_group("Conversation")
 
 ## What TALK starts. Data on the ordinary hotspot rather than a TalkHotspot with

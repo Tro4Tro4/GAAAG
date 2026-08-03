@@ -31,17 +31,17 @@ y_sort_enabled = true
 [node name="Characters" type="Node2D" parent="."]
 y_sort_enabled = true
 
-[node name="Player" parent="Characters" instance=ExtResource("2_player")]
-position = Vector2(48, 198)
-display_name = "CHAR_PLAYER"
-body_color = Color(0.92, 0.55, 0.2, 1)
-current_room = "res://scenes/rooms/TestRoom.tscn"
+[node name="Nora" parent="Characters" instance=ExtResource("2_player")]
+position = Vector2(140, 180)
+display_name = "CHAR_NORA"
+body_color = Color(0.86, 0.44, 0.36, 1)
+current_room = "res://scenes/rooms/Lobby.tscn"
 
-[node name="Player2" parent="Characters" instance=ExtResource("2_player")]
-position = Vector2(240, 190)
-display_name = "CHAR_PLAYER2"
+[node name="Cesare" parent="Characters" instance=ExtResource("2_player")]
+position = Vector2(200, 180)
+display_name = "CHAR_CESARE"
 body_color = Color(0.35, 0.62, 0.85, 1)
-current_room = "res://scenes/rooms/Hallway.tscn"
+current_room = "res://scenes/rooms/Station.tscn"
 
 [node name="Sequence" type="Node" parent="."]
 script = ExtResource("17_sequence")

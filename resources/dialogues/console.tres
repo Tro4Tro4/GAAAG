@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=9 format=3 uid="uid://baggadlgcons01"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+
+[sub_resource type="Resource" id="Option_where"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_WHERE"
+conditions = PackedStringArray("!asked_where")
+reply = "DLG_CONSOLE_REPLY_WHERE"
+raises = PackedStringArray("asked_where")
+
+[sub_resource type="Resource" id="Option_reverse"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_REVERSE"
+conditions = PackedStringArray("!complaint_logged")
+reply = "DLG_CONSOLE_REPLY_REVERSE"
+
+[sub_resource type="Resource" id="Option_complain"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_COMPLAIN"
+conditions = PackedStringArray("!complaint_logged", "!asked_complain")
+reply = "DLG_CONSOLE_REPLY_COMPLAIN"
+raises = PackedStringArray("asked_complain")
+
+[sub_resource type="Resource" id="Option_ready"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_READY"
+conditions = PackedStringArray("complaint_logged")
+reply = "DLG_CONSOLE_REPLY_READY"
+
+[sub_resource type="Resource" id="Option_bye"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_BYE"
+reply = "DLG_CONSOLE_REPLY_BYE"
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "DLG_CONSOLE_START"
+options = Array[ExtResource("3_option")]([SubResource("Option_where"), SubResource("Option_reverse"), SubResource("Option_complain"), SubResource("Option_ready"), SubResource("Option_bye")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.55, 0.9, 0.7, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start")])

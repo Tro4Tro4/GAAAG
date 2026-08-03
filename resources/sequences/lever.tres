@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="Sequence" load_steps=10 format=3 uid="uid://baggaseqleve01"]
+
+[ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
+[ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="3_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="4_rumble"]
+
+[sub_resource type="Resource" id="Step_pull"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_LEVER_PULL"
+
+[sub_resource type="Resource" id="Step_thud"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("3_thud")
+
+[sub_resource type="Resource" id="Step_rumble_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_LEVER_RUMBLE"
+
+[sub_resource type="Resource" id="Step_rumble_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("4_rumble")
+
+[sub_resource type="Resource" id="Step_wait"]
+script = ExtResource("2_step")
+kind = 1
+seconds = 0.8
+
+[sub_resource type="Resource" id="Step_end_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_LEVER_END"
+
+[sub_resource type="Resource" id="Step_flag"]
+script = ExtResource("2_step")
+kind = 5
+name = &"line_reversed"
+
+[resource]
+script = ExtResource("1_sequence")
+steps = Array[ExtResource("2_step")]([SubResource("Step_pull"), SubResource("Step_thud"), SubResource("Step_rumble_sound"), SubResource("Step_rumble_say"), SubResource("Step_wait"), SubResource("Step_end_say"), SubResource("Step_flag")])

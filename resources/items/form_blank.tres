@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=2 format=3 uid="uid://baggaitemfblk1"]
+
+[ext_resource type="Script" path="res://scripts/items/inventory_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+id = &"form_blank"
+display_name = "ITEM_FORM_BLANK"
+look_text = "ITEM_FORM_BLANK_LOOK"

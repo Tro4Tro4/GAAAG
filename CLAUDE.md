@@ -58,7 +58,9 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    stato di stanza — `present_if` e varianti degli hotspot — e i dialoghi ad
    albero, con risorse `.tres`, pannello modale di opzioni e caption tinta di
    chi parla)*
-5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
+5. Prototipo verticale *(fatto: tre stanze, due personaggi separati per
+   autorizzazione, un enigma cooperativo completo — vedi "Il prototipo
+   verticale" fra le decisioni)*
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
 
@@ -79,9 +81,12 @@ icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
   Main               Scena di avvio: personaggi, telecamera, audio, sequenze e
                      UI, e ospita la stanza corrente in RoomContainer
-  rooms/TestRoom     Stanza di prova (navmesh, cassa, porta, fessura, spiffero)
-  rooms/Hallway      Corridoio (distributore, cartello, impiegato, due porte)
-  rooms/LongHall     Corridoio lungo il doppio dello schermo, per la telecamera
+  rooms/Lobby        Prototipo: l'atrio dove comincia Nora
+  rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
+  rooms/Station      Prototipo: la postazione dove sta Cesare
+  rooms/TestRoom     Vecchia stanza di prova, non piu' collegata a niente
+  rooms/Hallway      Vecchio corridoio, non piu' collegato
+  rooms/LongHall     Vecchio corridoio lungo, non piu' collegato
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
@@ -1391,6 +1396,54 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     Si toglie prima di dare, così uno scambio non lascia nessuno con tutte e due
     le cose in mano.
 
+- **Il prototipo verticale: due personaggi separati da un regolamento, non da un
+  muro.** Chiude il punto 5. La premessa in una riga: una piccola ditta che
+  certifica che le cose funzionano deve collaudare una posta pneumatica, e la
+  posta pneumatica e' ostruita.
+  - **Nora**, ispettrice: puo' andare ovunque e presentare reclami come membro
+    del pubblico, ma **non puo' toccare l'impianto sotto collaudo**, perche'
+    toccarlo invalida il collaudo.
+  - **Cesare**, manovratore: puo' azionare qualunque cosa, ma **non puo'
+    lasciare la postazione** e, essendo personale interno, non e' pubblico.
+  - **La separazione non e' una barriera fisica**, ed e' la parte su cui ho
+    lavorato di piu'. L'attrattore documentato in `.claude/skills/narratore/`
+    dice che due agenti indipendenti, con questo brief, mettono entrambi il
+    secondo personaggio dietro un vetro o una serranda e fanno passare un
+    documento attraverso. Qui la separazione e' di **autorizzazione**: nessuno
+    dei due e' bloccato da qualcosa che si vede, sono bloccati da cosa gli e'
+    permesso — e i due divieti sono complementari per costruzione.
+  - **Asse del potere invertito**: chi ha il tesserino e puo' entrare ovunque e'
+    la piu' impotente delle due, perche' non puo' toccare niente. Il default
+    sarebbe stato il contrario.
+  - **Scala piccola, non apparato infinito**: una ditta che sta per perdere
+    l'accreditamento, non un'istituzione sconfinata. La commedia viene dal fatto
+    che il sistema e' *insufficiente*, non che e' onnipotente.
+  - **Direzioni scartate**: la garanzia in scadenza su un oggetto enorme, da
+    restituire nell'imballo originale (buona, ma il secondo personaggio
+    giocabile non nasceva da se'); e la coda diventata un luogo abitato, con chi
+    e' in testa che non puo' muoversi (fresca, ma la separazione "chi ha il
+    posto non si muove" e' la stessa idea del funzionario immobilizzato, cioe'
+    l'attrattore con un altro cappello).
+  - **Il meccanismo di trasferimento e' il soggetto del gioco.** I punti di
+    passaggio erano una decisione tecnica presa mesi fa; qui il tubo *e'* la
+    cosa da collaudare, e l'enigma e' che il canale attraverso cui si passano
+    gli oggetti e' rotto. Non si tratta di far passare qualcosa attraverso la
+    barriera: si tratta di convincere la barriera a sbloccarsi da sola.
+  - L'enigma completo: Nora prende un modulo di reclamo, legge la sezione
+    dall'oblo', stacca la targhetta (segnaletica, non impianto), la appiccica
+    sul modulo, e lo imbuca dal punto **pubblico** — la linea di ritorno e'
+    libera. Cesare lo ritira, lo protocolla, e ora la leva d'inversione ha un
+    motivo. La linea gira al contrario e la capsula ostruita esce dalla parte di
+    Nora. Dentro c'e' il rinnovo dell'accreditamento della loro ditta, spedito
+    tre anni fa: il motivo per cui stanno per chiudere era fermo nel tubo che
+    gli hanno chiesto di collaudare.
+  - **Nomi e ambientazione restano provvisori** e costano due righe cambiarli:
+    grazie alla localizzazione, un nome e' una chiave in `it.tres` e `en.tres` e
+    da nessun'altra parte. La storia completa resta il punto 6.
+  - Le tre vecchie stanze di prova non sono cancellate ma non sono piu'
+    raggiungibili. Non le ho tolte perche' sono superficie gia' verificata, e
+    buttarla via non era una decisione mia: si cancellano quando vuoi.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1406,7 +1459,12 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   servano slot numerati si saprà quando il gioco sarà lungo abbastanza da voler
   tornare indietro di un capitolo e non di una stanza
 - Durata finale del gioco (valutare dopo il prototipo)
-- Nome del progetto, dei personaggi, ambientazione specifica
+- **Storia completa** (punto 6): premessa, personaggi, ambientazione e capitoli
+  oltre il prototipo. Il prototipo ha fissato *un* incastro che funziona — la
+  separazione per autorizzazione — ma non la storia: nomi, luogo e trama sono
+  ancora tutti da decidere, e ora si puo' farlo sapendo quali vincoli di design
+  la trama deve rispettare
+- Nome del progetto
 
 ## Comportamento di Claude Code su questo progetto
 - **Lingua conversazione**: italiano. **Lingua codice**: inglese per nomi di

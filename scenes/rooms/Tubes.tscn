@@ -1,0 +1,203 @@
+[gd_scene load_steps=15 format=3 uid="uid://baggatubes0001"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="5_passage"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="6_variant"]
+[ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="7_plate"]
+[ext_resource type="Resource" uid="uid://baggaitemrenw1" path="res://resources/items/renewal.tres" id="8_renewal"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="9_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_porthole"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_plate"]
+size = Vector2(32, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_point"]
+size = Vector2(24, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_capsule"]
+size = Vector2(20, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe"]
+size = Vector2(700, 14)
+
+[sub_resource type="Resource" id="Resource_porthole_clear"]
+script = ExtResource("6_variant")
+conditions = PackedStringArray("line_reversed")
+look_text = "PROTO_TUBES_PORTHOLE_LOOK_CLEAR"
+
+[node name="Tubes" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("9_hum")
+room_size = Vector2(768, 216)
+depth_top_y = 110.0
+depth_bottom_y = 208.0
+depth_top_scale = 0.78
+depth_bottom_scale = 1.1
+
+[node name="Wall" type="Polygon2D" parent="."]
+color = Color(0.14, 0.17, 0.19, 1)
+polygon = PackedVector2Array(0, 0, 768, 0, 768, 110, 0, 110)
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color(0.23, 0.25, 0.26, 1)
+polygon = PackedVector2Array(0, 110, 768, 110, 768, 216, 0, 216)
+
+[node name="FloorEdge" type="Polygon2D" parent="."]
+color = Color(0.3, 0.32, 0.33, 1)
+polygon = PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)
+
+[node name="Skirting" type="Polygon2D" parent="."]
+color = Color(0.19, 0.22, 0.24, 1)
+polygon = PackedVector2Array(0, 102, 768, 102, 768, 110, 0, 110)
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(120, 160)
+
+[node name="FromLobby" type="Marker2D" parent="EntryPoints"]
+position = Vector2(100, 150)
+
+[node name="PipeHotspot" type="Area2D" parent="."]
+position = Vector2(384, 76)
+script = ExtResource("2_hotspot")
+display_name = "PROTO_TUBES_PIPE"
+act_verb = 3
+look_text = "PROTO_TUBES_PIPE_LOOK"
+act_text = "PROTO_TUBES_PIPE_ACT"
+
+[node name="Picture" type="Polygon2D" parent="PipeHotspot"]
+color = Color(0.62, 0.56, 0.36, 1)
+polygon = PackedVector2Array(-350, -7, 350, -7, 350, 7, -350, 7)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PipeHotspot"]
+shape = SubResource("RectangleShape2D_pipe")
+
+[node name="ApproachPoint" type="Marker2D" parent="PipeHotspot"]
+position = Vector2(0, 66)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(60, 60)
+script = ExtResource("3_door")
+display_name = "PROTO_TUBES_DOOR"
+sound = ExtResource("10_thud")
+reach_verb = 7
+default_verb = 7
+look_text = "PROTO_TUBES_DOOR_LOOK"
+reach_text = "PROTO_TUBES_DOOR_REACH"
+target_room = "res://scenes/rooms/Lobby.tscn"
+target_entry = &"FromTubes"
+state_id = &"lobby_door"
+
+[node name="Picture" type="Polygon2D" parent="DoorHotspot"]
+color = Color(0.35, 0.26, 0.2, 1)
+polygon = PackedVector2Array(-20, -50, 20, -50, 20, 50, -20, 50)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 80)
+
+[node name="PortholeHotspot" type="Area2D" parent="."]
+position = Vector2(300, 76)
+script = ExtResource("2_hotspot")
+display_name = "PROTO_TUBES_PORTHOLE"
+act_verb = 4
+look_text = "PROTO_TUBES_PORTHOLE_LOOK"
+act_text = "PROTO_TUBES_PORTHOLE_ACT"
+variants = Array[ExtResource("6_variant")]([SubResource("Resource_porthole_clear")])
+
+[node name="Picture" type="Polygon2D" parent="PortholeHotspot"]
+color = Color(0.72, 0.82, 0.78, 1)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PortholeHotspot"]
+shape = SubResource("RectangleShape2D_porthole")
+
+[node name="ApproachPoint" type="Marker2D" parent="PortholeHotspot"]
+position = Vector2(0, 66)
+
+[node name="PlateHotspot" type="Area2D" parent="."]
+position = Vector2(300, 100)
+script = ExtResource("4_pickup")
+display_name = "PROTO_TUBES_PLATE"
+sound = ExtResource("11_click")
+hand_verb = 2
+look_text = "PROTO_TUBES_PLATE_LOOK"
+hand_text = "PROTO_TUBES_PLATE_HAND"
+item = ExtResource("7_plate")
+
+[node name="Picture" type="Polygon2D" parent="PlateHotspot"]
+color = Color(0.88, 0.86, 0.8, 1)
+polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlateHotspot"]
+shape = SubResource("RectangleShape2D_plate")
+
+[node name="ApproachPoint" type="Marker2D" parent="PlateHotspot"]
+position = Vector2(0, 44)
+
+[node name="PublicPointHotspot" type="Area2D" parent="."]
+position = Vector2(560, 78)
+script = ExtResource("5_passage")
+display_name = "PROTO_TUBES_POINT"
+sound = ExtResource("11_click")
+hand_verb = 2
+look_text = "PROTO_TUBES_POINT_LOOK"
+hand_text = "PROTO_TUBES_POINT_HAND"
+cache_id = &"tube"
+posted_text = "PROTO_TUBES_POINT_POSTED"
+waiting_text = "PROTO_TUBES_POINT_WAITING"
+
+[node name="Picture" type="Polygon2D" parent="PublicPointHotspot"]
+color = Color(0.76, 0.64, 0.3, 1)
+polygon = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PublicPointHotspot"]
+shape = SubResource("RectangleShape2D_point")
+
+[node name="ApproachPoint" type="Marker2D" parent="PublicPointHotspot"]
+position = Vector2(0, 64)
+
+[node name="CapsuleHotspot" type="Area2D" parent="."]
+position = Vector2(560, 196)
+script = ExtResource("4_pickup")
+display_name = "PROTO_TUBES_CAPSULE"
+sound = ExtResource("10_thud")
+hand_verb = 2
+look_text = "PROTO_TUBES_CAPSULE_LOOK"
+hand_text = "PROTO_TUBES_CAPSULE_HAND"
+present_if = PackedStringArray("line_reversed")
+item = ExtResource("8_renewal")
+
+[node name="Picture" type="Polygon2D" parent="CapsuleHotspot"]
+color = Color(0.7, 0.72, 0.76, 1)
+polygon = PackedVector2Array(-10, -8, 10, -8, 10, 0, -10, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CapsuleHotspot"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_capsule")
+
+[node name="ApproachPoint" type="Marker2D" parent="CapsuleHotspot"]
+position = Vector2(0, 10)
