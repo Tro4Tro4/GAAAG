@@ -1538,6 +1538,38 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   sola posizione. **Da decidere guardando il primo sprite vero sul dispositivo**,
   non a tavolino: è una differenza che si giudica con l'occhio, e cambiarla è una
   funzione sola (`_depth_scale()`)
+- **Come si producono gli sfondi dipinti**: la skill `pixel-adventure-assets`
+  disegna via Pillow — forme, gradienti, layer — mentre le sette icone dei verbi
+  sono nate vettorizzando immagini di riferimento scelte dallo sviluppatore, che
+  è anche quello che la voce "Arte" descrive. Sono due pipeline con esiti
+  diversi: il disegno per codice è geometrico e coerente per costruzione, il
+  tracciamento è più ricco e meno controllabile. Sulla mano di "Prendi" la
+  seconda ha vinto dopo sei tentativi della prima, e vale la pena chiedersi se
+  su uno sfondo succeda lo stesso. Da decidere prima del primo sfondo vero
+- **Layer di parallasse negli sfondi**: la telecamera scorre già e il corridoio
+  dei tubi è largo due schermate, quindi è il posto dove si vedrebbe. Additivo e
+  opzionale — il progetto non ha nessun `Parallax2D` — ma **da decidere prima di
+  dipingere**, perché ogni layer è un file in più e non si scompone dopo
+- **Il peso del repository**: uno sfondo 1920×1080 sta fra uno e tre megabyte, e
+  una stanza larga il doppio ne pesa il doppio. Con una dozzina di stanze sono
+  decine di megabyte tirati su un telefono, con un clone che è già stato rifatto
+  una volta. Le vie: accettarlo, scendere di risoluzione, o passare a `.webp`,
+  che Godot importa e che su un dipinto costa poco in qualità e molto in peso
+- **Ambienza e musica insieme, o no**: `AudioDirector` ha due riproduttori, e le
+  categorie `amb` e `mus` della skill audio competono per lo stesso. In
+  un'avventura una stanza vuole spesso un tappeto ambientale *sotto* un tema.
+  Terzo riproduttore — che revoca la decisione "due riproduttori e basta" — o si
+  rinuncia a una delle due
+- **Suono dei passi**: il gioco cammina sempre, è l'azione più frequente che ha, e
+  non fa alcun rumore. Servono un suono per superficie sulla stanza e un aggancio
+  nel personaggio che lo faccia scattare a cadenza. È il sistema nuovo più
+  impattante che le skill mettono sul tavolo, e il più udibile
+- **Se il gioco ha una voce**: `vox` non ha un posto perché la voce è la
+  `Caption`. Un borbottio stile LucasArts sincronizzato con la battuta vorrebbe
+  un campo su `Dialogue` e qualcosa che lo faccia partire, e cambierebbe il
+  carattere del gioco più di quanto sembri. Legata a questa, in piccolo: il
+  *text blip* della skill richiede che la caption scriva a scorrimento invece di
+  apparire tutta insieme
 - **Più slot di salvataggio**: oggi sono due, uno manuale e uno automatico. Se
   servano slot numerati si saprà quando il gioco sarà lungo abbastanza da voler
   tornare indietro di un capitolo e non di una stanza
