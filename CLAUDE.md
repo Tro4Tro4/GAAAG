@@ -62,43 +62,59 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
 
-Fuori sequenza: **salvataggio e caricamento** *(fatto fra il 4 e il 5, perché è
-l'unica parte dell'ossatura il cui costo cresce a ogni sistema che si aggiunge:
-finché lo stato di una partita sta in due posti soli, scriverlo è mezza
-giornata)*.
+Fuori sequenza, e fatto tutto fra il punto 4 e il punto 5 per completare
+l'ossatura prima di costruirci sopra: **salvataggio e caricamento**,
+**localizzazione** (italiano e inglese), **guscio** (titolo, pausa,
+impostazioni), **transizioni**, **direzione e stati** dei personaggi,
+**profondità**, **telecamera**, **audio** e **sequenze scriptate**. Il
+salvataggio è venuto per primo perché era l'unica parte il cui costo cresce a
+ogni sistema aggiunto; la localizzazione subito dopo perché toccava tutto, e
+farla dopo avrebbe voluto dire riscrivere il resto.
 
 ## Struttura del progetto
 ```
-project.godot        Configurazione progetto Godot (renderer, display)
+project.godot        Configurazione progetto Godot (renderer, display, autoload)
+default_bus_layout   I due bus audio, Music e Sound
 icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
-  Main               Scena di avvio: contiene i personaggi e la UI, e ospita
-                     la stanza corrente in RoomContainer
-  rooms/TestRoom     Stanza di prova (navmesh, cassa, porta per il corridoio)
-  rooms/Hallway      Seconda stanza (distributore, cartello, porta di ritorno)
+  Main               Scena di avvio: personaggi, telecamera, audio, sequenze e
+                     UI, e ospita la stanza corrente in RoomContainer
+  rooms/TestRoom     Stanza di prova (navmesh, cassa, porta, fessura, spiffero)
+  rooms/Hallway      Corridoio (distributore, cartello, impiegato, due porte)
+  rooms/LongHall     Corridoio lungo il doppio dello schermo, per la telecamera
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
-  game.gd            Scambia le stanze e collega stanza, personaggi e UI
+  game.gd            Scambia le stanze e collega tutto il resto
   conditions.gd      Grammatica delle condizioni ("solo se..."), soli metodi
-                     statici — condivisa fra stanze e dialoghi
+                     statici — condivisa fra stanze, dialoghi e presenze
   save_game.gd       Scrive e rilegge una partita, soli metodi statici
-  autoload/          Stato che sopravvive alle scene (game_state.gd)
+  game_camera.gd     Insegue il personaggio dentro i limiti della stanza
+  audio_director.gd  Musica di stanza ed effetti, due riproduttori
+  autoload/          game_state.gd (una partita), settings.gd (lingua, volumi)
   rooms/             room.gd, hotspot.gd, hotspot_variant.gd, door_hotspot.gd,
                      pickup_hotspot.gd, passage_hotspot.gd
+  characters/        player_character.gd — cammina, guarda, tiene le tasche
   items/             inventory_item.gd, item_combination.gd,
                      combination_book.gd, item_catalogue.gd — dati, non nodi
   dialogue/          dialogue.gd, dialogue_line.gd, dialogue_option.gd — dati;
                      dialogue_runner.gd tiene il segno in una conversazione
-  ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
-                     inventory_panel.gd, dialogue_panel.gd, menu_panel.gd)
+  sequence/          sequence.gd, sequence_step.gd — dati;
+                     sequence_runner.gd mette in scena, con await
+  text/              locale_texts.gd — una lingua, chiave per chiave
+  ui/                caption.gd, character_bar.gd, verb_coin.gd,
+                     inventory_panel.gd, dialogue_panel.gd, menu_panel.gd,
+                     settings_panel.gd, title_screen.gd, fade.gd
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
                      e catalogue.tres con l'elenco di tutti gli oggetti
   dialogues/         Un file per conversazione
+  sequences/         Un file per scena scriptata
+  text/              it.tres e en.tres — tutte le frasi del gioco
 assets/              sprites/ backgrounds/ audio/ fonts/
   ui/                Le sette icone dei verbi, in SVG — l'unica arte del
                      progetto che non è pixel art
+  audio/             Cinque suoni segnaposto generati da uno script
 ```
 
 ## Decisioni prese (e perché)
@@ -1183,41 +1199,212 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   diventare il menù di pausa e non per essere buttato: le voci sono una tabella,
   e le impostazioni saranno un'altra riga.
 
+- **Localizzazione: chiavi nelle scene, testi in `resources/text/`.** Chiude il
+  punto che era rimasto aperto sulla lingua. Dove c'era una frase adesso c'è una
+  chiave (`ROOM_TEST_CRATE_LOOK`), e le frasi stanno tutte in un `.tres` per
+  lingua — oggi italiano e inglese. Chi traduce è **l'interfaccia**: hotspot,
+  oggetti, dialoghi e sequenze restituiscono chiavi, e caption, pannelli e
+  bottoni chiamano `tr()` nel momento in cui scrivono.
+  - **Il CSV importato di Godot**, che è la via documentata: scartato perché i
+    `.translation` che ne escono non esistono finché qualcuno non apre il
+    progetto, e vanno registrati in `project.godot`, che l'editor riscrive
+    quando vuole. Sono due cose da cui questo progetto è già stato morso. Un
+    `.tres` invece è una risorsa come tutte le altre — esportata, caricata con
+    `load()`, testo in un diff, nessun passo di import fra lo scriverla e
+    l'eseguirla — e diventa comunque una vera `Translation` nel
+    `TranslationServer`, quindi `tr()` funziona ovunque.
+  - **Tenere l'italiano come sorgente** e tradurre italiano→inglese: le scene
+    sarebbero rimaste leggibili da sole, che è un vantaggio reale. Scartata
+    perché correggere un accento scollegherebbe la traduzione, e il sintomo
+    sarebbe silenzioso — in inglese ricomparirebbe la frase italiana.
+  - Costo accettato: **una stanza non si legge più aprendo il suo `.tscn`**.
+    Vale meno di quanto sembri perché quei file li scrive Claude, non lo
+    sviluppatore, e in cambio tutta la scrittura del gioco finisce in due file.
+  - L'unica riga assemblata invece che cercata è quella del passaggio
+    (`"Prendi %s."` più i nomi): traduce da sé, perché quel che ne esce è già
+    una frase e `tr()` su una frase la restituisce.
+  - **`Settings` è il secondo autoload**, separato da `GameState`: caricare una
+    partita non deve cambiare la lingua, e cominciarne una nuova non deve
+    azzerare le impostazioni. È anche l'unico posto che gira prima di ogni
+    scena, che è dove le lingue vanno installate. Senza file di impostazioni
+    segue la lingua del sistema se il gioco la parla, altrimenti l'italiano.
+  - Verifica che sostituisce quella che l'engine non può fare da qui: uno script
+    controlla che le due lingue abbiano le stesse chiavi e che ogni chiave usata
+    esista. Da rifare a ogni testo aggiunto.
+
+- **Il guscio: schermata iniziale come sovrapposizione, pausa, impostazioni.**
+  Chiude il punto che era rimasto aperto. Il titolo **non è una scena a sé**: è
+  un `Control` sopra il gioco già in funzione. `Main.tscn` parte come sempre, la
+  prima stanza viene costruita sotto, e il titolo sta sopra finché non si
+  sceglie.
+  - **Una scena di titolo separata**, che è come si fa di solito: scartata
+    perché "Continua" dovrebbe avviare una partita e *poi* dirle cosa diventare,
+    cioè passare stato attraverso un cambio di scena. Così invece il salvataggio
+    si carica in un gioco già in piedi, e resta vera la decisione che `Main.tscn`
+    è l'unica scena su cui premere Play.
+  - **Continua compare solo se c'è qualcosa da continuare**, e apre il più
+    recente fra manuale e automatico — a pari merito il manuale, perché se sono
+    stati scritti nello stesso secondo quello scelto è quello inteso. Una voce
+    che risponde "non c'è niente da caricare" è peggio di una voce che non c'è.
+  - **Nuova partita dalla pausa dice al titolo di non richiedere**, con una
+    `static var` che sopravvive al ricaricamento della scena. Non è stato del
+    gioco né un'impostazione: è un'istruzione dalla scena che se ne va a quella
+    che arriva, e viene consumata all'arrivo.
+  - Le impostazioni sono **un pannello e non una schermata** perché servono da
+    due posti, il titolo e la pausa, e un pannello si mette sopra entrambi senza
+    che nessuno dei due lo sappia.
+  - **Ogni lingua si scrive come si chiama da sé**, mai tradotta: "Italiano"
+    scritto in inglese non serve a chi cerca l'italiano.
+  - **I volumi sono bottoni che dicono a quanto sono**, e avanzano di un quinto
+    a ogni tocco. Scartato il cursore: centottanta pixel di cursore sono un
+    bersaglio peggiore di un bottone, per un pollice.
+
+- **Transizione al nero fra le stanze.** Non è decorazione, fa due lavori.
+  Senza, lo scambio è un fotogramma in cui una stanza viene sostituita da
+  un'altra, e l'occhio lo legge come un difetto invece che come un andare da
+  qualche parte. E lo scambio finisce dentro una callback di tween, che è tempo
+  di idle — cioè esattamente il motivo per cui prima era differito: una porta si
+  usa alla fine di una camminata, una camminata finisce dentro un passo di
+  fisica, e lì dentro non si può consegnare al server fisico un nuovo insieme di
+  forme. **La dissolvenza sostituisce il `call_deferred`.**
+  - Ci passa anche il caricamento di una partita, e lì il motivo è più forte
+    ancora: la stanza a schermo era costruita per un mondo che non esiste più.
+  - Lo stesso nodo, reso visibile ma trasparente, è ciò che blocca lo schermo
+    durante una scena scriptata: un `Control` visibile mangia il click nella
+    fase GUI, che precede l'`_unhandled_input` della stanza.
+
+- **Direzione e stati dei personaggi, e avvicinamento da più lati.** Chiude il
+  punto che era rimasto aperto sull'avvicinamento, che aspettava proprio le
+  direzioni. Un personaggio sa dove guarda (quattro direzioni) e cosa sta
+  facendo (fermo, cammina, parla). La direzione si ricava dalla velocità mentre
+  si cammina e **si conserva quando ci si ferma**, perché chi è andato a sinistra
+  sta ancora guardando a sinistra. Arrivando a un hotspot ci si gira verso.
+  - **Quattro direzioni e non otto**: è quello che contiene un foglio di sprite
+    di questo genere, e una camminata in diagonale in una stanza di questa
+    dimensione finisce prima che qualcuno l'abbia letta.
+  - **Costruito prima che esista l'arte**, con i poligoni segnaposto che
+    reagiscono. Il sobbalzo e il naso che cambia lato non sono il punto e
+    spariranno: il punto è che direzione e stato esistono, si ricavano da quello
+    che il personaggio fa davvero, e guidano qualcosa di visibile.
+    `_refresh_visual()` è l'unica funzione che cambierà il giorno degli sprite.
+  - **Avvicinamento: un `ApproachPoint` solo resta il posto dove sei destinato a
+    stare** — davanti a una porta, a destra di una leva — e arrivarci dal lato
+    sbagliato vuol dire fare il giro, che nei LucasArts era spesso il punto: si
+    arriva in un posto noto, rivolti in un verso noto, perché l'animazione
+    torni. Un gruppo `ApproachPoints` con più marker è per le cose raggiungibili
+    da ogni lato, e **vince il più vicino a chi cammina**.
+  - Scartate le altre due opzioni che erano in elenco: il punto calpestabile più
+    vicino all'oggetto (niente controllo su dove ci si ferma, e la navmesh non
+    sa cosa sia "davanti") e il raggio entro cui non si cammina affatto (rende
+    l'azione a distanza, che è precisamente ciò che il camminare comunica).
+
+- **Profondità: Y-sorting acceso, e scala per altezza come due numeri.** Chiude
+  il punto che era rimasto aperto. Y-sorting su `Game`, `RoomContainer`,
+  `Characters` e sulle stanze: in Godot 4 un nodo ordinato per Y assorbe nel
+  proprio ordinamento i figli che a loro volta lo hanno acceso, quindi oggetti
+  di stanza e personaggi si ordinano insieme **pur non essendo parenti**. È
+  l'unico modo di ottenerlo senza toccare la decisione per cui i personaggi non
+  sono figli della stanza.
+  - **Convenzione che ne segue, e va ricordata**: il nodo di un oggetto sta dove
+    l'oggetto **tocca il pavimento**, non al suo centro, perché l'ordinamento
+    guarda la Y del nodo e non l'estensione di quel che disegna.
+  - **Due altezze e due misure con una retta in mezzo**, non una curva Y→scala e
+    non la scala per walkbox: è tutto quello che serve a un pavimento piatto
+    visto da un angolo solo, e una curva sarebbe un editor in più da usare su un
+    telefono. Lasciata a 1 e 1 una stanza non ha prospettiva, quindi è opt-in e
+    nessuna stanza esistente è cambiata.
+  - **La stanza possiede i numeri, il personaggio li applica a sé**: non essendo
+    figlio della stanza, la stanza non avrebbe niente da afferrare.
+  - **Si scala solo la figura, mai il nodo**: forma di collisione e agente di
+    navigazione dicono quanto è grande il personaggio *come cosa nella stanza*,
+    la prospettiva dice quanto sembra grande.
+
+- **Telecamera: una sola, accanto ai personaggi, recintata dalla stanza.**
+  Chiude il punto che era rimasto aperto. Le si dice chi guardare e quanto è
+  grande la stanza, e si tiene dentro la seconda inseguendo il primo.
+  - **Una `Camera2D` dentro ogni stanza**: scartata per lo stesso motivo per cui
+    i personaggi non ci stanno — le stanze vengono buttate via, e una telecamera
+    ricostruita a ogni porta ricomincia da capo il suo inseguimento.
+  - **Figlia del personaggio attivo**: sarebbe gratis e seguirebbe da sé.
+    Scartata perché al cambio personaggio andrebbe riappesa altrove, e
+    riparentare nodi è la classe di operazioni che questo progetto ha evitato
+    ovunque.
+  - **Una stanza grande quanto lo schermo esce esattamente dov'era**: i limiti
+    non lasciano spazio, quindi nessuna stanza esistente va toccata e
+    `room_size` ha per default una schermata.
+  - Niente si è rotto perché niente doveva rompersi: la stanza distingueva già
+    le coordinate del mondo da quelle dello schermo, e la UI sta già su un
+    `CanvasLayer`. Erano state scritte così per oggi.
+  - **Scatta invece di scivolare** al cambio stanza o personaggio: attraversare
+    mezza stanza per raggiungere qualcuno già fermo lì si legge come una
+    telecamera che si è persa.
+
+- **Audio: due riproduttori, due bus, e il suono come dato.** Chiude il punto
+  che era rimasto aperto. Uno per come suona la stanza, uno per quello che è
+  appena successo — un'avventura di questo tipo non ha mai più di questo in
+  corso insieme, e un pool di voci sarebbe infrastruttura comprata contro un
+  bisogno che nessuno ha.
+  - Stanno **accanto ai personaggi**, non dentro una stanza: una musica che si
+    ferma e riparte a ogni porta sarebbe peggio di nessuna musica. La musica si
+    richiede a ogni apertura di stanza ed è il direttore a sapere che la stessa
+    musica due volte non è un motivo per ricominciarla.
+  - **La stanza non suona: emette `wants_to_play`** e Game collega, come già per
+    quello che vuole dire. Chi fa rumore sopravvive alla stanza, e la stanza non
+    ha mai avuto il permesso di conoscere niente che le sopravviva.
+  - **Il loop è fatto a mano** riavviando alla fine, invece che con
+    l'impostazione di import: se un `.wav` esca dall'importatore con il loop
+    acceso dipende da un `.import` che scrive l'editor, e da qui non è
+    verificabile.
+  - **Il silenzio si ottiene mutando il bus**, non abbassandolo: `linear_to_db(0)`
+    è meno infinito, e un bus a meno infinito non è silenzioso in modo
+    affidabile.
+  - I cinque suoni in `assets/audio/` sono **segnaposto generati da uno script**
+    — clic, tonfo, carillon, due ronzii. Servono a far sentire l'impianto invece
+    che a farlo credere; sostituirli è sostituire dei file.
+
+- **Sequenze scriptate: un elenco chiuso di passi, eseguito con `await`.** Fino
+  a ora il gioco sapeva dire "è successo qualcosa" — una riga, un flag, un
+  oggetto che cambia mano — ma non sapeva dire "**e poi**". Un enigma la cui
+  risposta è giusta e il cui esito è una frase in un riquadro si legge come se
+  non fosse successo granché, e l'esito è la parte per cui il giocatore ha
+  lavorato.
+  - **Nove tipi di passo e non un linguaggio**: dire, aspettare, camminare,
+    girarsi, un suono, alzare un flag, girare un interruttore, dare, togliere.
+    Chiusi come il vocabolario dei verbi e per lo stesso motivo: una sequenza
+    che può fare qualunque cosa è uno script, e uno script per oggetto è quello
+    che questo progetto ha passato la vita a evitare. Chi vuole di più ha ancora
+    un hotspot con uno script suo.
+  - **Niente diramazioni e niente condizioni dentro una scena**: una scena che
+    deve decidere sono due scene e un hotspot che sceglie.
+  - **Il runner è un `Node`**, a differenza di quello dei dialoghi: una
+    conversazione aspetta il giocatore, una scena aspetta il tempo e la fine di
+    una camminata, e aspettare vuole un albero.
+  - **Scritto con `await` e non come macchina a stati con un indice**: il senso
+    di una sequenza è che si legge nell'ordine in cui accade, e `await` è
+    l'unica cosa in GDScript che permetta di scrivere il codice in quell'ordine.
+  - **Quanto resta a schermo una battuta lo chiede alla caption** invece di
+    indovinarlo, così una scena tiene il passo della velocità di lettura scelta
+    e non di un numero scritto dentro di sé.
+  - Chiuso anche un buco: **un'opzione di dialogo sa girare un interruttore e
+    togliere un oggetto**, non solo alzare un flag e darne uno. Una conversazione
+    che può chiudere a chiave una porta ma non aprirla è metà di uno strumento.
+    Si toglie prima di dare, così uno scambio non lascia nessuno con tutte e due
+    le cose in mano.
+
 ## Decisioni ancora aperte
-- **Il guscio attorno al gioco**: esiste il pannello Menù con salva, carica e
-  nuova partita, ma non una schermata iniziale, non una pausa vera, non le
-  impostazioni (dove finirebbero i due numeri della velocità dei testi, già
-  esportati sul nodo `Caption`) e non un modo di uscire. Da decidere insieme,
-  perché sono lo stesso pannello con più righe — e da decidere dopo il
-  prototipo, quando si saprà se servono più slot di salvataggio o basta uno
-- **Audio**: non c'è niente, né musica né effetti, e `assets/audio/` è vuota.
-  Da impostare prima che le stanze siano tante, perché "quale suono fa questo
-  hotspot" è un campo in più su un tipo che esiste già
-- **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
-  (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
-  una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
-  distingue le coordinate del mondo da quelle dello schermo quando apre la
-  verb-coin, e la UI sta su un `CanvasLayer` che la telecamera non muove
-- **Formato di scrittura dei dialoghi**: il runtime consumerà risorse `.tres`,
-  ma resta da vedere se scriverle a mano regga quando le conversazioni saranno
-  vere e lunghe. L'alternativa è un file di testo in formato copione con un
-  parser che produce le stesse risorse — si aggiunge senza toccare il runtime,
-  quindi la decisione si prende con in mano il primo dialogo vero e non prima
-- Profondità: se e come scalare il personaggio in base alla Y (curva Y→scala)
-  e come ordinare il disegno rispetto agli oggetti della stanza (Y-sorting)
-- Avvicinamento agli hotspot da più lati: oggi il punto di avvicinamento è
-  uno solo, quindi arrivando dal lato opposto il personaggio gira attorno
-  all'oggetto. Nei LucasArts era spesso voluto — si arriva in un punto noto,
-  rivolti in una direzione nota, perché l'animazione dell'azione torni — ma per
-  un oggetto accessibile da tutti i lati è innaturale. Opzioni: più marker con
-  scelta del più vicino; nessun marker e punto calpestabile più vicino
-  all'oggetto; raggio di interazione entro cui non si cammina affatto. Da
-  decidere quando esisteranno animazioni direzionali e stanze vere: si innesta
-  tutto in `get_approach_position()` e non blocca nessun altro sistema
-- **Lingua dei testi di gioco** (descrizioni, dialoghi, nomi visibili): ora
-  sono in italiano come segnaposto, ma non è una decisione presa. Da valutare
-  insieme all'eventuale localizzazione, che in Godot conviene impostare prima
-  di avere testo sparso nelle scene
+- **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
+  resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
+  e lunghe. L'alternativa è un file di testo in formato copione con un parser
+  che produce le stesse risorse — si aggiunge senza toccare il runtime, quindi
+  la decisione si prende con in mano il primo dialogo vero e non prima. Lo
+  stesso vale per le sequenze, che hanno lo stesso problema in piccolo
+- **Arte dei personaggi**: lo strato di direzione e stati c'è ed è verificato,
+  ma i personaggi sono ancora due poligoni. Quando arriveranno gli sprite andrà
+  deciso il formato del foglio (quante pose per direzione, se l'idle è animato)
+  e `_refresh_visual()` diventerà un nome passato a un `AnimatedSprite2D`
+- **Più slot di salvataggio**: oggi sono due, uno manuale e uno automatico. Se
+  servano slot numerati si saprà quando il gioco sarà lungo abbastanza da voler
+  tornare indietro di un capitolo e non di una stanza
 - Durata finale del gioco (valutare dopo il prototipo)
 - Nome del progetto, dei personaggi, ambientazione specifica
 
