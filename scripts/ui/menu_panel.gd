@@ -27,10 +27,10 @@ const ENTRY_MINIMUM_SIZE: Vector2 = Vector2(0, 14)
 # The menu, in order. A table and not four hand-placed buttons: the next entry
 # is a row here rather than a node, a signal and a scene edit.
 var _entries: Array = [
-	{&"action": SAVE, &"text": "Salva"},
-	{&"action": LOAD, &"text": "Carica"},
-	{&"action": LOAD_AUTO, &"text": "Carica l'ultimo automatico"},
-	{&"action": NEW_GAME, &"text": "Nuova partita"},
+	{&"action": SAVE, &"text": "MENU_SAVE"},
+	{&"action": LOAD, &"text": "MENU_LOAD"},
+	{&"action": LOAD_AUTO, &"text": "MENU_LOAD_AUTO"},
+	{&"action": NEW_GAME, &"text": "MENU_NEW_GAME"},
 ]
 
 @onready var _frame: Panel = $Frame
@@ -39,10 +39,12 @@ var _entries: Array = [
 
 func _ready() -> void:
 	visible = false
-	_build()
 
 
 func open() -> void:
+	# Built on the way up rather than once at startup, so that a change of
+	# language is picked up without anybody having to be told about it.
+	_build()
 	visible = true
 
 
@@ -90,9 +92,13 @@ func _entry_at(point: Vector2) -> StringName:
 
 
 func _build() -> void:
+	for child in _list.get_children():
+		_list.remove_child(child)
+		child.queue_free()
+
 	for entry in _entries:
 		var button := Button.new()
-		button.text = entry[&"text"]
+		button.text = tr(entry[&"text"])
 		button.custom_minimum_size = ENTRY_MINIMUM_SIZE
 		button.add_theme_font_size_override("font_size", ENTRY_FONT_SIZE)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT

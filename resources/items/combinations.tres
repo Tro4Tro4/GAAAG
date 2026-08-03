@@ -11,7 +11,7 @@ script = ExtResource("2_combination")
 first = ExtResource("3_sticker")
 second = ExtResource("4_button")
 result = ExtResource("5_labelled_button")
-text = "Stacchi l'adesivo e lo appiccichi sul pulsante. Adesso il pulsante dice NON IMPILARE."
+text = "COMBO_STICKER_BUTTON"
 
 [resource]
 script = ExtResource("1_book")

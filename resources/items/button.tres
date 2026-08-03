@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_item")
 id = &"button"
-display_name = "Pulsante"
-look_text = "Un pulsante grigio, staccato da tutto. Premerlo adesso non fa niente, ma lo fa con molta convinzione."
+display_name = "ITEM_BUTTON"
+look_text = "ITEM_BUTTON_LOOK"

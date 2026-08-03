@@ -22,13 +22,13 @@ catalogue = ExtResource("10_catalogue")
 
 [node name="Player" parent="Characters" instance=ExtResource("2_player")]
 position = Vector2(48, 198)
-display_name = "Tizio"
+display_name = "CHAR_PLAYER"
 body_color = Color(0.92, 0.55, 0.2, 1)
 current_room = "res://scenes/rooms/TestRoom.tscn"
 
 [node name="Player2" parent="Characters" instance=ExtResource("2_player")]
 position = Vector2(240, 190)
-display_name = "Caio"
+display_name = "CHAR_PLAYER2"
 body_color = Color(0.35, 0.62, 0.85, 1)
 current_room = "res://scenes/rooms/Hallway.tscn"
 
@@ -61,7 +61,7 @@ offset_right = 376.0
 offset_bottom = 208.0
 focus_mode = 0
 theme_override_font_sizes/font_size = 8
-text = "Zaino"
+text = "UI_BAG"
 
 [node name="MenuButton" type="Button" parent="UI"]
 offset_left = 208.0
@@ -70,7 +70,7 @@ offset_right = 288.0
 offset_bottom = 208.0
 focus_mode = 0
 theme_override_font_sizes/font_size = 8
-text = "Menù"
+text = "UI_MENU"
 
 [node name="InventoryPanel" type="Control" parent="UI"]
 offset_right = 384.0
@@ -100,7 +100,7 @@ offset_right = 296.0
 offset_bottom = 76.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 8
-text = "Non hai niente."
+text = "UI_EMPTY_BAG"
 horizontal_alignment = 1
 vertical_alignment = 1
 

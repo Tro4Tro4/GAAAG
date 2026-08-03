@@ -7,14 +7,14 @@
 
 [sub_resource type="Resource" id="Option_loop"]
 script = ExtResource("3_option")
-text = "Ma lo sportello è chiuso."
+text = "DLG_CLERK_OPT_LOOP"
 conditions = PackedStringArray("!asked_loop")
-reply = "Esatto. Vedo che si è già documentato."
+reply = "DLG_CLERK_REPLY_LOOP"
 raises = PackedStringArray("asked_loop")
 
 [sub_resource type="Resource" id="Option_form"]
 script = ExtResource("3_option")
-text = "Mi serve il modulo 12-B."
+text = "DLG_CLERK_OPT_FORM"
 conditions = PackedStringArray("!given_form")
 goes_to = &"form"
 raises = PackedStringArray("given_form")
@@ -22,36 +22,36 @@ gives = ExtResource("4_form")
 
 [sub_resource type="Resource" id="Option_sticker"]
 script = ExtResource("3_option")
-text = "Di là qualcuno ha staccato un adesivo da una cassa."
+text = "DLG_CLERK_OPT_STICKER"
 conditions = PackedStringArray("taken:sticker")
-reply = "Era un adesivo di sicurezza. Adesso la cassa è insicura, e la cosa la riguarda."
+reply = "DLG_CLERK_REPLY_STICKER"
 
 [sub_resource type="Resource" id="Option_bye"]
 script = ExtResource("3_option")
-text = "Arrivederci."
-reply = "Sportello chiuso."
+text = "DLG_CLERK_OPT_BYE"
+reply = "DLG_CLERK_REPLY_BYE"
 ends = true
 
 [sub_resource type="Resource" id="Line_start"]
 script = ExtResource("2_line")
 id = &"start"
-says = "Sportello chiuso. Per aprirlo serve il modulo 12-B, che si ritira allo sportello."
+says = "DLG_CLERK_START"
 options = Array[ExtResource("3_option")]([SubResource("Option_loop"), SubResource("Option_form"), SubResource("Option_sticker"), SubResource("Option_bye")])
 
 [sub_resource type="Resource" id="Option_third_copy"]
 script = ExtResource("3_option")
-text = "E la terza copia?"
-reply = "La terza la tiene lei, per ricordarsi delle altre due."
+text = "DLG_CLERK_OPT_THIRD"
+reply = "DLG_CLERK_REPLY_THIRD"
 
 [sub_resource type="Resource" id="Option_back"]
 script = ExtResource("3_option")
-text = "Va bene."
+text = "DLG_CLERK_OPT_BACK"
 goes_to = &"start"
 
 [sub_resource type="Resource" id="Line_form"]
 script = ExtResource("2_line")
 id = &"form"
-says = "Ecco il 12-B. Lo compili in duplice copia e ne consegni tre."
+says = "DLG_CLERK_FORM"
 options = Array[ExtResource("3_option")]([SubResource("Option_third_copy"), SubResource("Option_back")])
 
 [resource]

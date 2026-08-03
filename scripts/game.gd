@@ -18,19 +18,19 @@ extends Node2D
 ## no hotspot.
 
 ## What the bag button says when the player is not holding anything.
-const BAG_LABEL: String = "Zaino"
+const BAG_LABEL: String = "UI_BAG"
 
 ## Shown when the bag closes with something in hand, so the half-written
 ## sentence is visible after the panel that started it has gone.
-const USING_TEMPLATE: String = "Usa %s con..."
+const USING_TEMPLATE: String = "UI_USING"
 
 ## Said after using the menu. The caption is the game's only voice, and there is
 ## no reason for saving to speak with a different one.
-const SAVED: String = "Partita salvata."
-const SAVE_FAILED: String = "Non è stato possibile salvare."
-const LOADED: String = "Partita caricata."
-const LOAD_FAILED: String = "Questo salvataggio non si può leggere."
-const NOTHING_TO_LOAD: String = "Non c'è niente da caricare."
+const SAVED: String = "UI_SAVED"
+const SAVE_FAILED: String = "UI_SAVE_FAILED"
+const LOADED: String = "UI_LOADED"
+const LOAD_FAILED: String = "UI_LOAD_FAILED"
+const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 
 ## Every recipe in the game. An @export filled in from Main.tscn rather than a
 ## preload: a mistyped path then costs a combination that refuses, instead of a
@@ -87,6 +87,10 @@ func _ready() -> void:
 
 	_menu_button.pressed.connect(_on_menu_button_pressed)
 	_menu_panel.action_chosen.connect(_on_menu_action)
+
+	# The bag button is written from here, so unlike the labels sitting in
+	# Main.tscn it does not retranslate itself when the language changes.
+	Settings.locale_changed.connect(_refresh_inventory_button)
 
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
@@ -386,7 +390,9 @@ func _on_combine_requested(first: InventoryItem, second: InventoryItem) -> void:
 
 func _on_inventory_dismissed() -> void:
 	if _held_item != null:
-		_caption.show_text(USING_TEMPLATE % _held_item.display_name)
+		# Put together here rather than in the caption: a template with a name
+		# in it needs both halves turned into words before they are joined.
+		_caption.show_text(tr(USING_TEMPLATE) % tr(_held_item.display_name))
 
 
 func _hold_item(item: InventoryItem) -> void:
@@ -413,4 +419,4 @@ func _release_held_item() -> void:
 func _refresh_inventory_button() -> void:
 	# The button doubles as the only place the held item is always visible: the
 	# bag is shut most of the time the player is carrying something out to use.
-	_inventory_button.text = _held_item.display_name if _held_item != null else BAG_LABEL
+	_inventory_button.text = tr(_held_item.display_name) if _held_item != null else tr(BAG_LABEL)

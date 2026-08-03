@@ -54,14 +54,19 @@ signal item_used(item: InventoryItem, character: PlayerCharacter)
 ## Said when a verb leads nowhere. Most objects in an adventure game refuse
 ## most of what is tried on them, and one generic line is how the genre has
 ## always covered it.
-const REFUSAL: String = "Non mi sembra il caso."
+##
+## A key and not a sentence, like every other piece of text the game says: the
+## words live in resources/text/ and the interface is what turns a key into
+## them. See [LocaleTexts].
+const REFUSAL: String = "GENERIC_REFUSAL"
 
 ## Said when the wrong item is used on this hotspot — which, given an inventory
 ## and a roomful of objects, is nearly every pairing the player will attempt.
-const ITEM_REFUSAL: String = "Non c'entra niente con questo."
+const ITEM_REFUSAL: String = "GENERIC_ITEM_REFUSAL"
 
-## The name the player sees. Kept apart from the node name so the node can
-## stay an English identifier whatever language the game ends up speaking.
+## The name the player sees, as a key into the texts. Kept apart from the node
+## name so the node can stay an English identifier whatever language the game
+## ends up speaking — which is now more than one.
 @export var display_name: String = ""
 
 @export_group("Verbs")

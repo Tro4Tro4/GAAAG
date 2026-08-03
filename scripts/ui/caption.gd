@@ -14,8 +14,8 @@ extends Label
 @export var minimum_seconds: float = 3.0
 
 ## Added per character. A line is on screen for as long as it takes to read,
-## which is the only measure that works when the same caption carries "Guarda"
-## and a sentence of a hundred characters.
+## which is the only measure that works when the same caption carries a single
+## verb and a sentence of a hundred characters.
 ##
 ## These two are the knobs a settings screen would turn the day the game has
 ## one. They are exported and live on the Caption node in Main.tscn, so a slow
@@ -45,7 +45,7 @@ func _ready() -> void:
 func show_persistent(new_text: String) -> void:
 	_current_timer = null
 	modulate = PLAIN
-	text = new_text
+	text = tr(new_text)
 
 
 ## Shows [param new_text] as spoken by somebody, in [param color], and leaves it
@@ -66,7 +66,7 @@ func clear() -> void:
 ## Shows [param new_text], replacing whatever was on screen.
 func show_text(new_text: String) -> void:
 	modulate = PLAIN
-	text = new_text
+	text = tr(new_text)
 
 	await _fade_out()
 

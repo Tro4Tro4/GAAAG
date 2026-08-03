@@ -14,8 +14,8 @@ extends Hotspot
 ## is better left undrawn than shown greyed.
 
 ## Said while opening or shutting, when nothing was written for the occasion.
-const OPENING: String = "Apri la porta."
-const CLOSING: String = "Chiudi la porta."
+const OPENING: String = "GENERIC_DOOR_OPEN"
+const CLOSING: String = "GENERIC_DOOR_CLOSE"
 
 ## The room this door leads to.
 @export_file("*.tscn") var target_room: String = ""

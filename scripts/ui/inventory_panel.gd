@@ -172,7 +172,7 @@ func _rebuild() -> void:
 
 func _make_slot(item: InventoryItem) -> Button:
 	var slot := Button.new()
-	slot.text = item.display_name
+	slot.text = tr(item.display_name)
 	slot.custom_minimum_size = SLOT_MINIMUM_SIZE
 	slot.add_theme_font_size_override("font_size", SLOT_FONT_SIZE)
 	slot.focus_mode = Control.FOCUS_NONE

@@ -75,16 +75,16 @@ position = Vector2(44, 112)
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(44, 68)
 script = ExtResource("3_door")
-display_name = "Porta"
+display_name = "ROOM_HALL_DOOR"
 reach_verb = 7
 default_verb = 7
-look_text = "La porta da cui sei arrivato. Da questo lato non c'è scritto niente."
-reach_text = "Torni dentro. La stanza non si è mossa."
+look_text = "ROOM_HALL_DOOR_LOOK"
+reach_text = "ROOM_HALL_DOOR_REACH"
 target_room = "res://scenes/rooms/TestRoom.tscn"
 target_entry = &"FromHallway"
 state_id = &"hallway_door"
-opening_text = "Apri la porta. Da questo lato i cardini sono più cortesi."
-closing_text = "Chiudi la porta. Dall'altra parte, immagini, non se ne accorge nessuno."
+opening_text = "ROOM_HALL_DOOR_OPEN"
+closing_text = "ROOM_HALL_DOOR_CLOSE"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
@@ -95,15 +95,15 @@ position = Vector2(0, 44)
 [node name="DispenserHotspot" type="Area2D" parent="."]
 position = Vector2(280, 70)
 script = ExtResource("4_pickup")
-display_name = "Distributore"
+display_name = "ROOM_HALL_DISPENSER"
 hand_verb = 2
 act_verb = 3
-look_text = "Un distributore automatico. Sette pulsanti, tutti con la stessa etichetta illeggibile."
-hand_text = "Premi un pulsante a caso. La macchina si illumina, ronza, e ti restituisce il pulsante."
-act_text = "Premi i pulsanti uno dopo l'altro. La macchina ronza, si spegne, si riaccende e torna come prima."
+look_text = "ROOM_HALL_DISPENSER_LOOK"
+hand_text = "ROOM_HALL_DISPENSER_HAND"
+act_text = "ROOM_HALL_DISPENSER_ACT"
 item = ExtResource("5_button")
 vanishes_when_taken = false
-taken_text = "Gli altri sei pulsanti restano al loro posto. Sembrano più uniti di prima."
+taken_text = "ROOM_HALL_DISPENSER_TAKEN"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DispenserHotspot"]
 shape = SubResource("RectangleShape2D_dispenser")
@@ -114,14 +114,14 @@ position = Vector2(0, 50)
 [node name="SignHotspot" type="Area2D" parent="."]
 position = Vector2(145, 40)
 script = ExtResource("2_hotspot")
-display_name = "Cartello"
+display_name = "ROOM_HALL_SIGN"
 act_verb = 3
 reach_verb = 6
-look_text = "Un cartello: LIVELLO 4. Qualcuno ha cancellato il 4 e ha riscritto 4, con più decisione."
-act_text = "Tiri il cartello verso di te. È avvitato al muro. Molto avvitato."
-reach_text = "Il cartello non risponde. Insiste a sostenere di essere il livello 4."
+look_text = "ROOM_HALL_SIGN_LOOK"
+act_text = "ROOM_HALL_SIGN_ACT"
+reach_text = "ROOM_HALL_SIGN_REACH"
 accepted_item = ExtResource("6_labelled_button")
-accepted_text = "Appiccichi il pulsante sotto la scritta. Adesso il cartello dice LIVELLO 4, NON IMPILARE: sembra molto meno un'informazione."
+accepted_text = "ROOM_HALL_SIGN_ACCEPTED"
 consumes_accepted_item = true
 accepted_flag = &"sign_has_button"
 
@@ -134,10 +134,10 @@ position = Vector2(0, 80)
 [node name="ClerkHotspot" type="Area2D" parent="."]
 position = Vector2(200, 132)
 script = ExtResource("2_hotspot")
-display_name = "Impiegato"
+display_name = "ROOM_HALL_CLERK"
 reach_verb = 6
 default_verb = 6
-look_text = "Un impiegato dietro un banco che non c'è. Sta comunque come se il banco ci fosse."
+look_text = "ROOM_HALL_CLERK_LOOK"
 dialogue = ExtResource("8_clerk")
 
 [node name="Head" type="Polygon2D" parent="ClerkHotspot"]
@@ -157,13 +157,13 @@ position = Vector2(0, 28)
 [node name="SlotHotspot" type="Area2D" parent="."]
 position = Vector2(86, 70)
 script = ExtResource("7_passage")
-display_name = "Fessura"
+display_name = "ROOM_HALL_SLOT"
 hand_verb = 2
-look_text = "La stessa fessura, da questo lato. Qui la targhetta dice MODULISTICA (RITIRO)."
-hand_text = "Dentro non c'è niente. La targhetta continua a dire RITIRO, imperterrita."
+look_text = "ROOM_HALL_SLOT_LOOK"
+hand_text = "ROOM_HALL_SLOT_HAND"
 cache_id = &"wall_slot"
-posted_text = "Infili l'oggetto nella fessura. Si sente un tonfo dall'altra parte, poi silenzio."
-waiting_text = "Nella fessura c'è qualcosa che prima non c'era."
+posted_text = "ROOM_HALL_SLOT_POSTED"
+waiting_text = "ROOM_HALL_SLOT_WAITING"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SlotHotspot"]
 shape = SubResource("RectangleShape2D_slot")

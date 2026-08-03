@@ -29,7 +29,7 @@ size = Vector2(64, 30)
 [sub_resource type="Resource" id="Resource_crate_peeled"]
 script = ExtResource("7_variant")
 conditions = PackedStringArray("taken:sticker")
-look_text = "Una cassa di metallo. Dove stava l'adesivo il grigio è più chiaro, e la cassa ha smesso di avere opinioni sull'impilamento."
+look_text = "ROOM_TEST_CRATE_LOOK_PEELED"
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
@@ -72,16 +72,16 @@ position = Vector2(316, 132)
 [node name="CrateHotspot" type="Area2D" parent="."]
 position = Vector2(192, 160)
 script = ExtResource("4_pickup")
-display_name = "Cassa"
+display_name = "ROOM_TEST_CRATE"
 hand_verb = 2
 act_verb = 3
-look_text = "Una cassa di metallo. Sul coperchio un adesivo dice NON IMPILARE."
-hand_text = "Il coperchio non cede di un millimetro. L'adesivo invece viene via subito."
-act_text = "Spingi il coperchio con tutte e due le mani. La cassa si sposta di un centimetro e si rimette dov'era."
+look_text = "ROOM_TEST_CRATE_LOOK"
+hand_text = "ROOM_TEST_CRATE_HAND"
+act_text = "ROOM_TEST_CRATE_ACT"
 variants = Array[ExtResource("7_variant")]([SubResource("Resource_crate_peeled")])
 item = ExtResource("5_sticker")
 vanishes_when_taken = false
-taken_text = "Sul coperchio resta un rettangolo più pulito, che non dice niente a nessuno."
+taken_text = "ROOM_TEST_CRATE_TAKEN"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")
@@ -92,16 +92,16 @@ position = Vector2(0, 32)
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(316, 88)
 script = ExtResource("3_door")
-display_name = "Porta"
+display_name = "ROOM_TEST_DOOR"
 reach_verb = 7
 default_verb = 7
-look_text = "Una porta. Sopra c'è scritto USCITA, ma la freccia punta in basso."
-reach_text = "Attraversi la porta. Di là c'è un corridoio, il che è già un'informazione."
+look_text = "ROOM_TEST_DOOR_LOOK"
+reach_text = "ROOM_TEST_DOOR_REACH"
 target_room = "res://scenes/rooms/Hallway.tscn"
 target_entry = &"FromTestRoom"
 state_id = &"hallway_door"
-opening_text = "Apri la porta. I cardini protestano in una lingua che non conosci."
-closing_text = "Chiudi la porta. I cardini ripetono la stessa frase al contrario."
+opening_text = "ROOM_TEST_DOOR_OPEN"
+closing_text = "ROOM_TEST_DOOR_CLOSE"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
@@ -112,8 +112,8 @@ position = Vector2(0, 44)
 [node name="DraftHotspot" type="Area2D" parent="."]
 position = Vector2(316, 135)
 script = ExtResource("2_hotspot")
-display_name = "Spiffero"
-look_text = "Dalla porta aperta arriva aria tiepida che sa di moquette e di comunicazioni di servizio."
+display_name = "ROOM_TEST_DRAFT"
+look_text = "ROOM_TEST_DRAFT_LOOK"
 present_if = PackedStringArray("on:hallway_door")
 
 [node name="Light" type="Polygon2D" parent="DraftHotspot"]
@@ -129,13 +129,13 @@ position = Vector2(0, 35)
 [node name="SlotHotspot" type="Area2D" parent="."]
 position = Vector2(358, 85)
 script = ExtResource("6_passage")
-display_name = "Fessura"
+display_name = "ROOM_TEST_SLOT"
 hand_verb = 2
-look_text = "Una fessura nel muro, all'altezza del petto. Sotto, una targhetta smaltata: MODULISTICA."
-hand_text = "Ci infili la mano fino al polso. Dentro c'è solo muro."
+look_text = "ROOM_TEST_SLOT_LOOK"
+hand_text = "ROOM_TEST_SLOT_HAND"
 cache_id = &"wall_slot"
-posted_text = "Infili l'oggetto nella fessura. Si sente un tonfo dall'altra parte, poi silenzio."
-waiting_text = "Dalla fessura spunta qualcosa. Qualcuno l'ha imbucato dall'altro lato."
+posted_text = "ROOM_TEST_SLOT_POSTED"
+waiting_text = "ROOM_TEST_SLOT_WAITING"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SlotHotspot"]
 shape = SubResource("RectangleShape2D_slot")

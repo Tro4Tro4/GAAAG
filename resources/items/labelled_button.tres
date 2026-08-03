@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_item")
 id = &"labelled_button"
-display_name = "Pulsante etichettato"
-look_text = "Un pulsante che dice NON IMPILARE. Non è chiaro cosa succeda premendolo, ed è precisamente questo il punto."
+display_name = "ITEM_LABELLED_BUTTON"
+look_text = "ITEM_LABELLED_BUTTON_LOOK"

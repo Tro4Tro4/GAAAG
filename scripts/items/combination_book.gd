@@ -10,7 +10,7 @@ extends Resource
 
 ## Said when two items have nothing to do with each other, which is the answer
 ## for almost every pair anyone will ever try.
-const REFUSAL: String = "Insieme non fanno assolutamente niente."
+const REFUSAL: String = "GENERIC_COMBINE_REFUSAL"
 
 @export var recipes: Array[ItemCombination] = []
 

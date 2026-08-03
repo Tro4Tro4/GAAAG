@@ -18,10 +18,10 @@ extends Hotspot
 ## for it later. That falls out for free and needs no extra code.
 
 ## Said when there is nothing waiting and nothing was written for the occasion.
-const NOTHING_THERE: String = "Non c'è niente, per ora."
+const NOTHING_THERE: String = "GENERIC_PASSAGE_EMPTY"
 
 ## Said when something goes in and nothing was written for the occasion.
-const POSTED: String = "Sparisce dall'altra parte."
+const POSTED: String = "GENERIC_PASSAGE_POSTED"
 
 ## The name this passage shares with its twin. Two hotspots with the same
 ## cache_id are two ends of one slot; a name used only once is a hiding place.
@@ -50,10 +50,14 @@ func get_text_for(verb: int) -> String:
 
 		# Built from what is actually in there rather than written by hand:
 		# a passage cannot know in advance what will come through it.
+		#
+		# Translated here and not by the caption, because this is the one line
+		# in the game that is assembled instead of looked up: what comes out is
+		# already a sentence, and tr() on a sentence hands it straight back.
 		var names: Array[String] = []
 		for item in waiting:
-			names.append(item.display_name)
-		return "Prendi %s." % ", ".join(names)
+			names.append(tr(item.display_name))
+		return tr("GENERIC_PASSAGE_TAKE") % ", ".join(names)
 
 	return super(verb)
 

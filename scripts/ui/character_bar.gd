@@ -16,6 +16,11 @@ const BUTTON_FONT_SIZE: int = 8
 
 
 func _ready() -> void:
+	# Rebuilt on a change of language as well as of roster: these buttons hold
+	# a name that has already been turned into words, so Godot's own automatic
+	# retranslation has nothing left to work on.
+	Settings.locale_changed.connect(_rebuild)
+
 	GameState.roster_changed.connect(_rebuild)
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
@@ -40,7 +45,7 @@ func _rebuild() -> void:
 
 func _make_button(character: PlayerCharacter) -> Button:
 	var button := Button.new()
-	button.text = character.display_name
+	button.text = tr(character.display_name)
 	button.add_theme_font_size_override("font_size", BUTTON_FONT_SIZE)
 
 	# Nothing in this game is driven by the keyboard, and a button keeping

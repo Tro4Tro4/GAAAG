@@ -112,13 +112,13 @@ const FAN_STEP_DEGREES: float = 60.0
 # development machine. A plain var is worked out at runtime, where it never is
 # a problem.
 var _words: Dictionary = {
-	Hotspot.Verb.LOOK: "Guarda",
-	Hotspot.Verb.TAKE: "Prendi",
-	Hotspot.Verb.USE: "Usa",
-	Hotspot.Verb.OPEN: "Apri",
-	Hotspot.Verb.CLOSE: "Chiudi",
-	Hotspot.Verb.TALK: "Parla",
-	Hotspot.Verb.GO: "Vai",
+	Hotspot.Verb.LOOK: "VERB_LOOK",
+	Hotspot.Verb.TAKE: "VERB_TAKE",
+	Hotspot.Verb.USE: "VERB_USE",
+	Hotspot.Verb.OPEN: "VERB_OPEN",
+	Hotspot.Verb.CLOSE: "VERB_CLOSE",
+	Hotspot.Verb.TALK: "VERB_TALK",
+	Hotspot.Verb.GO: "VERB_GO",
 }
 
 var _icon_paths: Dictionary = {
@@ -263,7 +263,7 @@ func _set_verbs(verbs: Array[int]) -> void:
 			button.size = BADGE_SIZE
 			continue
 
-		button.text = _words.get(verb, "")
+		button.text = tr(_words.get(verb, ""))
 
 		# Re-applied straight after the text, and not left to the next layout
 		# pass: a longer word raises the button's minimum size, and

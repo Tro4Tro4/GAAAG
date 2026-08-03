@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_item")
 id = &"sticker"
-display_name = "Adesivo"
-look_text = "Un adesivo che dice NON IMPILARE. Il retro è ancora appiccicoso, il che lo rende un'opinione trasferibile."
+display_name = "ITEM_STICKER"
+look_text = "ITEM_STICKER_LOOK"

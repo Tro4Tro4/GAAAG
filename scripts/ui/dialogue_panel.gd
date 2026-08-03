@@ -108,7 +108,7 @@ func _rebuild(texts: PackedStringArray) -> void:
 
 func _make_option(text: String) -> Button:
 	var option := Button.new()
-	option.text = text
+	option.text = tr(text)
 	option.custom_minimum_size = OPTION_MINIMUM_SIZE
 	option.add_theme_font_size_override("font_size", OPTION_FONT_SIZE)
 	option.alignment = HORIZONTAL_ALIGNMENT_LEFT
