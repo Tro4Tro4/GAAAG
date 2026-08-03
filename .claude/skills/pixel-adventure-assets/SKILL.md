@@ -73,9 +73,10 @@ Questa skill è generica; il progetto ha già preso decisioni che la restringono
 Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
 
 - **Risoluzione base 384×216**, finestra 3×. Un personaggio a figura intera in
-  scena è alto **circa 26 unità di gioco** — è la dimensione dei segnaposto
-  attuali. Uno sprite disegnato su griglia 32×32 o 32×48 è quindi da usare a
-  scala 1:1 nel gioco, non da scalare: il gioco disegna già a bassa risoluzione.
+  scena è alto **40 unità di gioco** — decisione presa guardando 27, 40 e 54
+  affiancate, registrata in `CLAUDE.md`. Uno sprite si disegna quindi su una
+  griglia alta 40 px (tipicamente 24×40 o 32×40) e si usa a scala 1:1 nel gioco,
+  non si scala: il gioco disegna già a bassa risoluzione.
 - **Il filtro texture del progetto è `Nearest`** (`default_texture_filter=0` in
   `project.godot`). I PNG vanno esportati alla dimensione logica vera, senza
   upscaling: se ne serve uno ingrandito per mostrarlo all'utente, è
@@ -87,7 +88,7 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   dei verbi, che sono SVG, non sono più un'eccezione: sono lo strato morbido,
   come gli sfondi.
 - **La regola che tiene insieme i due strati: un pixel di texture è un'unità di
-  gioco.** Un personaggio alto 26 unità si disegna alto 26 pixel e si usa a
+  gioco.** Un personaggio alto 40 unità si disegna alto 40 pixel e si usa a
   `scale = 1`. Ogni pixel di texture diventa così esattamente
   *fattore-di-finestra* pixel veri, che è sempre un intero, quindi sempre un
   blocco netto. **Non disegnare un personaggio più grande per poi rimpicciolirlo
@@ -100,6 +101,14 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   doppio vuole uno sfondo largo il doppio (il corridoio dei tubi: 3840×1080).
 - **`Nearest` resta il default globale, `Linear` è un override sul nodo.** Non il
   contrario: gli sfondi sono uno per stanza, gli sprite sono decine.
+- **Nello sfondo va solo ciò che è fermo, muto e sempre dietro**: muro,
+  pavimento, battiscopa, telaio della porta, sporco e usura. Restano sprite
+  separati tre categorie — quello che cambia con lo stato del gioco (la luce
+  sotto una porta: è un `StateVisual`, e va disegnata con il **bordo netto**,
+  perché è informazione e non atmosfera), quello che si ordina in Y (se il nodo
+  sta dentro la navmesh, un personaggio ci passa dietro), e quello che porta
+  scritte (i testi contano per gli enigmi e vanno disegnati, non generati). La
+  regola completa, con i motivi, è in `CLAUDE.md`.
 - **Una tavolozza madre e una sola direzione di luce per stanza**, condivise fra
   sfondo e sprite: la tavolozza ridotta del personaggio si **deriva** da quella
   dello sfondo, non si inventa a parte. È la parte che decide se i due stili

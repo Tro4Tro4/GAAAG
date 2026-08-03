@@ -3,29 +3,29 @@
 [ext_resource type="Script" path="res://scripts/characters/player_character.gd" id="1_player"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
-radius = 4.0
-height = 20.0
+radius = 5.0
+height = 30.0
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_player")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -10)
+position = Vector2(0, -15)
 shape = SubResource("CapsuleShape2D_player")
 
 [node name="Visual" type="Node2D" parent="."]
 
 [node name="Body" type="Polygon2D" parent="Visual"]
 color = Color(0.92, 0.55, 0.2, 1)
-polygon = PackedVector2Array(-4, -20, 4, -20, 4, 0, -4, 0)
+polygon = PackedVector2Array(-6, -31, 6, -31, 6, 0, -6, 0)
 
 [node name="Head" type="Polygon2D" parent="Visual"]
 color = Color(0.98, 0.82, 0.66, 1)
-polygon = PackedVector2Array(-3, -26, 3, -26, 3, -20, -3, -20)
+polygon = PackedVector2Array(-5, -40, 5, -40, 5, -31, -5, -31)
 
 [node name="Nose" type="Polygon2D" parent="Visual"]
 color = Color(0.75, 0.55, 0.42, 1)
-polygon = PackedVector2Array(-2, -24, 2, -24, 2, -21, -2, -21)
+polygon = PackedVector2Array(-3, -38, 3, -38, 3, -34, -3, -34)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 path_desired_distance = 4.0

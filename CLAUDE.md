@@ -1481,7 +1481,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     preferisce questa. Non è caduta una premessa tecnica: è cambiato il gusto,
     che su una decisione estetica è il criterio giusto.
   - **La regola che tiene tutto insieme: un pixel di texture è un'unità di
-    gioco.** Un personaggio alto 26 unità si disegna alto 26 pixel e si usa a
+    gioco.** Un personaggio alto 40 unità si disegna alto 40 pixel e si usa a
     `scale = 1`. Così ogni pixel della texture diventa esattamente
     *fattore-di-finestra* pixel veri sullo schermo — sempre un numero intero, e
     quindi sempre un blocco netto. Disegnarlo più grande e rimpicciolirlo in
@@ -1517,6 +1517,55 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     esiste arte vera: sostituirli con delle texture che non ci sono ancora
     romperebbe il prototipo senza guadagnare niente.
 
+- **Un personaggio a figura intera è alto 40 unità di gioco**, non 26. Chiude il
+  punto che era rimasto aperto sull'altezza. Scelto guardando le tre altezze
+  affiancate nella stessa stanza, che è l'unico modo di giudicarlo: il numero da
+  solo non dice niente, il confronto sì. A 216 unità di schermo un personaggio
+  occupa quindi il 18,5% dell'altezza, e la stanza gli sta sopra per due volte e
+  mezzo.
+  - **27 unità** (l'altezza dei segnaposto di allora): la stanza respira e ci sta
+    più scenografia. Scartata perché a quella misura il personaggio è appena più
+    alto di una sedia, e in un genere dove si guarda il personaggio camminare per
+    metà del tempo è troppo poco per leggerne pose e direzione.
+  - **54 unità**, la proporzione LucasArts classica: la più espressiva delle tre,
+    e la più adatta a uno sprite con vera animazione. Scartata perché a un quarto
+    dell'altezza dello schermo la stanza diventa un interno stretto, e questo
+    gioco ha già un corridoio largo due schermate in cui la telecamera scorre.
+  - Ricadute già applicate: la figura segnaposto in `Player.tscn` è ridisegnata
+    alle stesse proporzioni, la capsula di collisione è scalata con lei
+    (raggio 5, altezza 30) e `NOSE_OFFSET` passa da 4 a 6. `agent_radius` delle
+    navmesh resta 4: è la distanza dagli ostacoli, e le stanze sono rettangoli
+    vuoti.
+  - Conseguenza per la skill grafica: la sua sezione "Vincoli di AGGGA" diceva
+    26 unità ed è aggiornata. Uno sprite si disegna alto **40 pixel** e si usa a
+    `scale = 1`.
+
+- **Cosa sta nello sfondo dipinto e cosa resta uno sprite**, ed è una regola con
+  un criterio, non un elenco. Nello sfondo va ciò che è **fermo, muto e sempre
+  dietro**: muro, pavimento, battiscopa, telaio della porta, sporco e usura.
+  Restano sprite separati tre categorie, ognuna per una ragione diversa e
+  verificabile:
+  - **Quello che cambia con lo stato del gioco** — la lama di luce sotto la
+    porta, il battente aperto o chiuso. È il `StateVisual`, e per definizione non
+    può essere dipinto in un'immagine sola. L'esperimento ha aggiunto un motivo
+    che non avevo previsto: la luce si legge **meglio** con un bordo netto che
+    sfumata, perché è informazione di gioco e non atmosfera. Quindi non solo va
+    fuori dallo sfondo, va fuori *e* disegnata dura.
+  - **Quello che si ordina in Y** — le sedie stanno a metà pavimento, e un
+    personaggio ci passa davanti e dietro. Dipinte nello sfondo, chi ci sta
+    dietro le calpesterebbe. Il criterio è meccanico: se il nodo sta dentro la
+    navmesh, è uno sprite.
+  - **Quello che porta scritte** — bacheca del regolamento e portamoduli. Nessun
+    generatore di immagini scrive parole leggibili, e qui le scritte sono
+    l'enigma. Restano pixel art con il testo disegnato, appoggiata su una chiazza
+    di muro che il prompt chiede esplicitamente di lasciare nuda.
+  - Le cose ferme e appese in alto — sopra la linea del pavimento — potrebbero
+    stare nello sfondo senza rompere niente, perché il personaggio ci passa
+    sempre davanti. Non lo faccio lo stesso: sono hotspot, e un hotspot la cui
+    figura è dipinta nello sfondo non può più cambiare aspetto il giorno in cui
+    servisse. Il guadagno sarebbe un'immagine più ricca, il costo una decisione
+    irreversibile per stanza.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1532,7 +1581,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   dallo stile ibrido. La prospettiva delle stanze scala la figura del personaggio
   di un fattore continuo (oggi da 0,78 a 1,1), e questo rompe la regola per cui
   un pixel di texture è un'unità di gioco: a 0,78 alcuni pixel escono più grandi
-  di altri. Tre vie: tenerla continua e accettare l'irregolarità, che a 26 unità
+  di altri. Tre vie: tenerla continua e accettare l'irregolarità, che a 40 unità
   di altezza e in movimento potrebbe non vedersi; quantizzarla a pochi gradini
   scelti a mano; o togliere la scala per profondità e affidare la distanza alla
   sola posizione. **Da decidere guardando il primo sprite vero sul dispositivo**,
@@ -1545,7 +1594,15 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   diversi: il disegno per codice è geometrico e coerente per costruzione, il
   tracciamento è più ricco e meno controllabile. Sulla mano di "Prendi" la
   seconda ha vinto dopo sei tentativi della prima, e vale la pena chiedersi se
-  su uno sfondo succeda lo stesso. Da decidere prima del primo sfondo vero
+  su uno sfondo succeda lo stesso. Da decidere prima del primo sfondo vero.
+  **Stato: l'esperimento sull'atrio è fatto, ed è la prima via ad avere una
+  misura.** Le due versioni disegnate per codice — piatta/geometrica e dipinta —
+  hanno detto tre cose: la dipinta è quella che piace e l'aspetto è deciso; pesa
+  671 kB contro 12 kB, cioè ~70×, che è il numero da tenere presente per la voce
+  sul peso del repository qui sotto; e la lama di luce dalla porta si legge
+  **meglio** nella piatta, perché lì ha un bordo netto. La seconda via — partire
+  da un'immagine esterna, come per le icone — è in prova: il prompt e la guida di
+  composizione esistono, e manca l'immagine
 - **Layer di parallasse negli sfondi**: la telecamera scorre già e il corridoio
   dei tubi è largo due schermate, quindi è il posto dove si vedrebbe. Additivo e
   opzionale — il progetto non ha nessun `Parallax2D` — ma **da decidere prima di

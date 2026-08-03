@@ -43,7 +43,7 @@ const BOB_HEIGHT: float = 2.0
 const BOB_SPEED: float = 12.0
 
 ## How far the nose sticks out to the side of the head when facing that way.
-const NOSE_OFFSET: float = 4.0
+const NOSE_OFFSET: float = 6.0
 
 ## The name shown on the character-switching bar.
 @export var display_name: String = ""
