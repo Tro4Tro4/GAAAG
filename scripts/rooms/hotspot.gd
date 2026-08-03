@@ -25,14 +25,15 @@ extends Area2D
 ## What the object does about being used is the text's business, not the verb's.
 enum Verb { NONE, LOOK, TAKE, USE, OPEN, CLOSE, TALK, GO }
 
-## The four places on the coin, left to right, and the family of verbs each
-## one holds.
+## The four families of verb, in the order the coin fans them out: looking
+## first, then anything to do with your hands, then anything you do *to* the
+## thing, then where it leads or who it is.
 ##
-## A word never changes direction: LOOK is always to the left, anything to do
-## with holding is always up-left, anything you do *to* the thing is always
-## up-right, and where it leads or who it is is always to the right. That is
-## what keeps the gesture aimable without reading — the slice that varies is
-## which word of the family is in it, never where the family sits.
+## The order is all that is left of the old fixed positions. Which direction a
+## family ends up in now depends on how many of them the object offers, because
+## the fan is packed from the left with no gaps — but the sequence never
+## changes, so the first badge is always looking and the last is always where
+## it leads.
 ##
 ## Checked against the objects the game will actually have: nothing sensible
 ## wants two words of the same family at once. A door has nobody to talk to,
@@ -352,18 +353,46 @@ func use_item(item: InventoryItem, character: PlayerCharacter) -> void:
 	item_used.emit(item, character)
 
 
-## The point the character should walk to before acting on this hotspot.
-func get_approach_position() -> Vector2:
+## The point somebody standing at [param from] should walk to before acting on
+## this hotspot.
+##
+## Two shapes are allowed, and which one to use is a question about the object.
+## A single ApproachPoint is a place you are meant to stand — in front of a
+## door, at the right side of a lever — and coming at it from behind means
+## walking round, which in the LucasArts games was usually the point: you
+## arrive somewhere known, facing a known way, so the animation of the action
+## makes sense. A group called ApproachPoints, holding several markers, is for
+## something you can get at from any side, and the nearest one wins.
+func get_approach_position(from: Vector2) -> Vector2:
 	# Looked up on the spot rather than held in an @onready field. It costs a
 	# node lookup per interaction, which is nothing at the rate a player clicks,
 	# and it keeps one more thing out of _ready() — which a subclass now has to
 	# remember to call super() from, since presence is set up there.
-	var marker: Node = get_node_or_null("ApproachPoint")
+	var group: Node = get_node_or_null("ApproachPoints")
 
-	# Without one the character would walk into the object itself — and some
+	if group != null:
+		var nearest: Marker2D = null
+		var shortest: float = INF
+
+		for child in group.get_children():
+			var marker := child as Marker2D
+			if marker == null:
+				continue
+
+			var distance: float = from.distance_squared_to(marker.global_position)
+			if distance < shortest:
+				shortest = distance
+				nearest = marker
+
+		if nearest != null:
+			return nearest.global_position
+
+	var single: Node = get_node_or_null("ApproachPoint")
+
+	# Without either the character would walk into the object itself — and some
 	# hotspots, a door in a wall above all, sit outside the navigation mesh
 	# entirely, so their own position is not a valid destination.
-	if marker is Marker2D:
-		return (marker as Marker2D).global_position
+	if single is Marker2D:
+		return (single as Marker2D).global_position
 
 	return global_position

@@ -13,13 +13,19 @@ script = ExtResource("1_player")
 position = Vector2(0, -10)
 shape = SubResource("CapsuleShape2D_player")
 
-[node name="Body" type="Polygon2D" parent="."]
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="Polygon2D" parent="Visual"]
 color = Color(0.92, 0.55, 0.2, 1)
 polygon = PackedVector2Array(-4, -20, 4, -20, 4, 0, -4, 0)
 
-[node name="Head" type="Polygon2D" parent="."]
+[node name="Head" type="Polygon2D" parent="Visual"]
 color = Color(0.98, 0.82, 0.66, 1)
 polygon = PackedVector2Array(-3, -26, 3, -26, 3, -20, -3, -20)
+
+[node name="Nose" type="Polygon2D" parent="Visual"]
+color = Color(0.75, 0.55, 0.42, 1)
+polygon = PackedVector2Array(-2, -24, 2, -24, 2, -21, -2, -21)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 path_desired_distance = 4.0

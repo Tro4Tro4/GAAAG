@@ -86,8 +86,19 @@ taken_text = "ROOM_TEST_CRATE_TAKEN"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
 shape = SubResource("RectangleShape2D_crate")
 
-[node name="ApproachPoint" type="Marker2D" parent="CrateHotspot"]
+[node name="ApproachPoints" type="Node2D" parent="CrateHotspot"]
+
+[node name="Below" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
 position = Vector2(0, 32)
+
+[node name="Above" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
+position = Vector2(0, -28)
+
+[node name="Left" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
+position = Vector2(-40, 0)
+
+[node name="Right" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
+position = Vector2(40, 0)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(316, 88)

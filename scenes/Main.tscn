@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=14 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://baggaitemcat01" path="res://resources/items/catalogue.tres" id="10_catalogue"]
 [ext_resource type="Script" path="res://scripts/ui/settings_panel.gd" id="11_settings"]
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="12_title"]
+[ext_resource type="Script" path="res://scripts/ui/fade.gd" id="13_fade"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -215,3 +216,9 @@ offset_right = 192.0
 offset_bottom = 82.0
 mouse_filter = 2
 theme_override_constants/separation = 2
+
+[node name="Fade" type="ColorRect" parent="UI"]
+offset_right = 384.0
+offset_bottom = 216.0
+color = Color(0, 0, 0, 0)
+script = ExtResource("13_fade")

@@ -25,6 +25,26 @@ signal room_changed(character: PlayerCharacter)
 ## inventory panel can redraw without being told who did what.
 signal inventory_changed(character: PlayerCharacter)
 
+## The four ways a character can be turned. Four and not eight because that is
+## what a sprite sheet of this kind of game holds, and because a diagonal walk
+## in a room this size is over before anybody has read it.
+enum Facing { DOWN, LEFT, RIGHT, UP }
+
+## What the character is doing, which is what an animation would be chosen by.
+enum State { IDLE, WALKING, TALKING }
+
+## How far the placeholder bobs while walking, and how fast.
+##
+## The bob is not the point — it will be gone the day there are sprites. The
+## point is that facing and state exist, are worked out from what the character
+## is actually doing, and drive something visible: swapping the polygons for an
+## AnimatedSprite2D then becomes a change of art rather than a change of design.
+const BOB_HEIGHT: float = 2.0
+const BOB_SPEED: float = 12.0
+
+## How far the nose sticks out to the side of the head when facing that way.
+const NOSE_OFFSET: float = 4.0
+
 ## The name shown on the character-switching bar.
 @export var display_name: String = ""
 
@@ -40,13 +60,23 @@ signal inventory_changed(character: PlayerCharacter)
 ## because the character node itself is never unloaded.
 @export_file("*.tscn") var current_room: String = ""
 
+## Which way the character is turned. Kept when they stop: somebody who walked
+## off to the left is still facing left while standing there.
+var facing: int = Facing.DOWN
+
+## What the character is doing. Set from outside for talking, because only the
+## thing running the conversation knows when one is on.
+var state: int = State.IDLE
+
 ## What this character is carrying. One bag each, not one bag for everybody:
 ## an object that has to get from one person to another is then a puzzle
 ## instead of a formality, which is the reason the game has several characters
 ## in the first place.
 var inventory: Array[InventoryItem] = []
 
-@onready var _body: Polygon2D = $Body
+@onready var _visual: Node2D = $Visual
+@onready var _body: Polygon2D = $Visual/Body
+@onready var _nose: Polygon2D = $Visual/Nose
 
 # Resolved with @onready rather than @export: a node reference written by
 # hand into a .tscn is not reliably resolved, and the agent is part of this
@@ -62,8 +92,14 @@ var _is_walking: bool = false
 var _pending_entry: StringName = &""
 
 
+# How long this character has been walking, for the bob. Reset on stopping so
+# that every walk starts on the same foot.
+var _walk_time: float = 0.0
+
+
 func _ready() -> void:
 	_body.color = body_color
+	_refresh_visual()
 	GameState.register_character(self)
 
 
@@ -79,6 +115,8 @@ func walk_to(global_target: Vector2) -> void:
 	# target_position is in global coordinates, not local to this node.
 	_agent.target_position = global_target
 	_is_walking = true
+	_walk_time = 0.0
+	set_state(State.WALKING)
 
 
 ## Moves the character to another room, to arrive at [param entry_name].
@@ -87,6 +125,35 @@ func move_to_room(room_path: String, entry_name: StringName) -> void:
 	current_room = room_path
 	_pending_entry = entry_name
 	room_changed.emit(self)
+
+
+## Turns the character towards [param point]. Used on arriving at a hotspot:
+## having walked round to the front of something, standing with your back to it
+## is worse than not having walked at all.
+func face_towards(point: Vector2) -> void:
+	var towards: Vector2 = point - global_position
+
+	if towards.is_zero_approx():
+		return
+
+	# Whichever axis the thing is further along wins. A character mostly to the
+	# side of you is looked at sideways even if they are also a little above.
+	if absf(towards.x) >= absf(towards.y):
+		facing = Facing.RIGHT if towards.x > 0.0 else Facing.LEFT
+	else:
+		facing = Facing.DOWN if towards.y > 0.0 else Facing.UP
+
+	_refresh_visual()
+
+
+## Says what the character is doing. Walking sets itself; talking has to be
+## told, because only whatever is running the conversation knows.
+func set_state(new_state: int) -> void:
+	if new_state == state:
+		return
+
+	state = new_state
+	_refresh_visual()
 
 
 ## True when this character is carrying [param item].
@@ -168,7 +235,7 @@ func set_present(is_present: bool) -> void:
 		_cancel_walk()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not _is_walking:
 		return
 
@@ -176,11 +243,16 @@ func _physics_process(_delta: float) -> void:
 		_stop_walking()
 		return
 
+	_walk_time += delta
+
 	# The agent returns the next corner of the path, never the final
 	# destination directly: steering corner by corner is what makes the
 	# character go around an obstacle instead of into it.
 	var next_corner: Vector2 = _agent.get_next_path_position()
 	velocity = global_position.direction_to(next_corner) * walk_speed
+
+	_face_along(velocity)
+	_refresh_visual()
 
 	# move_and_slide() applies velocity using the physics frame time on its
 	# own, which is why delta is not multiplied in here.
@@ -192,9 +264,59 @@ func _stop_walking() -> void:
 	destination_reached.emit()
 
 
+## Turns the character the way they are going. Only while walking: a character
+## standing still keeps whichever way they were last pointed.
+func _face_along(direction: Vector2) -> void:
+	if direction.is_zero_approx():
+		return
+
+	if absf(direction.x) >= absf(direction.y):
+		facing = Facing.RIGHT if direction.x > 0.0 else Facing.LEFT
+	else:
+		facing = Facing.DOWN if direction.y > 0.0 else Facing.UP
+
+
+## Puts the placeholder into the shape that says which way it is turned and
+## whether it is moving. The day there are sprites this is the one function
+## that changes: it becomes a name handed to an AnimatedSprite2D.
+func _refresh_visual() -> void:
+	# Called from _ready() before the first frame and from _physics_process
+	# after, so the nodes are always there by now — but a character can be
+	# turned by a save being loaded before it has entered the tree.
+	if _nose == null:
+		return
+
+	match facing:
+		Facing.LEFT:
+			_nose.position = Vector2(-NOSE_OFFSET, -1)
+			_nose.visible = true
+		Facing.RIGHT:
+			_nose.position = Vector2(NOSE_OFFSET, -1)
+			_nose.visible = true
+		Facing.DOWN:
+			_nose.position = Vector2(0, 1)
+			_nose.visible = true
+		Facing.UP:
+			# The back of a head has no nose on it, and that is the whole of
+			# how you tell somebody walking away from somebody walking towards.
+			_nose.visible = false
+
+	var bob: float = 0.0
+	if state == State.WALKING:
+		# absf, so the bob only ever lifts: a walk that also dipped would look
+		# like the floor giving way.
+		bob = -BOB_HEIGHT * absf(sin(_walk_time * BOB_SPEED))
+
+	_visual.position = Vector2(0.0, bob)
+
+
 func _cancel_walk() -> void:
 	# Silent, unlike _stop_walking(): destination_reached would run the room's
 	# pending action, and a walk is cancelled precisely when that room is
 	# about to stop being the one on screen.
 	_is_walking = false
 	velocity = Vector2.ZERO
+	_walk_time = 0.0
+
+	if state == State.WALKING:
+		set_state(State.IDLE)

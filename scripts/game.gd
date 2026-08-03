@@ -54,10 +54,15 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _menu_panel: MenuPanel = $UI/MenuPanel
 @onready var _settings_panel: SettingsPanel = $UI/SettingsPanel
 @onready var _title_screen: TitleScreen = $UI/TitleScreen
+@onready var _fade: Fade = $UI/Fade
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
 var _dialogue: DialogueRunner = DialogueRunner.new()
+
+# Who is doing the talking, kept only so they can be put back to standing still
+# when the conversation ends.
+var _talker: PlayerCharacter = null
 
 # The room currently in the tree, and the scene file it came from. The path is
 # what tells a real room change from switching to someone standing next to you.
@@ -122,21 +127,14 @@ func _on_character_room_changed(_character: PlayerCharacter) -> void:
 	# Whoever walked through a door, the answer is the same: work out again
 	# which room belongs on screen and who is standing in it.
 	#
-	# Deferred because of where this call comes from. A door is used at the end
-	# of a walk, and the walk ends inside _physics_process — so this runs while
-	# the engine is in the middle of a physics step, and swapping rooms means
-	# taking every hotspot's collision shape out of the world and putting a new
-	# set in. Deferring holds that until the step is over.
-	_show_room_of.call_deferred(GameState.active_character)
-
-	# Queued behind the swap — deferred calls run in the order they were asked
-	# for — so what gets written is the world as the player is about to see it.
-	#
-	# Here and nowhere else. Not at startup, which would overwrite the very
-	# checkpoint an autosave exists to keep, and not on switching character,
-	# where nothing has happened. Going through a door is the one moment that
-	# is both a real change and a natural place to come back to.
-	_autosave.call_deferred()
+	# Behind a fade to black, which does two jobs at once. It is what makes
+	# going through a door read as going somewhere rather than as a frame in
+	# which the room was replaced — and the swap lands in a tween callback,
+	# which is idle time. That last part is not cosmetic: a door is used at the
+	# end of a walk, a walk ends inside a physics step, and taking every
+	# hotspot's collision shape out of the world in the middle of one is not
+	# allowed. The fade replaces the call_deferred that used to hold it.
+	_fade.cover_then(_walk_through_door)
 
 
 ## Puts [param character]'s room on screen and hands the room over to them.
@@ -145,6 +143,18 @@ func _on_character_room_changed(_character: PlayerCharacter) -> void:
 ## always the active character's room. That is why nothing here remembers
 ## which room is shown: it is not a separate piece of state, it is a
 ## consequence of who you are controlling.
+## The far side of a door: the new room goes up while the screen is black.
+func _walk_through_door() -> void:
+	_show_room_of(GameState.active_character)
+
+	# After the room, so that what is written is the world as the player is
+	# about to see it. Here and nowhere else: not at startup, which would
+	# overwrite the very checkpoint an autosave exists to keep, and not on
+	# switching character, where nothing has happened. Going through a door is
+	# the one moment that is both a real change and a place worth coming back to.
+	_autosave()
+
+
 func _show_room_of(character: PlayerCharacter) -> void:
 	if character == null:
 		return
@@ -232,12 +242,23 @@ func _on_wants_to_talk(dialogue: Dialogue, character: PlayerCharacter) -> void:
 	# that do nothing, and a dead button is worse than an absent one.
 	_set_ordinary_ui_visible(false)
 
+	# Remembered so the state can be put back: the runner is handed nobody, on
+	# purpose — a conversation is between the player and a line of text, and who
+	# is standing there is the room's business.
+	_talker = character
+	if _talker != null:
+		_talker.set_state(PlayerCharacter.State.TALKING)
+
 	# Started last, because a conversation whose opening line offers nothing the
 	# player can say is over before this call returns.
 	_dialogue.start(dialogue, character)
 
 
 func _on_dialogue_finished() -> void:
+	if _talker != null and is_instance_valid(_talker):
+		_talker.set_state(PlayerCharacter.State.IDLE)
+	_talker = null
+
 	_dialogue_panel.close()
 
 	# Faded rather than cleared: the last thing said stays the couple of seconds
@@ -310,12 +331,15 @@ func _load_from(slot: StringName) -> void:
 		_caption.show_text(LOAD_FAILED)
 		return
 
-	# The room on screen was built for a world that no longer exists: its
-	# hotspots worked themselves out from flags that have just been replaced
-	# wholesale, and no signal announced it. Thrown away and built again rather
-	# than told to think again — which is simpler and comes to the same thing.
-	_reshow_room()
+	# Behind the same fade a door uses, and for the better reason: the room on
+	# screen was built for a world that no longer exists. Its hotspots worked
+	# themselves out from flags that have just been replaced wholesale, and no
+	# signal announced it, so it is thrown away and built again.
+	_fade.cover_then(_finish_load)
 
+
+func _finish_load() -> void:
+	_reshow_room()
 	_caption.show_text(LOADED)
 
 

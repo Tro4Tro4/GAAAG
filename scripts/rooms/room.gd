@@ -94,7 +94,7 @@ func begin_action(verb: int, hotspot: Hotspot) -> void:
 
 	_pending_hotspot = hotspot
 	_pending_verb = verb
-	_walk_to(hotspot.get_approach_position())
+	_walk_to(hotspot.get_approach_position(_character.global_position))
 
 
 ## Where a character arriving through a door named [param entry_name] stands.
@@ -178,7 +178,7 @@ func _aim_held_item_at(hotspot: Hotspot) -> void:
 		return
 
 	_pending_item = _held_item
-	_walk_to(hotspot.get_approach_position())
+	_walk_to(hotspot.get_approach_position(_character.global_position))
 
 
 func _walk_to(destination: Vector2) -> void:
@@ -218,6 +218,11 @@ func _on_destination_reached() -> void:
 	# itself still pending when that second walk ends.
 	var hotspot: Hotspot = _pending_hotspot
 	_pending_hotspot = null
+
+	# Turned towards the thing before anything is said about it. Having walked
+	# round to the front of something and then addressing it over your shoulder
+	# looks worse than not having walked at all.
+	_character.face_towards(hotspot.global_position)
 
 	if _pending_item != null:
 		var item: InventoryItem = _pending_item
