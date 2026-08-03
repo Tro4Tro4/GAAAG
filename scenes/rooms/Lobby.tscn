@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=20 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -9,15 +9,19 @@
 [ext_resource type="Resource" uid="uid://baggaitemfblk1" path="res://resources/items/form_blank.tres" id="5_form_blank"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="6_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="7_thud"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_lobby.webp" id="10_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_notice.png" id="11_notice"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_rack.png" id="12_rack"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_chairs.png" id="13_chairs"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
+vertices = PackedVector2Array(8, 150, 376, 150, 376, 210, 8, 210)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 150, 376, 150, 376, 210, 8, 210)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(40, 100)
+size = Vector2(36, 58)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
 size = Vector2(44, 32)
@@ -37,39 +41,30 @@ look_text = "PROTO_LOBBY_DOOR_LOOK_OPEN"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("6_hum")
-depth_top_y = 110.0
-depth_bottom_y = 208.0
-depth_top_scale = 0.8
-depth_bottom_scale = 1.1
+depth_top_y = 150.0
+depth_bottom_y = 210.0
+depth_top_scale = 0.85
+depth_bottom_scale = 1.05
 
-[node name="Wall" type="Polygon2D" parent="."]
-color = Color(0.16, 0.15, 0.19, 1)
-polygon = PackedVector2Array(0, 0, 384, 0, 384, 110, 0, 110)
-
-[node name="Floor" type="Polygon2D" parent="."]
-color = Color(0.26, 0.24, 0.25, 1)
-polygon = PackedVector2Array(0, 110, 384, 110, 384, 216, 0, 216)
-
-[node name="FloorEdge" type="Polygon2D" parent="."]
-color = Color(0.33, 0.31, 0.32, 1)
-polygon = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
-
-[node name="Skirting" type="Polygon2D" parent="."]
-color = Color(0.21, 0.2, 0.24, 1)
-polygon = PackedVector2Array(0, 102, 384, 102, 384, 110, 0, 110)
+[node name="Background" type="Sprite2D" parent="."]
+texture_filter = 2
+position = Vector2(0, 0)
+scale = Vector2(0.2, 0.2)
+centered = false
+texture = ExtResource("10_bg")
 
 [node name="DoorLight" type="Node2D" parent="."]
-position = Vector2(320, 110)
+position = Vector2(313, 146)
 script = ExtResource("8_state")
 visible_if = PackedStringArray("on:lobby_door")
 
 [node name="Spill" type="Polygon2D" parent="DoorLight"]
 color = Color(1, 0.95, 0.76, 0.17)
-polygon = PackedVector2Array(-20, 0, 20, 0, 36, 46, -36, 46)
+polygon = PackedVector2Array(-17, 0, 17, 0, 39, 46, -39, 46)
 
 [node name="Core" type="Polygon2D" parent="DoorLight"]
 color = Color(1, 0.97, 0.84, 0.13)
-polygon = PackedVector2Array(-16, 0, 16, 0, 24, 24, -24, 24)
+polygon = PackedVector2Array(-14, 0, 14, 0, 24, 26, -24, 26)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -77,29 +72,28 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="EntryPoints" type="Node2D" parent="."]
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
-position = Vector2(140, 180)
+position = Vector2(140, 190)
 
 [node name="FromTubes" type="Marker2D" parent="EntryPoints"]
-position = Vector2(300, 150)
+position = Vector2(300, 172)
 
 [node name="NoticeHotspot" type="Area2D" parent="."]
-position = Vector2(80, 55)
+position = Vector2(80, 110)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_LOBBY_NOTICE"
 look_text = "PROTO_LOBBY_NOTICE_LOOK"
 
-[node name="Picture" type="Polygon2D" parent="NoticeHotspot"]
-color = Color(0.86, 0.84, 0.72, 1)
-polygon = PackedVector2Array(-22, -16, 22, -16, 22, 16, -22, 16)
+[node name="Picture" type="Sprite2D" parent="NoticeHotspot"]
+texture = ExtResource("11_notice")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="NoticeHotspot"]
 shape = SubResource("RectangleShape2D_notice")
 
 [node name="ApproachPoint" type="Marker2D" parent="NoticeHotspot"]
-position = Vector2(0, 85)
+position = Vector2(0, 62)
 
 [node name="FormRackHotspot" type="Area2D" parent="."]
-position = Vector2(170, 60)
+position = Vector2(170, 119)
 script = ExtResource("4_pickup")
 display_name = "PROTO_LOBBY_FORMS"
 sound = ExtResource("7_thud")
@@ -110,35 +104,35 @@ item = ExtResource("5_form_blank")
 vanishes_when_taken = false
 taken_text = "PROTO_LOBBY_FORMS_TAKEN"
 
-[node name="Picture" type="Polygon2D" parent="FormRackHotspot"]
-color = Color(0.52, 0.55, 0.6, 1)
-polygon = PackedVector2Array(-14, -22, 14, -22, 14, 22, -14, 22)
+[node name="Picture" type="Sprite2D" parent="FormRackHotspot"]
+texture = ExtResource("12_rack")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FormRackHotspot"]
 shape = SubResource("RectangleShape2D_rack")
 
 [node name="ApproachPoint" type="Marker2D" parent="FormRackHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 55)
 
 [node name="ChairsHotspot" type="Area2D" parent="."]
-position = Vector2(110, 190)
+position = Vector2(110, 192)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_LOBBY_CHAIRS"
 look_text = "PROTO_LOBBY_CHAIRS_LOOK"
 
-[node name="Picture" type="Polygon2D" parent="ChairsHotspot"]
-color = Color(0.45, 0.38, 0.3, 1)
-polygon = PackedVector2Array(-34, -22, 34, -22, 34, 0, -34, 0)
+[node name="Picture" type="Sprite2D" parent="ChairsHotspot"]
+position = Vector2(-34, -22)
+centered = false
+texture = ExtResource("13_chairs")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ChairsHotspot"]
 position = Vector2(0, -11)
 shape = SubResource("RectangleShape2D_chairs")
 
 [node name="ApproachPoint" type="Marker2D" parent="ChairsHotspot"]
-position = Vector2(0, 14)
+position = Vector2(0, 12)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(320, 60)
+position = Vector2(313, 117)
 script = ExtResource("3_door")
 display_name = "PROTO_LOBBY_DOOR"
 sound = ExtResource("7_thud")
@@ -151,12 +145,8 @@ target_entry = &"FromLobby"
 state_id = &"lobby_door"
 variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_open")])
 
-[node name="Picture" type="Polygon2D" parent="DoorHotspot"]
-color = Color(0.35, 0.26, 0.2, 1)
-polygon = PackedVector2Array(-20, -50, 20, -50, 20, 50, -20, 50)
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 42)

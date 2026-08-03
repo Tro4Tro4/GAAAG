@@ -32,7 +32,7 @@ y_sort_enabled = true
 y_sort_enabled = true
 
 [node name="Nora" parent="Characters" instance=ExtResource("2_player")]
-position = Vector2(140, 180)
+position = Vector2(140, 190)
 display_name = "CHAR_NORA"
 body_color = Color(0.86, 0.44, 0.36, 1)
 current_room = "res://scenes/rooms/Lobby.tscn"

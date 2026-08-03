@@ -12,9 +12,10 @@ nello **spirito** (non nei contenuti) a *Guida Galattica per Autostoppisti*.
 - **Ambiente di sviluppo**: editor Godot per **Android** — è l'unica macchina
   disponibile allo sviluppatore, e da questo discende la scelta del linguaggio
 - **Piattaforme target**: PC (Win/Mac/Linux) + mobile (Android/iOS)
-- **Arte**: stile ibrido — personaggi, oggetti e hotspot in **pixel art** netta,
-  sfondi **dipinti a piena risoluzione** (1920×1080, filtro lineare). Generata
-  con strumenti AI esterni o via codice, poi importata/adattata nel progetto
+- **Arte**: stile ibrido — personaggi, oggetti e hotspot in **pixel art** netta
+  disegnata via codice, sfondi **a piena risoluzione** (1920×1080 `.webp`,
+  tinte piatte e contorno scuro, filtro lineare) generati con strumenti esterni
+  e poi misurati e adattati nel progetto
 
 ## Vincolo IP — NON NEGOZIABILE
 Nessun riferimento diretto a *Guida Galattica per Autostoppisti*: niente nomi
@@ -82,7 +83,7 @@ icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
   Main               Scena di avvio: personaggi, telecamera, audio, sequenze e
                      UI, e ospita la stanza corrente in RoomContainer
-  rooms/Lobby        Prototipo: l'atrio dove comincia Nora
+  rooms/Lobby        Prototipo: l'atrio dove comincia Nora, con sfondo dipinto
   rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
   rooms/Station      Prototipo: la postazione dove sta Cesare
   rooms/TestRoom     Vecchia stanza di prova, non piu' collegata a niente
@@ -117,9 +118,12 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
   dialogues/         Un file per conversazione
   sequences/         Un file per scena scriptata
   text/              it.tres e en.tres — tutte le frasi del gioco
+tools/               Script che producono asset, da eseguire dalla radice
+  make_lobby_background.py  Immagine esterna -> texture dello sfondo
+  make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
 assets/              sprites/ backgrounds/ audio/ fonts/
-  ui/                Le sette icone dei verbi, in SVG — l'unica arte del
-                     progetto che non è pixel art
+  backgrounds/       Uno sfondo per stanza, .webp 1920x1080, filtro lineare
+  ui/                Le sette icone dei verbi, in SVG
   audio/             Cinque suoni segnaposto generati da uno script
 ```
 
@@ -1566,6 +1570,71 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     servisse. Il guadagno sarebbe un'immagine più ricca, il costo una decisione
     irreversibile per stanza.
 
+- **Gli sfondi si producono da un'immagine esterna, non disegnandoli per
+  codice.** Chiude il punto che era rimasto aperto. È la stessa via delle sette
+  icone dei verbi: l'immagine la genera lo sviluppatore con uno strumento
+  esterno, e da qui viene misurata, ripulita e portata alla dimensione giusta.
+  Il criterio non è stato il gusto ma il confronto: l'atrio disegnato per codice
+  e l'atrio generato stanno affiancati nella cronologia di questa sessione, e il
+  secondo ha una ricchezza — intonaco scrostato, aloni di umido, venature del
+  legno — che per codice sarebbe costata giorni e sarebbe comunque venuta
+  geometrica.
+  - **Disegno per codice con Pillow** (la via che la skill propone per prima):
+    coerente per costruzione, file da 12 kB, e ogni elemento modificabile
+    spostando un numero. Vantaggi reali, e restano validi **per gli sprite**, che
+    infatti si continuano a disegnare così. Scartata per gli sfondi perché il
+    costo non sta nel disegnare ma nell'avvicinarsi: la versione dipinta per
+    codice ha richiesto due giri completi ed è arrivata a "accettabile", non a
+    "è questa".
+  - **Lo stile che ne esce non è painterly ma a tinte piatte con contorno
+    scuro**, ed è meglio così: condivide il linguaggio del contorno con la pixel
+    art invece di contrastarlo. È una correzione alla voce sullo stile ibrido —
+    "sfondi dipinti a piena risoluzione" resta vero sulla risoluzione e sul
+    filtro, ma la resa è cartoon a tinte piatte, non pittorica.
+  - **Il generatore ignora le percentuali e rispetta i rapporti.** Il primo
+    tentativo aveva la linea del pavimento al 68% invece che al 51%, e
+    soprattutto una porta alta 119 unità con la maniglia sedici unità sopra la
+    testa di Nora: l'immagine era disegnata per un personaggio alto il doppio.
+    La correzione che ha funzionato non è stata ripetere le percentuali ma
+    chiedere una modifica in rapporto — "la porta alta un terzo del muro" — e
+    farla fare al generatore sulla propria immagine, che ripara l'intonaco molto
+    meglio di qualunque interpolazione fatta da qui.
+  - **Ne segue una regola di metodo: la scala si verifica mettendo il
+    personaggio dentro l'immagine**, non guardandola. A occhio l'atrio sembrava
+    giusto; è bastato comporci Nora a 40 unità perché il problema diventasse
+    ovvio. La misura che lo rivela in un colpo solo è **l'altezza della
+    maniglia**.
+  - **E una seconda: quando esiste arte vera, comanda l'arte.** La linea del
+    pavimento è rimasta al 68% e si è spostata la navmesh, invece di ritagliare
+    l'immagine. Il blockout esisteva per reggere finché non c'era niente da
+    guardare.
+
+- **Gli sfondi si salvano in `.webp`, non in `.png`.** Chiude il punto che era
+  rimasto aperto sul peso del repository. Misurato sull'atrio: PNG 1934 kB,
+  WebP a qualità 92 **91 kB**, cioè ventuno volte meno, con una differenza
+  massima di 10 livelli su 255 e media di 1,0 — su un'immagine a tinte piatte
+  non c'è niente da vedere. Con una dozzina di stanze si passa da venticinque
+  megabyte a uno, su un repository che si clona da un telefono.
+  - **Accettare il PNG**: nessuna decisione da prendere e nessuna perdita.
+    Scartato per il solo numero qui sopra.
+  - **Scendere di risoluzione**: costa nitidezza su tutti i dispositivi per
+    risparmiare meno di quanto risparmi la compressione. Scartata.
+  - **Gli sprite restano PNG**: sono da 200 byte l'uno e la pixel art vuole
+    l'esattezza pixel per pixel. La compressione con perdita si applica allo
+    strato morbido, che è dove sta il peso.
+
+- **`tools/` per gli script che producono asset.** Uno per famiglia:
+  `make_lobby_background.py` prende l'immagine esterna e ne fa la texture,
+  `make_lobby_props.py` disegna bacheca, portamoduli e sedie. Stanno nel
+  repository e non nello scratchpad perché un asset che nessuno sa rifare è un
+  asset che non si può correggere.
+  - **L'immagine sorgente non si committa**, come già per i riferimenti delle
+    icone dei verbi: è materiale dello sviluppatore, pesa quanto l'asset, e lo
+    script la prende come argomento.
+  - Nello script stanno anche **le misure prese sull'immagine** — linea del
+    pavimento a 146, porta 36×58 centrata a 313 — perché sono ciò che lega
+    l'immagine alla scena, e un'immagine nuova va confrontata con quelle.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1587,31 +1656,10 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   sola posizione. **Da decidere guardando il primo sprite vero sul dispositivo**,
   non a tavolino: è una differenza che si giudica con l'occhio, e cambiarla è una
   funzione sola (`_depth_scale()`)
-- **Come si producono gli sfondi dipinti**: la skill `pixel-adventure-assets`
-  disegna via Pillow — forme, gradienti, layer — mentre le sette icone dei verbi
-  sono nate vettorizzando immagini di riferimento scelte dallo sviluppatore, che
-  è anche quello che la voce "Arte" descrive. Sono due pipeline con esiti
-  diversi: il disegno per codice è geometrico e coerente per costruzione, il
-  tracciamento è più ricco e meno controllabile. Sulla mano di "Prendi" la
-  seconda ha vinto dopo sei tentativi della prima, e vale la pena chiedersi se
-  su uno sfondo succeda lo stesso. Da decidere prima del primo sfondo vero.
-  **Stato: l'esperimento sull'atrio è fatto, ed è la prima via ad avere una
-  misura.** Le due versioni disegnate per codice — piatta/geometrica e dipinta —
-  hanno detto tre cose: la dipinta è quella che piace e l'aspetto è deciso; pesa
-  671 kB contro 12 kB, cioè ~70×, che è il numero da tenere presente per la voce
-  sul peso del repository qui sotto; e la lama di luce dalla porta si legge
-  **meglio** nella piatta, perché lì ha un bordo netto. La seconda via — partire
-  da un'immagine esterna, come per le icone — è in prova: il prompt e la guida di
-  composizione esistono, e manca l'immagine
 - **Layer di parallasse negli sfondi**: la telecamera scorre già e il corridoio
   dei tubi è largo due schermate, quindi è il posto dove si vedrebbe. Additivo e
   opzionale — il progetto non ha nessun `Parallax2D` — ma **da decidere prima di
   dipingere**, perché ogni layer è un file in più e non si scompone dopo
-- **Il peso del repository**: uno sfondo 1920×1080 sta fra uno e tre megabyte, e
-  una stanza larga il doppio ne pesa il doppio. Con una dozzina di stanze sono
-  decine di megabyte tirati su un telefono, con un clone che è già stato rifatto
-  una volta. Le vie: accettarlo, scendere di risoluzione, o passare a `.webp`,
-  che Godot importa e che su un dipinto costa poco in qualità e molto in peso
 - **Ambienza e musica insieme, o no**: `AudioDirector` ha due riproduttori, e le
   categorie `amb` e `mus` della skill audio competono per lo stesso. In
   un'avventura una stanza vuole spesso un tappeto ambientale *sotto* un tema.
