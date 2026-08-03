@@ -1,9 +1,11 @@
-[gd_scene load_steps=13 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=15 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
 [ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/rooms/state_visual.gd" id="8_state"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="9_variant"]
 [ext_resource type="Resource" uid="uid://baggaitemfblk1" path="res://resources/items/form_blank.tres" id="5_form_blank"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="6_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="7_thud"]
@@ -25,6 +27,11 @@ size = Vector2(28, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_chairs"]
 size = Vector2(68, 22)
+
+[sub_resource type="Resource" id="Resource_lobby_door_open"]
+script = ExtResource("9_variant")
+conditions = PackedStringArray("on:lobby_door")
+look_text = "PROTO_LOBBY_DOOR_LOOK_OPEN"
 
 [node name="Lobby" type="Node2D"]
 y_sort_enabled = true
@@ -50,6 +57,19 @@ polygon = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
 [node name="Skirting" type="Polygon2D" parent="."]
 color = Color(0.21, 0.2, 0.24, 1)
 polygon = PackedVector2Array(0, 102, 384, 102, 384, 110, 0, 110)
+
+[node name="DoorLight" type="Node2D" parent="."]
+position = Vector2(320, 110)
+script = ExtResource("8_state")
+visible_if = PackedStringArray("on:lobby_door")
+
+[node name="Spill" type="Polygon2D" parent="DoorLight"]
+color = Color(1, 0.95, 0.76, 0.17)
+polygon = PackedVector2Array(-20, 0, 20, 0, 36, 46, -36, 46)
+
+[node name="Core" type="Polygon2D" parent="DoorLight"]
+color = Color(1, 0.97, 0.84, 0.13)
+polygon = PackedVector2Array(-16, 0, 16, 0, 24, 24, -24, 24)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -129,6 +149,7 @@ reach_text = "PROTO_LOBBY_DOOR_REACH"
 target_room = "res://scenes/rooms/Tubes.tscn"
 target_entry = &"FromLobby"
 state_id = &"lobby_door"
+variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_open")])
 
 [node name="Picture" type="Polygon2D" parent="DoorHotspot"]
 color = Color(0.35, 0.26, 0.2, 1)

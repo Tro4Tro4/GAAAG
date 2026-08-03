@@ -6,6 +6,8 @@
 script = ExtResource("1_texts")
 locale = "en"
 entries = {
+"PROTO_LOBBY_DOOR_LOOK_OPEN": "The door stands open, and a wedge of light from the corridor spreads across the floor almost as far as the chairs.",
+"PROTO_TUBES_DOOR_LOOK_OPEN": "The door stands wide open onto the lobby. From here you can see the floor beyond: the same grey, but with the air of having noticed.",
 "PROTO_STATION_LEVER_ACT_DONE": "The lever is already down. The line is running backwards and nobody has told it for how long.",
 "CHAR_NORA": "Nora",
 "CHAR_CESARE": "Cesare",

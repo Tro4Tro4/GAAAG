@@ -97,8 +97,8 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
   game_camera.gd     Insegue il personaggio dentro i limiti della stanza
   audio_director.gd  Musica di stanza ed effetti, due riproduttori
   autoload/          game_state.gd (una partita), settings.gd (lingua, volumi)
-  rooms/             room.gd, hotspot.gd, hotspot_variant.gd, door_hotspot.gd,
-                     pickup_hotspot.gd, passage_hotspot.gd
+  rooms/             room.gd, hotspot.gd, hotspot_variant.gd, state_visual.gd,
+                     door_hotspot.gd, pickup_hotspot.gd, passage_hotspot.gd
   characters/        player_character.gd — cammina, guarda, tiene le tasche
   items/             inventory_item.gd, item_combination.gd,
                      combination_book.gd, item_catalogue.gd — dati, non nodi
@@ -1443,6 +1443,25 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Le tre vecchie stanze di prova non sono cancellate ma non sono piu'
     raggiungibili. Non le ho tolte perche' sono superficie gia' verificata, e
     buttarla via non era una decisione mia: si cancellano quando vuoi.
+
+- **`StateVisual`: la scenografia reagisce allo stato, senza essere cliccabile.**
+  Un `Node2D` che si mostra solo mentre le sue condizioni reggono — la
+  controparte di `present_if` per le cose che il gioco disegna e nessuno tocca.
+  Nasce da un difetto trovato provando il prototipo: lo stato della porta
+  (`state_id`) c'era e nessuno lo vedeva.
+  - **Un hotspot senza verbi** al posto di questo: nessun codice nuovo, ed è
+    come era fatto lo spiffero nella vecchia stanza di prova. Scartato perché un
+    hotspot risponde ai click, e una lama di luce distesa sul pavimento davanti a
+    una porta sta esattamente dove il giocatore tocca per andarci: la
+    scenografia che reagisce al mondo non deve anche competere per il tocco.
+  - **Niente `call_deferred` qui**, a differenza dell'hotspot: non c'è nessuna
+    forma da consegnare al server fisico, solo una visibilità, e quella si può
+    cambiare in qualunque momento.
+  - **Le due facce della stessa porta si mostrano in modo diverso**, ed è una
+    scelta di scrittura visiva più che tecnica: dall'atrio si vede la **luce sul
+    pavimento**, dal corridoio si vede **il battente aperto o chiuso**. Una
+    porta si guarda da due lati e i due lati non hanno le stesse informazioni da
+    dare — il lato in ombra racconta la luce dell'altro.
 
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
