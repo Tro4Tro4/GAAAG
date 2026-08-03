@@ -24,8 +24,9 @@ protagonista qualunque catapultato in situazioni incomprensibili.
 Personaggi, nomi, luoghi e trama devono essere originali.
 
 ## Gameplay
-- Punta-e-clicca classico con **verb-coin** a quattro posizioni fisse e un
-  vocabolario chiuso di sette parole: Guarda / Prendi / Usa, Apri, Chiudi /
+- Punta-e-clicca classico con **verb-coin** a ventaglio — solo i verbi che
+  l'oggetto offre, compattati a partire da destra — e un vocabolario chiuso di
+  sette parole in quattro famiglie: Guarda / Prendi / Usa, Apri, Chiudi /
   Parla, Vai (camminare non è un verbo: si clicca il pavimento)
 - **Più personaggi giocabili**, switch libero tra loro
 - Puzzle che richiedono collaborazione tra personaggi diversi in luoghi
@@ -43,7 +44,8 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    `Room` minima)*, hotspot cliccabili *(fatti: cammina fino all'oggetto e
    mostra la descrizione)*, verb-coin UI *(fatta e **verificata sul
    dispositivo**: premi-trascina-rilascia con scelta per direzione, badge con
-   icone, vocabolario di sette parole in quattro famiglie)*
+   icone, vocabolario di sette parole in quattro famiglie, ventaglio compattato
+   da destra)*
 2. Sistema personaggi multipli: switch *(fatto: autoload `GameState`, barra di
    cambio)*, stato indipendente per personaggio *(parziale: ognuno ha la sua
    posizione e la sua stanza; il resto arriverà con inventario e flag)*,
@@ -610,10 +612,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Le parole sulla verb-coin cambiano con l'oggetto, le posizioni no.** Ogni
   hotspot può ribattezzare uno spicchio — la porta dice "Vai" e "Apri", la
   fessura dice "Ritira" — ma lo spicchio resta nella sua direzione e chiama lo
-  stesso verbo. Cambia il vocabolario, non la geometria. **Parzialmente
-  superata** — vedi "Vocabolario chiuso di nove parole" in fondo all'elenco:
-  il principio (parole variabili, posizioni fisse) è confermato, ma le parole
-  non sono più stringhe libere per hotspot.
+  stesso verbo. Cambia il vocabolario, non la geometria. **Superata due volte**
+  — da "Vocabolario chiuso di nove parole" (le parole non sono più stringhe
+  libere per hotspot) e poi da "Il ventaglio si compatta a partire da destra",
+  in fondo all'elenco, che toglie anche la metà che qui era il punto: le
+  posizioni non sono più fisse.
   Il motivo è che la scelta per direzione vive sul fatto che le quattro
   posizioni siano sempre le stesse: si mira senza leggere. Un elenco variabile
   in numero o in ordine trasformerebbe un gesto in un menù da consultare, con
@@ -705,9 +708,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   etichette libere scritte oggetto per oggetto: **Guarda**; **Prendi**;
   **Usa, Premi, Tira, Apri, Chiudi**; **Parla, Vai**. Ogni famiglia ha una
   posizione fissa sulla moneta, e una parola non cambia mai direzione.
-  **Parzialmente superata** — vedi "Da nove parole a sette" in fondo
-  all'elenco: le famiglie e le posizioni restano, l'elenco scende a sette
-  perché Premi e Tira sono stati eliminati.
+  **Parzialmente superata due volte** — da "Da nove parole a sette", che porta
+  l'elenco a sette togliendo Premi e Tira, e da "Il ventaglio si compatta a
+  partire da destra", che toglie le posizioni fisse. Le **famiglie** restano, e
+  restano l'unità di cui si parla: quello che cambia è che il loro ordine
+  decide la sequenza del ventaglio invece di quattro direzioni sullo schermo.
   Nove parole che il giocatore impara una volta valgono più di parole inventate
   di volta in volta: con l'elenco chiuso il vocabolario diventa qualcosa che si
   possiede e si applica, invece di qualcosa da leggere a ogni oggetto. E il
@@ -860,7 +865,8 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 
 - **Da nove parole a sette: Premi e Tira sono eliminati** (revoca parziale del
   vocabolario chiuso, non del suo principio: famiglie e posizioni fisse
-  restano, e restano **Guarda**; **Prendi**; **Usa, Apri, Chiudi**;
+  restano — le posizioni fisse solo fino a "Il ventaglio si compatta a partire
+  da destra", più sotto, e restano **Guarda**; **Prendi**; **Usa, Apri, Chiudi**;
   **Parla, Vai**). Le due parole stavano nella stessa famiglia di Usa, quindi
   **non compravano una posizione sulla moneta**: qualunque cosa facessero, la
   facevano dalla stessa casella e con lo stesso gesto di Usa. Il costo invece
@@ -1023,6 +1029,68 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     dire non ha comportamento speciale, ha solo `dialogue`. Un hotspot che offre
     Parla *senza* un dialogo resta valido e utile — è il modo in cui un oggetto
     risponde all'idea di essere interpellato con una battuta sola.
+
+- **La caption va a capo e resta a schermo in proporzione a quanto è lunga.**
+  Due difetti trovati provando i dialoghi sul dispositivo, non a tavolino: una
+  battuta lunga usciva dai bordi dello schermo, e spariva prima di essere stata
+  letta. Ora il `Label` è alto quattro righe con `autowrap_mode`, e la durata è
+  `max(minimo, caratteri × secondi_per_carattere)`.
+  - **Una durata fissa più lunga**: mezza riga di modifica. Scartata perché il
+    problema non è la lentezza in assoluto — la stessa caption dice "Guarda" e
+    una frase di cento caratteri, e una durata che va bene per la seconda lascia
+    la prima ferma sullo schermo per un'eternità.
+  - **Il minimo è un pavimento, non una base**: una frase lunga non si prende il
+    minimo *in più* del suo tempo di lettura, ci mette semplicemente più del
+    minimo a essere letta. Sommarli dava otto secondi per una riga sola.
+  - **Avanzamento a click invece che a tempo** (si tocca per proseguire): è quel
+    che fanno molti del genere e toglie del tutto il problema della durata.
+    Scartato per ora perché la caption è usata anche per cose che non sono
+    battute — il rifiuto generico, la parola sotto il dito durante il gesto —
+    e un tocco obbligatorio su quelle sarebbe un impaccio. Da riconsiderare
+    quando i dialoghi saranno lunghi davvero.
+  - I due valori sono `@export` sul nodo `Caption` in `Main.tscn`: il giorno in
+    cui esisterà una schermata di impostazioni, "velocità dei testi" sono questi
+    due numeri in un posto solo e non una ricerca nel codice.
+
+- **Il ventaglio si compatta a partire da destra** (revoca delle posizioni fisse
+  sulla verb-coin, che erano il cuore di due decisioni più sopra). Si disegnano
+  solo i verbi che l'oggetto offre davvero: il primo a destra del punto toccato,
+  gli altri a ventaglio verso l'alto e verso sinistra, 60° l'uno dall'altro e
+  senza buchi in mezzo. L'ordine di riempimento è quello delle famiglie letto da
+  destra — dove porta o chi è, poi cosa gli fai, poi le mani, e guardare per
+  ultimo — quindi **un oggetto che offre tutti e quattro i verbi ha esattamente
+  il disegno di prima**, e cambiano solo quelli che prima mostravano dei vuoti.
+  Il motivo è che le caselle vuote non si leggevano come "questo oggetto non fa
+  quella cosa": si leggevano come una moneta rotta, e lasciavano direzioni morte
+  in mezzo al gesto.
+  - **Tenere le posizioni fisse con i buchi** (com'era): è la scelta che regge
+    "si mira senza leggere", ed era un vantaggio reale — con l'elenco chiuso il
+    giocatore imparava una volta che Guarda è a sinistra e non doveva più
+    guardare. Scartata perché quel vantaggio si paga su *ogni* oggetto, e la
+    maggioranza degli oggetti usa due o tre famiglie su quattro: il caso raro
+    era pieno, il caso normale era bucato.
+  - **Distribuire i verbi presenti su tutto il semicerchio** (due verbi a 180°
+    l'uno dall'altro, tre a 90°): darebbe i bersagli più larghi possibili.
+    Scartata perché un verbo finirebbe in una direzione diversa a seconda di
+    quanti ce ne sono, mentre così **l'i-esimo spicchio è sempre allo stesso
+    angolo**: il primo è sempre a destra, il secondo sempre in alto a destra. Si
+    perde la memoria della famiglia, non si perde ogni memoria.
+  - **Ventaglio da sinistra invece che da destra**: identico per costo.
+    Scartato perché con quattro verbi rovescerebbe l'ordine attuale, e perché
+    la mano che tiene il telefono copre più facilmente il lato da cui parte.
+  - Costo accettato, ed è quello che le decisioni precedenti temevano: **la
+    stessa parola non sta più sempre nello stesso posto.** Guarda è a sinistra
+    su un oggetto con quattro verbi e a destra su uno che ha solo quello. La
+    scelta resta per direzione e i badge restano visibili, quindi il gesto non
+    cambia — ma va guardato più di prima, almeno finché non ci si abitua.
+  - Effetto collaterale tecnico: il passo passa da ~50° a 60°, cioè i bersagli
+    sono più distanti fra loro di prima e non più vicini. La tolleranza resta 50°
+    perché non è un confine — vince il badge più vicino — ma è la distanza oltre
+    la quale il dito non punta più a niente, ed è ciò che tiene libero il cono
+    verso il basso per annullare.
+  - Le posizioni non sono più una tabella di quattro offset ma un calcolo su
+    seno e coseno: una tabella dovrebbe avere una riga per ogni *numero* di
+    verbi in scena, non per ogni verbo.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo

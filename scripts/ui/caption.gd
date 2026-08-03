@@ -8,8 +8,20 @@ extends Label
 ## own, it borrows this one and tints it, so that what a person says arrives in
 ## the same place as what the room says and is told apart by colour.
 
-## How long a line stays on screen.
-@export var seconds_on_screen: float = 2.5
+## How long even the shortest line stays on screen. A floor, not a base: a long
+## line does not get this on top of its reading time, it simply takes longer
+## than this to read.
+@export var minimum_seconds: float = 3.0
+
+## Added per character. A line is on screen for as long as it takes to read,
+## which is the only measure that works when the same caption carries "Guarda"
+## and a sentence of a hundred characters.
+##
+## These two are the knobs a settings screen would turn the day the game has
+## one. They are exported and live on the Caption node in Main.tscn, so a slow
+## or fast reading speed is two numbers in one place and not a search through
+## the code.
+@export var seconds_per_character: float = 0.07
 
 ## The colour of the narrator: the room's own descriptions, the refusals, the
 ## word under the finger during a verb-coin gesture. Anything said by somebody
@@ -67,7 +79,7 @@ func fade() -> void:
 
 
 func _fade_out() -> void:
-	var timer: SceneTreeTimer = get_tree().create_timer(seconds_on_screen)
+	var timer: SceneTreeTimer = get_tree().create_timer(_seconds_for(text))
 	_current_timer = timer
 
 	await timer.timeout
@@ -77,3 +89,7 @@ func _fade_out() -> void:
 	if _current_timer == timer:
 		modulate = PLAIN
 		text = ""
+
+
+func _seconds_for(line: String) -> float:
+	return maxf(minimum_seconds, line.length() * seconds_per_character)

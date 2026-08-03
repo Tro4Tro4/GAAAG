@@ -12,11 +12,17 @@ extends Control
 ## covers it, so asking the player to land on one asks for precision they
 ## cannot have and cannot see. A direction they can aim without looking.
 ##
-## The four slices are round badges carrying an icon, not words. An icon is
-## read at a glance and needs no translating, but it can only ever mean the
-## generic verb — so the object's own word for it ("Apri" rather than "Usa")
-## goes to the caption at the top of the screen, which is the one place the
-## finger never covers and where a long word still fits.
+## The slices are round badges carrying an icon, not words. An icon is read at a
+## glance and needs no translating, but it can only ever mean the generic verb —
+## so the object's own word for it ("Apri" rather than "Usa") goes to the caption
+## at the top of the screen, which is the one place the finger never covers and
+## where a long word still fits.
+##
+## Only what the object actually offers is drawn, and it is packed: the first
+## verb goes to the right of the touched point and the rest fan round from there
+## towards the left, sixty degrees apart, with nothing left empty in between. A
+## hotspot with two verbs therefore shows two badges side by side rather than two
+## badges with a hole where a third would have been.
 ##
 ## The whole gesture is read in _input(), by hand, instead of letting the
 ## buttons report their own presses. That is not a preference, it is forced:
@@ -69,30 +75,30 @@ const SCREEN_MARGIN: float = 2.0
 const DEAD_ZONE: float = 12.0
 
 ## How far off a verb's direction the finger may be and still pick it. The
-## four verbs are around fifty degrees apart, so 50 leaves each one a target
-## wider than the gap to its neighbour and still leaves a cone pointing
-## downwards that picks nothing: dragging down and away is how the player
-## says no.
+## badges are sixty degrees apart and the nearest one wins, so this is not a
+## boundary between them — every direction within thirty degrees of a badge is
+## already unambiguously its own. What this does decide is how far from *any*
+## badge the finger may stray before it is aiming at nothing, which is what
+## leaves a cone pointing downwards free: dragging down and away is how the
+## player says no.
 ##
 ## Kept in degrees rather than as a radian constant: a const is worked out at
 ## parse time, and whether a built-in call is allowed there is not something
 ## this project can check from the development machine.
 const MAX_AIM_DEGREES: float = 50.0
 
-# Where each badge sits relative to the touched point: four spread across the
-# half-circle above it. Nothing goes below, because that is where the player's
-# own finger is and it stays down for the whole gesture — which also leaves the
-# downward cone free to mean "never mind".
-#
-# There is deliberately nothing at straight up: with an even number of slices
-# laid out symmetrically, the top is always a boundary. Aiming is done at the
-# badges, which are visible, so it costs nothing.
-const BADGE_OFFSETS: Array = [
-	Vector2(-38, -7),
-	Vector2(-19, -33),
-	Vector2(19, -33),
-	Vector2(38, -7),
-]
+## How many badges the coin can ever show at once — one per family of verbs.
+const MAX_VERBS: int = 4
+
+## How far the badges sit from the point the coin opened on.
+const BADGE_RADIUS: float = 38.0
+
+## The angle between one badge and the next. The fan starts at the right of the
+## touched point and turns upwards and leftwards, so four verbs reach exactly to
+## the left and no arrangement ever puts a badge below the finger — which is
+## both where the player's own hand is and the direction reserved for calling
+## the gesture off.
+const FAN_STEP_DEGREES: float = 60.0
 
 # The whole vocabulary of the game, in one table: the word the player reads
 # and the drawing on the badge, for each of the seven verbs. This is the place
@@ -133,12 +139,25 @@ var _item: InventoryItem = null
 
 var _buttons: Array[Button] = []
 
-# Which verb is in each slice for this opening of the coin, NONE for a slice
-# that is not there at all. An absent slice is not drawn and cannot be aimed
-# at: with a closed vocabulary most objects use two or three of the four, and
-# showing the others greyed would be clutter that says nothing.
-var _slot_verbs: Array[int] = [
-	Hotspot.Verb.NONE, Hotspot.Verb.NONE, Hotspot.Verb.NONE, Hotspot.Verb.NONE
+# The verbs on offer this time, in the order they are fanned out — first one at
+# the right. Shorter than MAX_VERBS whenever the subject offers fewer, which is
+# most of the time; the buttons past the end are hidden.
+#
+# This is the whole of the change from fixed positions: a verb no longer knows
+# where it will be drawn, it only knows it comes before or after another one.
+var _verbs: Array[int] = []
+
+# The order the fan is filled in: whatever a thing leads to or who it is first,
+# then what you do to it, then what you do with your hands, and looking last.
+# Read from the right leftwards, that is the same order the four families sat
+# in when they had fixed places — so an object offering all four looks exactly
+# as it always did, and only the gappy ones change.
+#
+# A var and not a const for the reason the word table below is: it holds values
+# belonging to another class, and whether that is allowed at parse time is not
+# something this project can check from the development machine.
+var _fan_order: Array[int] = [
+	Hotspot.Slot.REACH, Hotspot.Slot.ACT, Hotspot.Slot.HAND, Hotspot.Slot.LOOK
 ]
 
 # False when the icons could not be loaded, in which case the badges fall back
@@ -175,15 +194,20 @@ func open_for(hotspot: Hotspot, at_position: Vector2) -> void:
 	_item = null
 	_default_verb = hotspot.get_default_verb()
 
-	for slot in _buttons.size():
-		_fill_slot(slot, hotspot.get_verb_for(slot))
+	var verbs: Array[int] = []
 
+	for slot in _fan_order:
+		var verb: int = hotspot.get_verb_for(slot)
+		if verb != Hotspot.Verb.NONE:
+			verbs.append(verb)
+
+	_set_verbs(verbs)
 	_open_at(at_position)
 
 
 ## Opens the coin for [param item] in the inventory, centred on its slot.
 ##
-## An item already in your hands offers two of the nine words and no more:
+## An item already in your hands offers two of the seven words and no more:
 ## there is nothing to take that you are not holding, and nothing to talk to.
 ## Before the slices could be left out, those two answered with a refusal.
 func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
@@ -193,10 +217,14 @@ func open_for_item(item: InventoryItem, at_position: Vector2) -> void:
 	# Looking is the harmless answer, and the one a stray tap should give.
 	_default_verb = Hotspot.Verb.LOOK
 
-	_fill_slot(Hotspot.Slot.LOOK, Hotspot.Verb.LOOK)
-	_fill_slot(Hotspot.Slot.HAND, Hotspot.Verb.NONE)
-	_fill_slot(Hotspot.Slot.ACT, Hotspot.Verb.USE)
-	_fill_slot(Hotspot.Slot.REACH, Hotspot.Verb.NONE)
+	# In fan order, so the two land where the same two verbs would land on a
+	# hotspot offering only those: acting to the right, looking next to it.
+	#
+	# Built as a typed local rather than passed as a literal: GDScript will fill
+	# an Array[int] from a literal, but it will not always hand a bare literal to
+	# a parameter that asks for one.
+	var verbs: Array[int] = [Hotspot.Verb.USE, Hotspot.Verb.LOOK]
+	_set_verbs(verbs)
 
 	_open_at(at_position)
 
@@ -216,27 +244,31 @@ func _open_at(at_position: Vector2) -> void:
 	visible = true
 
 
-func _fill_slot(slot: int, verb: int) -> void:
-	_slot_verbs[slot] = verb
+func _set_verbs(verbs: Array[int]) -> void:
+	_verbs = verbs
 
-	var button: Button = _buttons[slot]
-	button.visible = verb != Hotspot.Verb.NONE
+	for i in _buttons.size():
+		var button: Button = _buttons[i]
+		button.visible = i < _verbs.size()
 
-	if not button.visible:
-		return
+		if not button.visible:
+			continue
 
-	if _has_icons:
-		button.icon = _icons.get(verb, null)
-		button.size = BADGE_SIZE
-		return
+		var verb: int = _verbs[i]
 
-	button.text = _words.get(verb, "")
+		if _has_icons:
+			button.icon = _icons.get(verb, null)
+			button.size = BADGE_SIZE
+			continue
 
-	# Re-applied straight after the text, and not left to the next layout pass:
-	# a longer word raises the button's minimum size, and _place_badges() reads
-	# size to work out where the middle of each slice is. Setting it here forces
-	# the recalculation now, so what is measured is what will be drawn.
-	button.size = FALLBACK_SIZE
+		button.text = _words.get(verb, "")
+
+		# Re-applied straight after the text, and not left to the next layout
+		# pass: a longer word raises the button's minimum size, and
+		# _place_badges() reads size to work out where the middle of each slice
+		# is. Setting it here forces the recalculation now, so what is measured
+		# is what will be drawn.
+		button.size = FALLBACK_SIZE
 
 
 func _input(event: InputEvent) -> void:
@@ -285,7 +317,7 @@ func _lift() -> void:
 		# and the lift confirms it — it is not an opportunity to work it out
 		# again. A fingertip also rolls a pixel or two on its way off the
 		# glass, so the two answers need not agree.
-		_run(_slot_verbs[_highlighted])
+		_run(_verbs[_highlighted])
 		return
 
 	if not _has_left_dead_zone:
@@ -327,12 +359,9 @@ func _slice_aimed_at(point: Vector2) -> int:
 	var chosen: int = -1
 	var smallest_angle: float = INF
 
-	for i in _buttons.size():
-		# A slice this object does not offer is not drawn, so it cannot be
-		# aimed at either. Aiming at where it would have been simply misses.
-		if not _buttons[i].visible:
-			continue
-
+	# Only as far as there are verbs: the badges past the end are hidden, and
+	# with the fan packed there is never a hidden one in the middle.
+	for i in _verbs.size():
 		# Measured against where the badge actually ended up, not against the
 		# offset it was asked for: near a screen edge the badges are pushed
 		# back inside, and the direction has to follow them there.
@@ -363,7 +392,7 @@ func _highlight(slice: int) -> void:
 		# badge's own two styles, without a second set of art to maintain.
 		_buttons[i].button_pressed = i == _highlighted
 
-	var verb: int = _slot_verbs[slice] if slice >= 0 else Hotspot.Verb.NONE
+	var verb: int = _verbs[slice] if slice >= 0 else Hotspot.Verb.NONE
 	aim_changed.emit(_words.get(verb, ""))
 
 
@@ -380,7 +409,7 @@ func _load_icons() -> void:
 
 
 func _build_badges() -> void:
-	for slot in BADGE_OFFSETS.size():
+	for slot in MAX_VERBS:
 		var button := Button.new()
 
 		# The icon is drawn to the badge's size rather than its own. Without
@@ -390,7 +419,7 @@ func _build_badges() -> void:
 
 		# Overrides the project-wide Nearest filtering, which is there for
 		# pixel art and would leave a smooth drawing with jagged edges. These
-		# nine drawings are the one part of the game that is not pixel art.
+		# seven drawings are the one part of the game that is not pixel art.
 		button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 		button.add_theme_stylebox_override("normal", _badge_style(false))
@@ -440,16 +469,24 @@ func _badge_style(highlighted: bool) -> StyleBoxFlat:
 
 
 func _place_badges(at_position: Vector2) -> void:
-	for i in _buttons.size():
-		if not _buttons[i].visible:
-			continue
-
+	for i in _verbs.size():
 		# The badge's own size, not the constant. A Control refuses to be
 		# smaller than the room its content needs, so what is measured here is
 		# what will actually be drawn — and the aim is measured against it too.
 		var badge_size: Vector2 = _buttons[i].size
-		var top_left: Vector2 = at_position + BADGE_OFFSETS[i] - badge_size * 0.5
+		var top_left: Vector2 = at_position + _badge_offset(i) - badge_size * 0.5
 		_buttons[i].position = _kept_on_screen(top_left, badge_size)
+
+
+## Where the badge at [param slice] of the fan sits, relative to the point the
+## coin opened on. Worked out rather than looked up in a table, because the
+## table would have to have one row per number of verbs on offer.
+func _badge_offset(slice: int) -> Vector2:
+	var angle: float = deg_to_rad(slice * FAN_STEP_DEGREES)
+
+	# The sine is negated because Y grows downwards on screen: without it the
+	# fan would open into the floor instead of over the object.
+	return Vector2(cos(angle), -sin(angle)) * BADGE_RADIUS
 
 
 func _kept_on_screen(top_left: Vector2, badge_size: Vector2) -> Vector2:
