@@ -24,10 +24,21 @@ const BAG_LABEL: String = "Zaino"
 ## sentence is visible after the panel that started it has gone.
 const USING_TEMPLATE: String = "Usa %s con..."
 
+## Said after using the menu. The caption is the game's only voice, and there is
+## no reason for saving to speak with a different one.
+const SAVED: String = "Partita salvata."
+const SAVE_FAILED: String = "Non è stato possibile salvare."
+const LOADED: String = "Partita caricata."
+const LOAD_FAILED: String = "Questo salvataggio non si può leggere."
+const NOTHING_TO_LOAD: String = "Non c'è niente da caricare."
+
 ## Every recipe in the game. An @export filled in from Main.tscn rather than a
 ## preload: a mistyped path then costs a combination that refuses, instead of a
 ## game that will not start.
 @export var combinations: CombinationBook = null
+
+## Every item in the game, for turning the ids in a save back into things.
+@export var catalogue: ItemCatalogue = null
 
 @onready var _room_container: Node2D = $RoomContainer
 @onready var _caption: Caption = $UI/Caption
@@ -39,6 +50,8 @@ const USING_TEMPLATE: String = "Usa %s con..."
 # conversation, and character_bar.gd has never needed to be nameable.
 @onready var _character_bar: HBoxContainer = $UI/CharacterBar
 @onready var _dialogue_panel: DialoguePanel = $UI/DialoguePanel
+@onready var _menu_button: Button = $UI/MenuButton
+@onready var _menu_panel: MenuPanel = $UI/MenuPanel
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
@@ -72,6 +85,9 @@ func _ready() -> void:
 	_dialogue.finished.connect(_on_dialogue_finished)
 	_dialogue_panel.option_selected.connect(_dialogue.choose)
 
+	_menu_button.pressed.connect(_on_menu_button_pressed)
+	_menu_panel.action_chosen.connect(_on_menu_action)
+
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
 	# Characters register during their own _ready(), and children are ready
@@ -99,6 +115,15 @@ func _on_character_room_changed(_character: PlayerCharacter) -> void:
 	# set in. Deferring holds that until the step is over.
 	_show_room_of.call_deferred(GameState.active_character)
 
+	# Queued behind the swap — deferred calls run in the order they were asked
+	# for — so what gets written is the world as the player is about to see it.
+	#
+	# Here and nowhere else. Not at startup, which would overwrite the very
+	# checkpoint an autosave exists to keep, and not on switching character,
+	# where nothing has happened. Going through a door is the one moment that
+	# is both a real change and a natural place to come back to.
+	_autosave.call_deferred()
+
 
 ## Puts [param character]'s room on screen and hands the room over to them.
 ##
@@ -115,6 +140,7 @@ func _show_room_of(character: PlayerCharacter) -> void:
 	# else's bag, and handing over control does not hand over their pockets.
 	_verb_coin.close()
 	_inventory_panel.close()
+	_menu_panel.close()
 	_release_held_item()
 
 	if character.current_room != _room_path:
@@ -210,6 +236,79 @@ func _on_dialogue_finished() -> void:
 func _set_ordinary_ui_visible(is_ui_visible: bool) -> void:
 	_character_bar.visible = is_ui_visible
 	_inventory_button.visible = is_ui_visible
+	_menu_button.visible = is_ui_visible
+
+
+func _on_menu_button_pressed() -> void:
+	if _menu_panel.is_open():
+		_menu_panel.close()
+		return
+
+	_menu_panel.open()
+
+
+func _on_menu_action(action: StringName) -> void:
+	match action:
+		MenuPanel.SAVE:
+			_caption.show_text(SAVED if SaveGame.write(SaveGame.MANUAL_SLOT) else SAVE_FAILED)
+		MenuPanel.LOAD:
+			_load_from(SaveGame.MANUAL_SLOT)
+		MenuPanel.LOAD_AUTO:
+			_load_from(SaveGame.AUTO_SLOT)
+		MenuPanel.NEW_GAME:
+			_start_new_game()
+
+
+func _load_from(slot: StringName) -> void:
+	if not SaveGame.exists(slot):
+		_caption.show_text(NOTHING_TO_LOAD)
+		return
+
+	if not SaveGame.restore(slot, catalogue):
+		_caption.show_text(LOAD_FAILED)
+		return
+
+	# The room on screen was built for a world that no longer exists: its
+	# hotspots worked themselves out from flags that have just been replaced
+	# wholesale, and no signal announced it. Thrown away and built again rather
+	# than told to think again — which is simpler and comes to the same thing.
+	_reshow_room()
+
+	_caption.show_text(LOADED)
+
+
+func _start_new_game() -> void:
+	GameState.clear()
+
+	# The whole scene is built again rather than every character being put back
+	# by hand: where somebody starts is written in Main.tscn and nowhere else,
+	# so reloading is the only way that cannot get it wrong. The autoload
+	# survives the reload, which is why it is emptied first.
+	#
+	# Deferred because this comes from inside an input event, and pulling the
+	# tree out from under the node handling it is not a thing to do halfway.
+	get_tree().reload_current_scene.call_deferred()
+
+
+func _reshow_room() -> void:
+	# Forgetting which room is on screen is what makes _show_room_of() rebuild
+	# it even when the path has not changed. Blunt, but the alternative is a
+	# second way into the same function, and there is only one caller.
+	_room_path = ""
+	_show_room_of(GameState.active_character)
+
+
+func _autosave() -> void:
+	SaveGame.write(SaveGame.AUTO_SLOT)
+
+
+func _notification(what: int) -> void:
+	# On a phone a game is rarely quit; it is swiped away, and this is the last
+	# thing the engine says first. Not verifiable from the development machine,
+	# which has nothing to suspend — if it never arrives, the autosave on going
+	# through a door still stands on its own.
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_autosave()
 
 
 func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:

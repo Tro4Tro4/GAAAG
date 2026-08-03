@@ -167,3 +167,54 @@ func raise_flag(flag: StringName) -> void:
 
 	_flags[flag] = true
 	flag_raised.emit(flag)
+
+
+## Everything about the world that a saved game has to remember, as plain
+## containers.
+##
+## Serialising itself is still being data rather than doing something to the
+## world, so this does not breach the rule that keeps behaviour out of here.
+## What it deliberately does not do is turn the items in the caches into
+## anything: they go out as the resources they are, and [SaveGame] is what knows
+## that a file can only hold their ids.
+func capture() -> Dictionary:
+	var caches: Dictionary = {}
+	for cache_id in _caches:
+		caches[cache_id] = (_caches[cache_id] as Array).duplicate()
+
+	return {
+		&"flags": _flags.keys(),
+		&"switches": _switches.duplicate(),
+		&"caches": caches,
+	}
+
+
+## Puts back what [method capture] took, throwing away what is there now.
+##
+## Note what is not emitted: no flag_raised, no switch_changed, not one per
+## restored value. Loading is not a hundred things happening, it is the world
+## being a different world — so the room is thrown away and built again from
+## scratch afterwards, and its hotspots work themselves out on the way up.
+func restore(flags: Array, switches: Dictionary, caches: Dictionary) -> void:
+	_flags.clear()
+	for flag in flags:
+		_flags[StringName(flag)] = true
+
+	# Rebuilt key by key rather than assigned wholesale: a dictionary coming
+	# back from a file has whatever key type the file gave it, and everything
+	# here asks its questions with a StringName.
+	_switches.clear()
+	for switch in switches:
+		_switches[StringName(switch)] = bool(switches[switch])
+
+	_caches.clear()
+	for cache_id in caches:
+		_caches[StringName(cache_id)] = (caches[cache_id] as Array).duplicate()
+
+
+## Forgets everything that has happened. For starting a new game, which then
+## rebuilds the scene so the characters go back to where their scene puts them.
+func clear() -> void:
+	_flags.clear()
+	_switches.clear()
+	_caches.clear()

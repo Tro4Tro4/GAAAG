@@ -112,6 +112,35 @@ func give_up(item: InventoryItem) -> void:
 	inventory_changed.emit(self)
 
 
+## Everything about this character that a saved game has to remember.
+##
+## The position is in here because a character node is never unloaded and so
+## nothing else holds it — which was the point of that arrangement, and is the
+## reason there is no table of positions anywhere to save instead.
+func capture() -> Dictionary:
+	return {
+		&"room": current_room,
+		&"position": global_position,
+		&"inventory": inventory.duplicate(),
+	}
+
+
+## Puts this character back as a save found them. The items arrive already
+## resolved: turning ids into resources is [SaveGame]'s business, not a
+## character's.
+func restore(room: String, at: Vector2, carried: Array[InventoryItem]) -> void:
+	current_room = room
+	inventory = carried
+
+	# Nobody loaded from a file has just come through a door, so any entry owed
+	# from before the load has to go — otherwise the first time this character's
+	# room comes on screen they would be teleported to a doorway.
+	_pending_entry = &""
+
+	place_at(at)
+	inventory_changed.emit(self)
+
+
 ## Returns the entry point owed to this character, and forgets it. Empty when
 ## the character did not arrive through a door.
 func consume_pending_entry() -> StringName:

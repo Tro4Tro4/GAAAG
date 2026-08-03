@@ -62,6 +62,11 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
 
+Fuori sequenza: **salvataggio e caricamento** *(fatto fra il 4 e il 5, perché è
+l'unica parte dell'ossatura il cui costo cresce a ogni sistema che si aggiunge:
+finché lo stato di una partita sta in due posti soli, scriverlo è mezza
+giornata)*.
+
 ## Struttura del progetto
 ```
 project.godot        Configurazione progetto Godot (renderer, display)
@@ -77,17 +82,19 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
   game.gd            Scambia le stanze e collega stanza, personaggi e UI
   conditions.gd      Grammatica delle condizioni ("solo se..."), soli metodi
                      statici — condivisa fra stanze e dialoghi
+  save_game.gd       Scrive e rilegge una partita, soli metodi statici
   autoload/          Stato che sopravvive alle scene (game_state.gd)
   rooms/             room.gd, hotspot.gd, hotspot_variant.gd, door_hotspot.gd,
                      pickup_hotspot.gd, passage_hotspot.gd
   items/             inventory_item.gd, item_combination.gd,
-                     combination_book.gd — dati, non nodi
+                     combination_book.gd, item_catalogue.gd — dati, non nodi
   dialogue/          dialogue.gd, dialogue_line.gd, dialogue_option.gd — dati;
                      dialogue_runner.gd tiene il segno in una conversazione
   ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
-                     inventory_panel.gd, dialogue_panel.gd)
+                     inventory_panel.gd, dialogue_panel.gd, menu_panel.gd)
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
+                     e catalogue.tres con l'elenco di tutti gli oggetti
   dialogues/         Un file per conversazione
 assets/              sprites/ backgrounds/ audio/ fonts/
   ui/                Le sette icone dei verbi, in SVG — l'unica arte del
@@ -1102,7 +1109,90 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     seno e coseno: una tabella dovrebbe avere una riga per ogni *numero* di
     verbi in scena, non per ogni verbo.
 
+- **Salvataggio: `ConfigFile` in `user://`, oggetti nominati per `id` tramite un
+  catalogo, e ogni pezzo che si serializza da sé.** Fatto prima del prototipo e
+  fuori sequenza, perché è l'unica parte dell'ossatura il cui costo cresce a
+  ogni sistema aggiunto: oggi lo stato di una partita sta in due posti soli — i
+  tre dizionari di `GameState`, e inventario/stanza/posizione su ogni
+  personaggio — e la domanda "cos'è esattamente lo stato di una partita" ha una
+  risposta netta che fra sei sistemi non avrebbe più.
+  Quale stanza è sullo schermo **non** si salva: è `active_character.current_room`,
+  come già deciso. E una partita non può essere salvata a metà conversazione,
+  perché il pannello dei dialoghi ingoia i click e il menù è irraggiungibile —
+  un vincolo che arriva gratis dalla modalità del pannello invece che da un
+  controllo scritto apposta.
+  - **Oggetti per percorso del file** invece che per `id`: zero infrastruttura,
+    nessun catalogo da tenere in step. Scartata perché spostare o rinominare un
+    `.tres` romperebbe ogni salvataggio in silenzio, e il commento su
+    `InventoryItem.id` prometteva già il contrario — *"a saved flag refers to
+    the id, not to the file"*.
+  - **Scansione della cartella `resources/items/`** invece del catalogo: niente
+    da mantenere a mano, ed è la soluzione più pulita sulla carta. Scartata
+    perché in un progetto **esportato** Godot converte le risorse e i nomi su
+    disco smettono di essere quelli che si vedono qui — ed è esattamente il tipo
+    di cosa che da questa macchina non si può verificare.
+  - **JSON** invece di `ConfigFile`: universale e leggibile. Scartato perché
+    trasforma ogni numero in `float` e perde i tipi di Godot: ogni `Vector2`
+    andrebbe smontato in due numeri e rimontato, e ogni conversione evitata è
+    una conversione che non può sbagliare. `ConfigFile` è testo leggibile lo
+    stesso, che è ciò che conta per debuggare da un telefono.
+  - **Dump binario (`store_var`)**: compatto e senza conversioni. Scartato
+    perché un salvataggio che non si può aprire e guardare non si può debuggare,
+    e qui la macchina di sviluppo e il dispositivo di prova sono lo stesso
+    telefono.
+  - **Una `SaveGame` che sa tutto** e legge dentro gli altri: meno file.
+    Scartata perché andrebbe a frugare in campi con l'underscore davanti, che in
+    GDScript non è un divieto ma è l'unico segnale di intenzione che esiste.
+    Così invece `GameState` e `PlayerCharacter` espongono `capture()`/`restore()`
+    dei propri dati — serializzare sé stessi è *essere* i dati, non fare
+    qualcosa al mondo, quindi la regola che tiene il comportamento fuori
+    dall'autoload regge.
+  - **Versione che rifiuta invece di migrare**: un file di versione diversa non
+    si legge. Durante lo sviluppo i salvataggi sono usa e getta, e una
+    migrazione scritta alla cieca è peggio di un rifiuto onesto.
+  - **Caricare non emette `flag_raised` uno per uno**: caricare non è cento cose
+    che accadono, è un mondo diverso. La stanza viene buttata via e ricostruita,
+    e i suoi hotspot si ricalcolano da soli salendo — che è più semplice e dà
+    lo stesso risultato.
+  - **"Nuova partita" ricarica la scena** invece di rimettere a posto ogni
+    personaggio a mano: dove uno comincia è scritto in `Main.tscn` e in nessun
+    altro posto, quindi ricaricare è l'unico modo che non può sbagliare.
+    `GameState` sopravvive al ricaricamento, ed è per questo che va svuotato
+    prima.
+
+- **Salvataggio automatico in uno slot suo, all'attraversare una porta.** Due
+  slot separati (`manual` e `auto`) e non uno: camminare attraverso una porta
+  non deve poter sovrascrivere una partita che qualcuno ha scelto di tenere.
+  - **Il momento in cui scatta** è il cambio stanza, e nient'altro. Non
+    all'avvio, che sovrascriverebbe proprio il checkpoint che l'automatico
+    esiste per conservare; non al cambio personaggio, dove non è successo
+    niente. Attraversare una porta è l'unico momento che è insieme un
+    cambiamento vero e un posto naturale a cui tornare.
+  - **Caricamento automatico all'avvio**: scartato. Toglierebbe il bisogno del
+    menù, ma renderebbe impossibile ricominciare puliti senza cancellare un
+    file a mano — e in fase di sviluppo si riparte da capo venti volte al
+    giorno.
+  - Aggiunto anche su `NOTIFICATION_APPLICATION_PAUSED`, perché su un telefono
+    un gioco non si chiude, si scarta con il pollice. **Non verificabile da
+    qui**: se quella notifica non arrivasse, l'automatico al cambio stanza
+    regge da solo.
+
+- **Un pannello "Menù" come primo pezzo del guscio.** Non c'è ancora una
+  schermata iniziale né una pausa, e il bottone accanto allo zaino esiste perché
+  un salvataggio che nessuno può chiedere non è verificabile. È costruito per
+  diventare il menù di pausa e non per essere buttato: le voci sono una tabella,
+  e le impostazioni saranno un'altra riga.
+
 ## Decisioni ancora aperte
+- **Il guscio attorno al gioco**: esiste il pannello Menù con salva, carica e
+  nuova partita, ma non una schermata iniziale, non una pausa vera, non le
+  impostazioni (dove finirebbero i due numeri della velocità dei testi, già
+  esportati sul nodo `Caption`) e non un modo di uscire. Da decidere insieme,
+  perché sono lo stesso pannello con più righe — e da decidere dopo il
+  prototipo, quando si saprà se servono più slot di salvataggio o basta uno
+- **Audio**: non c'è niente, né musica né effetti, e `assets/audio/` è vuota.
+  Da impostare prima che le stanze siano tante, perché "quale suono fa questo
+  hotspot" è un campo in più su un tipo che esiste già
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo
   (384×216) e non c'è nessuna `Camera2D`. Serve deciderlo prima di disegnare
   una stanza più larga. Il codice è già pronto per l'eventualità: la stanza
