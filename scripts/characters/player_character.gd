@@ -68,6 +68,14 @@ var facing: int = Facing.DOWN
 ## thing running the conversation knows when one is on.
 var state: int = State.IDLE
 
+# The room's perspective: between these two heights the character is drawn
+# between these two sizes. Flat by default, so a room that says nothing about
+# depth gets a character that does not change size.
+var _depth_top_y: float = 0.0
+var _depth_bottom_y: float = 0.0
+var _depth_top_scale: float = 1.0
+var _depth_bottom_scale: float = 1.0
+
 ## What this character is carrying. One bag each, not one bag for everybody:
 ## an object that has to get from one person to another is then a puzzle
 ## instead of a formality, which is the reason the game has several characters
@@ -125,6 +133,18 @@ func move_to_room(room_path: String, entry_name: StringName) -> void:
 	current_room = room_path
 	_pending_entry = entry_name
 	room_changed.emit(self)
+
+
+## Takes on the perspective of the room the character is standing in. Told
+## rather than asked: a character is not a child of a room and has no way to
+## find one, which is the same arrangement that lets them outlive it.
+func set_depth(top_y: float, bottom_y: float, top_scale: float, bottom_scale: float) -> void:
+	_depth_top_y = top_y
+	_depth_bottom_y = bottom_y
+	_depth_top_scale = top_scale
+	_depth_bottom_scale = bottom_scale
+
+	_refresh_visual()
 
 
 ## Turns the character towards [param point]. Used on arriving at a hotspot:
@@ -221,6 +241,12 @@ func place_at(new_position: Vector2) -> void:
 	_cancel_walk()
 	global_position = new_position
 
+	# Put down somewhere else means a different height, which in a room with
+	# perspective means a different size. Without this a character dropped at
+	# the back of a room would keep the size they had at the front until the
+	# first step they took.
+	_refresh_visual()
+
 
 ## Shows or hides the character according to whether its room is on screen.
 ##
@@ -301,6 +327,11 @@ func _refresh_visual() -> void:
 			# how you tell somebody walking away from somebody walking towards.
 			_nose.visible = false
 
+	# Only the picture is scaled, never the node: the collision shape and the
+	# navigation agent are how big the character is *as a thing in the room*,
+	# and perspective is about how big they look.
+	_visual.scale = Vector2.ONE * _depth_scale()
+
 	var bob: float = 0.0
 	if state == State.WALKING:
 		# absf, so the bob only ever lifts: a walk that also dipped would look
@@ -308,6 +339,20 @@ func _refresh_visual() -> void:
 		bob = -BOB_HEIGHT * absf(sin(_walk_time * BOB_SPEED))
 
 	_visual.position = Vector2(0.0, bob)
+
+
+## How big the character is at the height they are standing at. A straight line
+## between the room's two reference heights, and flat outside them — walking off
+## the top of the floor should not make anybody vanish.
+func _depth_scale() -> float:
+	if is_equal_approx(_depth_top_y, _depth_bottom_y):
+		return 1.0
+
+	var along: float = clampf(
+		(global_position.y - _depth_top_y) / (_depth_bottom_y - _depth_top_y), 0.0, 1.0
+	)
+
+	return lerpf(_depth_top_scale, _depth_bottom_scale, along)
 
 
 func _cancel_walk() -> void:

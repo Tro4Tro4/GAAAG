@@ -228,6 +228,10 @@ func _place_characters() -> void:
 		if not is_here or _room == null:
 			continue
 
+		# Before being put down, so that whoever is placed is already the size
+		# this room draws people at that height.
+		_room.hand_depth_to(character)
+
 		# Only someone who has just come through a door has an entry to
 		# consume. Everyone else stands where they were left.
 		var entry: StringName = character.consume_pending_entry()

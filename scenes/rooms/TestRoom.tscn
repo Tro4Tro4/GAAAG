@@ -32,7 +32,12 @@ conditions = PackedStringArray("taken:sticker")
 look_text = "ROOM_TEST_CRATE_LOOK_PEELED"
 
 [node name="TestRoom" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("1_room")
+depth_top_y = 120.0
+depth_bottom_y = 208.0
+depth_top_scale = 0.75
+depth_bottom_scale = 1.1
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.13, 0.15, 0.24, 1)
@@ -54,10 +59,6 @@ polygon = PackedVector2Array(296, 56, 336, 56, 336, 120, 296, 120)
 color = Color(0.08, 0.09, 0.14, 1)
 polygon = PackedVector2Array(348, 70, 368, 70, 368, 100, 348, 100)
 
-[node name="Obstacle" type="Polygon2D" parent="."]
-color = Color(0.55, 0.35, 0.22, 1)
-polygon = PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)
-
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
 
@@ -70,7 +71,7 @@ position = Vector2(48, 198)
 position = Vector2(316, 132)
 
 [node name="CrateHotspot" type="Area2D" parent="."]
-position = Vector2(192, 160)
+position = Vector2(192, 180)
 script = ExtResource("4_pickup")
 display_name = "ROOM_TEST_CRATE"
 hand_verb = 2
@@ -83,22 +84,27 @@ item = ExtResource("5_sticker")
 vanishes_when_taken = false
 taken_text = "ROOM_TEST_CRATE_TAKEN"
 
+[node name="Picture" type="Polygon2D" parent="CrateHotspot"]
+color = Color(0.55, 0.35, 0.22, 1)
+polygon = PackedVector2Array(-32, -40, 32, -40, 32, 0, -32, 0)
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
+position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_crate")
 
 [node name="ApproachPoints" type="Node2D" parent="CrateHotspot"]
 
 [node name="Below" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(0, 32)
+position = Vector2(0, 12)
 
 [node name="Above" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(0, -28)
+position = Vector2(0, -48)
 
 [node name="Left" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(-40, 0)
+position = Vector2(-40, -20)
 
 [node name="Right" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(40, 0)
+position = Vector2(40, -20)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(316, 88)

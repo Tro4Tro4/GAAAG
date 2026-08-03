@@ -36,6 +36,23 @@ signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
 ## The entry point used when a door names one this room does not have.
 const DEFAULT_ENTRY: StringName = &"Default"
 
+@export_group("Depth")
+
+## The two floor heights between which the room has perspective, and how big
+## somebody standing at each of them is.
+##
+## Not a curve and not a walkbox scale: two numbers and a straight line between
+## them, which is all a flat floor seen from one angle needs. Left at 1 and 1 —
+## the default — a room has no perspective at all, and nothing scales.
+##
+## The room owns these because perspective is a property of the room, but it is
+## the character who applies them to themselves: a character is not a child of
+## the room and never has been, so the room would have nothing to reach for.
+@export var depth_top_y: float = 0.0
+@export var depth_bottom_y: float = 0.0
+@export var depth_top_scale: float = 1.0
+@export var depth_bottom_scale: float = 1.0
+
 # How many overlapping shapes a single point query may report. Hotspots are
 # not meant to overlap; the allowance is there so that a mistake in a room
 # degrades into "the first one wins" instead of silently finding nothing.
@@ -63,6 +80,14 @@ var _pending_item: InventoryItem = null
 # from GameState: during a room swap the active character briefly belongs to a
 # room that is not on screen, and only Game knows when that has settled.
 var _character: PlayerCharacter = null
+
+
+## Hands [param character] this room's perspective, so it can size itself.
+func hand_depth_to(character: PlayerCharacter) -> void:
+	if character == null:
+		return
+
+	character.set_depth(depth_top_y, depth_bottom_y, depth_top_scale, depth_bottom_scale)
 
 
 ## Hands this room the character the player is controlling.
