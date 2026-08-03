@@ -1532,12 +1532,16 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     più nella lista progetti, e si elimina dall'app Files invece che dalla shell.
 - **Skill disponibili**: `godot-gdscript` (convenzioni e trappole di GDScript),
   `narratore` (materiale narrativo, con l'attrattore documentato),
-  `registra-decisione` (questa sezione), `vincolo-ip` (controllo IP) e
-  `pixel-adventure-assets` (generare pixel art, sprite e sfondi via Pillow).
-  L'ultima è generica e arriva da fuori: la sua sezione "Vincoli di AGGGA" è
-  quella che la lega a questo progetto, e va letta prima di disegnare
-- **Pillow non è installato nell'ambiente remoto**: `pip install pillow` prima di
-  generare qualunque immagine, come si fa già con `gdtoolkit`
+  `registra-decisione` (questa sezione), `vincolo-ip` (controllo IP),
+  `pixel-adventure-assets` (pixel art, sprite e sfondi via Pillow) e
+  `retro-adventure-audio` (suoni, ambienze, musica e stinger via numpy/scipy).
+  Le ultime due sono generiche e arrivano da fuori: ognuna ha una sezione
+  "Vincoli di AGGGA" che la lega a questo progetto, e va letta **prima** di
+  produrre qualcosa — è lì che stanno la risoluzione, il filtro texture, i due
+  soli riproduttori audio e i nomi dei file già in uso
+- **Le librerie delle skill non sono installate nell'ambiente remoto**:
+  `pip install pillow` per la grafica, `pip install numpy scipy` per l'audio,
+  come si fa già con `gdtoolkit`
 - **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
   `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
   sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni

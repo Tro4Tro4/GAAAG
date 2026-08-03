@@ -11,3 +11,7 @@ export_presets.cfg
 Thumbs.db
 .idea/
 .vs/
+
+# Cache di Python, dalle librerie delle skill
+__pycache__/
+*.pyc
