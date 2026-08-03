@@ -1503,6 +1503,33 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   senza chiedere. Deciso dopo che un `main` rimasto indietro ha fatto provare
   sul dispositivo una versione vecchia del gioco per parecchi giri, con i
   sintomi attribuiti al codice nuovo invece che al codice mancante
+- **Chiudere l'editor Godot prima di `git pull`**, e guardare `git status
+  --short` prima di tirare. Godot riscrive da sé alcuni `.tres` quando apre il
+  progetto, quindi un pull trova modifiche locali che nessuno ha scritto; e se
+  l'editor viene ucciso mentre salva — scartato col pollice, o dall'OOM killer —
+  il cancella-e-riscrivi si ferma a metà e il file resta assente. Su
+  `/storage/emulated/0` il livello FUSE può poi restare in uno stato in cui
+  l'elenco della cartella non vede quel file ma la ricerca per nome sì: git
+  prova a rimuoverlo prima di riscriverlo, il sistema risponde `No such file or
+  directory`, e `pull`, `restore` e `reset --hard` si fermano tutti nello stesso
+  punto. Il riavvio del telefono non lo scioglie, e dallo spazio utente non c'è
+  comando che lo sistemi.
+  - **Non usare `git reset --hard` per uscirne**: scrive il working tree e *poi*
+    l'indice, quindi fallendo sui file fantasma lascia il clone spaccato in due
+    — contenuto nuovo nei file, `HEAD` vecchio — e da lì ogni pull elenca mezzo
+    repository come modifica locale. È il comando che ha trasformato due file
+    bloccati in una cartella da buttare.
+  - **La via corta è riclonare** in una cartella nuova e importare il progetto
+    da lì: un comando, contro sei giri di riparazione che non hanno funzionato.
+    In quei `.tres` non c'è mai una riga scritta dallo sviluppatore — la verità
+    di quei file sta nel repository, quindi non c'è niente da salvare.
+  - Due attriti dell'ambiente che si incontrano riclonando: la memoria condivisa
+    riporta ogni file come proprietà di un uid fisso, quindi git rifiuta il clone
+    nuovo con `detected dubious ownership` finché il percorso non è in
+    `safe.directory` (o `'*'`, ragionevole su un telefono a utente singolo); e
+    non permette di rinominare directory, quindi la cartella rotta non si sposta
+    — si neutralizza cancellandole `project.godot`, così l'editor non la propone
+    più nella lista progetti, e si elimina dall'app Files invece che dalla shell.
 - **Skill disponibili**: `godot-gdscript` (convenzioni e trappole di GDScript),
   `narratore` (materiale narrativo, con l'attrattore documentato),
   `registra-decisione` (questa sezione), `vincolo-ip` (controllo IP) e
