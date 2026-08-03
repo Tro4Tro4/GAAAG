@@ -12,8 +12,9 @@ nello **spirito** (non nei contenuti) a *Guida Galattica per Autostoppisti*.
 - **Ambiente di sviluppo**: editor Godot per **Android** — è l'unica macchina
   disponibile allo sviluppatore, e da questo discende la scelta del linguaggio
 - **Piattaforme target**: PC (Win/Mac/Linux) + mobile (Android/iOS)
-- **Arte**: pixel art retro, generata con strumenti AI esterni, poi
-  importata/adattata nel progetto
+- **Arte**: stile ibrido — personaggi, oggetti e hotspot in **pixel art** netta,
+  sfondi **dipinti a piena risoluzione** (1920×1080, filtro lineare). Generata
+  con strumenti AI esterni o via codice, poi importata/adattata nel progetto
 
 ## Vincolo IP — NON NEGOZIABILE
 Nessun riferimento diretto a *Guida Galattica per Autostoppisti*: niente nomi
@@ -1463,6 +1464,59 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     porta si guarda da due lati e i due lati non hanno le stesse informazioni da
     dare — il lato in ombra racconta la luce dell'altro.
 
+- **Stile ibrido: personaggi in pixel art su sfondi dipinti ad alta risoluzione**
+  (revoca della scelta per cui tutta l'arte del progetto è pixel art). Gli sfondi
+  diventano immagini a piena risoluzione, morbide e con gradienti; personaggi,
+  oggetti e figure degli hotspot restano pixel art netta.
+  La notizia tecnica è che **il progetto lo supportava già, e non per caso**:
+  `stretch/mode = canvas_items` fa avvenire il disegno alla risoluzione reale
+  della finestra e non a 384×216, `default_texture_filter` è `Nearest` per la
+  pixel art, e le sette icone dei verbi hanno da mesi un override a `Linear` sul
+  nodo. Lo stile ibrido è quella stessa struttura estesa agli sfondi: non c'è
+  niente da cambiare nell'engine, c'è da fissare delle regole.
+  - **Restare interamente in pixel art**: coerenza garantita, una sola tavolozza,
+    file da pochi kilobyte, e nessuna delle regole qui sotto da ricordare.
+    Vantaggi reali, ed è quello che il progetto aveva deciso. Scartata perché
+    è una scelta estetica dello sviluppatore, che ha visto le due strade e
+    preferisce questa. Non è caduta una premessa tecnica: è cambiato il gusto,
+    che su una decisione estetica è il criterio giusto.
+  - **La regola che tiene tutto insieme: un pixel di texture è un'unità di
+    gioco.** Un personaggio alto 26 unità si disegna alto 26 pixel e si usa a
+    `scale = 1`. Così ogni pixel della texture diventa esattamente
+    *fattore-di-finestra* pixel veri sullo schermo — sempre un numero intero, e
+    quindi sempre un blocco netto. Disegnarlo più grande e rimpicciolirlo in
+    scena è la cosa che rompe la pixel art: a 0,5 di scala su uno schermo 5× un
+    pixel di texture diventa 2,5 pixel veri, e alcuni pixel escono grandi il
+    doppio degli altri.
+  - **Gli sfondi si disegnano a 1920×1080 e si usano a `scale = 0.2`**, con
+    `texture_filter` a `Linear` sul nodo. 1920×1080 è esattamente 5× la
+    risoluzione base, quindi su un telefono alto 1080 lo sfondo è 1:1 e non viene
+    né ingrandito né rimpicciolito; sulla finestra desktop 3× viene ridotto di
+    poco, che è precisamente il caso per cui esiste il filtro lineare. Una stanza
+    larga il doppio vuole uno sfondo largo il doppio: il corridoio dei tubi
+    sarebbe 3840×1080.
+  - **`Nearest` resta il default globale** e `Linear` resta un override sul nodo,
+    non il contrario. Gli sfondi sono uno per stanza, gli sprite sono decine:
+    l'eccezione va messa sulla minoranza.
+  - **Una tavolozza madre e una sola direzione di luce** per stanza, condivise
+    fra sfondo e sprite. È la parte che decide se i due stili convivono o
+    litigano, e non è una regola tecnica ma di produzione: la tavolozza ridotta
+    del personaggio si deriva da quella dello sfondo, non si inventa a parte.
+  - **Un'ombra di contatto sotto i piedi.** Uno sprite netto appoggiato su uno
+    sfondo morbido galleggia; una macchia ovale sfumata sotto i piedi lo ancora.
+    Va come figlio del nodo `Visual` del personaggio, disegnata prima del corpo.
+  - Effetto collaterale che mi fa piacere: **le icone dei verbi smettono di
+    essere un'eccezione.** Erano l'unica arte non-pixel del progetto e avevano
+    bisogno di un paragrafo per giustificarsi; adesso sono semplicemente lo
+    strato morbido, come gli sfondi.
+  - Costo accettato: **i file pesano.** Uno sfondo 1920×1080 sta fra uno e tre
+    megabyte, e una stanza larga il doppio ne pesa il doppio. Con una dozzina di
+    stanze si parla di decine di megabyte in un repository che si tira su un
+    telefono. È accettabile, ma va saputo prima e non dopo.
+  - Le tre stanze del prototipo restano fatte di `Polygon2D` piatti finché non
+    esiste arte vera: sostituirli con delle texture che non ci sono ancora
+    romperebbe il prototipo senza guadagnare niente.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1474,6 +1528,16 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   ma i personaggi sono ancora due poligoni. Quando arriveranno gli sprite andrà
   deciso il formato del foglio (quante pose per direzione, se l'idle è animato)
   e `_refresh_visual()` diventerà un nome passato a un `AnimatedSprite2D`
+- **La scala per profondità contro la pixel art**, ed è il vero conflitto aperto
+  dallo stile ibrido. La prospettiva delle stanze scala la figura del personaggio
+  di un fattore continuo (oggi da 0,78 a 1,1), e questo rompe la regola per cui
+  un pixel di texture è un'unità di gioco: a 0,78 alcuni pixel escono più grandi
+  di altri. Tre vie: tenerla continua e accettare l'irregolarità, che a 26 unità
+  di altezza e in movimento potrebbe non vedersi; quantizzarla a pochi gradini
+  scelti a mano; o togliere la scala per profondità e affidare la distanza alla
+  sola posizione. **Da decidere guardando il primo sprite vero sul dispositivo**,
+  non a tavolino: è una differenza che si giudica con l'occhio, e cambiarla è una
+  funzione sola (`_depth_scale()`)
 - **Più slot di salvataggio**: oggi sono due, uno manuale e uno automatico. Se
   servano slot numerati si saprà quando il gioco sarà lungo abbastanza da voler
   tornare indietro di un capitolo e non di una stanza

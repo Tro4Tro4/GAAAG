@@ -80,13 +80,39 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   `project.godot`). I PNG vanno esportati alla dimensione logica vera, senza
   upscaling: se ne serve uno ingrandito per mostrarlo all'utente, è
   un'anteprima, non l'asset.
-- **L'arte del progetto è pixel art.** L'unica eccezione registrata sono le
-  sette icone dei verbi, che sono SVG per una ragione tecnica precisa (un badge
-  di 24 unità viene disegnato a più di cento pixel veri su un telefono). Lo
-  **stile ibrido** descritto in `references/hybrid-style-guide.md` —
-  personaggi pixel su sfondi painterly ad alta risoluzione — **contraddice
-  quella decisione**: si può proporre, ma va discusso con lo sviluppatore e
-  registrato con la skill `registra-decisione`, non adottato di iniziativa.
+- **Lo stile del progetto è quello ibrido** descritto in
+  `references/hybrid-style-guide.md`: **personaggi, oggetti e figure degli
+  hotspot in pixel art netta, sfondi dipinti a piena risoluzione.** È una
+  decisione presa e registrata in `CLAUDE.md`, non una proposta. Le sette icone
+  dei verbi, che sono SVG, non sono più un'eccezione: sono lo strato morbido,
+  come gli sfondi.
+- **La regola che tiene insieme i due strati: un pixel di texture è un'unità di
+  gioco.** Un personaggio alto 26 unità si disegna alto 26 pixel e si usa a
+  `scale = 1`. Ogni pixel di texture diventa così esattamente
+  *fattore-di-finestra* pixel veri, che è sempre un intero, quindi sempre un
+  blocco netto. **Non disegnare un personaggio più grande per poi rimpicciolirlo
+  in scena**: a 0,5 di scala su uno schermo 5× un pixel diventa 2,5 pixel veri e
+  alcuni escono grandi il doppio degli altri. È l'errore che questa guida chiama
+  "fattori non interi", visto dal lato di questo progetto.
+- **Gli sfondi si disegnano a 1920×1080** — esattamente 5× la base 384×216 — e in
+  scena vanno su uno `Sprite2D` con `scale = 0.2` e `texture_filter` a `Linear`
+  sul nodo. Così su un telefono alto 1080 lo sfondo è 1:1. Una stanza larga il
+  doppio vuole uno sfondo largo il doppio (il corridoio dei tubi: 3840×1080).
+- **`Nearest` resta il default globale, `Linear` è un override sul nodo.** Non il
+  contrario: gli sfondi sono uno per stanza, gli sprite sono decine.
+- **Una tavolozza madre e una sola direzione di luce per stanza**, condivise fra
+  sfondo e sprite: la tavolozza ridotta del personaggio si **deriva** da quella
+  dello sfondo, non si inventa a parte. È la parte che decide se i due stili
+  convivono o litigano.
+- **Ombra di contatto sotto i piedi** dei personaggi: uno sprite netto su uno
+  sfondo morbido galleggia. Va come figlio del nodo `Visual`, disegnata prima del
+  corpo.
+- **Conflitto noto e ancora aperto**: la prospettiva delle stanze scala la figura
+  del personaggio di un fattore continuo (`depth_top_scale`/`depth_bottom_scale`,
+  oggi 0,78–1,1), e questo rompe la regola "un pixel di texture, un'unità". Sta
+  in "Decisioni ancora aperte" di `CLAUDE.md` e si decide guardando il primo
+  sprite vero sul dispositivo. Fino ad allora: **disegna a 1:1 e non
+  preoccuparti della scala**, ma sappi che è lì.
 - **Il nodo di un oggetto sta dove l'oggetto tocca il pavimento**, non al suo
   centro: l'Y-sorting guarda la Y del nodo. Uno sprite di scena va quindi
   disegnato con l'origine ai piedi, e la figura va messa come **figlio**
