@@ -143,6 +143,11 @@ const ITEM_REFUSAL: String = "GENERIC_ITEM_REFUSAL"
 ## reaction is only a line of text.
 @export var accepted_flag: StringName = &""
 
+## The noise this makes when anybody does anything to it. Data on the ordinary
+## hotspot, like every other property of a thing: a crate that thuds needs a
+## file, not a script.
+@export var sound: AudioStream = null
+
 @export_group("Conversation")
 
 ## What TALK starts. Data on the ordinary hotspot rather than a TalkHotspot with

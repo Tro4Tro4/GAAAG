@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://baggacorrid001"]
+[gd_scene load_steps=19 format=3 uid="uid://baggacorrid001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -8,6 +8,10 @@
 [ext_resource type="Resource" uid="uid://baggaitembutt1" path="res://resources/items/button.tres" id="5_button"]
 [ext_resource type="Resource" uid="uid://baggaitemlabl1" path="res://resources/items/labelled_button.tres" id="6_labelled_button"]
 [ext_resource type="Resource" uid="uid://baggadlgclerk1" path="res://resources/dialogues/clerk.tres" id="8_clerk"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_high.wav" id="9_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
+[ext_resource type="AudioStream" path="res://assets/audio/chime.wav" id="12_chime"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
@@ -33,6 +37,7 @@ size = Vector2(16, 34)
 [node name="Hallway" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_room")
+music = ExtResource("9_hum")
 depth_top_y = 100.0
 depth_bottom_y = 208.0
 depth_top_scale = 0.78
@@ -88,6 +93,7 @@ position = Vector2(350, 112)
 position = Vector2(44, 68)
 script = ExtResource("3_door")
 display_name = "ROOM_HALL_DOOR"
+sound = ExtResource("10_thud")
 reach_verb = 7
 default_verb = 7
 look_text = "ROOM_HALL_DOOR_LOOK"
@@ -108,6 +114,7 @@ position = Vector2(0, 44)
 position = Vector2(280, 70)
 script = ExtResource("4_pickup")
 display_name = "ROOM_HALL_DISPENSER"
+sound = ExtResource("12_chime")
 hand_verb = 2
 act_verb = 3
 look_text = "ROOM_HALL_DISPENSER_LOOK"
@@ -171,6 +178,7 @@ position = Vector2(0, 12)
 position = Vector2(350, 68)
 script = ExtResource("3_door")
 display_name = "ROOM_HALL_FARDOOR"
+sound = ExtResource("10_thud")
 reach_verb = 7
 default_verb = 7
 look_text = "ROOM_HALL_FARDOOR_LOOK"
@@ -188,6 +196,7 @@ position = Vector2(0, 44)
 position = Vector2(86, 70)
 script = ExtResource("7_passage")
 display_name = "ROOM_HALL_SLOT"
+sound = ExtResource("11_click")
 hand_verb = 2
 look_text = "ROOM_HALL_SLOT_LOOK"
 hand_text = "ROOM_HALL_SLOT_HAND"

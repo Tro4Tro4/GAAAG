@@ -33,8 +33,18 @@ signal held_item_released
 ## the caption: it reports that one is due and Game sees to it.
 signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
 
+## Emitted when something in the room has made a noise. Reported rather than
+## played, for the reason the room reports what it wants said: the thing that
+## makes noises outlives the room, and the room has never been allowed to know
+## about anything that does.
+signal wants_to_play(sound: AudioStream)
+
 ## The entry point used when a door names one this room does not have.
 const DEFAULT_ENTRY: StringName = &"Default"
+
+## What this room sounds like, going round and round for as long as somebody
+## is in it. Left empty for silence.
+@export var music: AudioStream = null
 
 ## How big this room is, in game units. The camera fences itself inside it.
 ## The default is exactly one screen, which is what every room was before there
@@ -254,6 +264,11 @@ func _on_destination_reached() -> void:
 	# round to the front of something and then addressing it over your shoulder
 	# looks worse than not having walked at all.
 	_character.face_towards(hotspot.global_position)
+
+	# Before the line rather than after: the noise a thing makes is part of
+	# being touched, and the caption is somebody describing it afterwards.
+	if hotspot.sound != null:
+		wants_to_play.emit(hotspot.sound)
 
 	if _pending_item != null:
 		var item: InventoryItem = _pending_item

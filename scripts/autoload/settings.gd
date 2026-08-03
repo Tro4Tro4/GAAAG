@@ -17,6 +17,9 @@ extends Node
 ## themselves — buttons built in code, mostly.
 signal locale_changed
 
+## Emitted after a volume has changed, so the buses can be set again.
+signal volumes_changed
+
 const PATH: String = "user://settings.cfg"
 
 ## Used when there is no settings file and the system language is not one the
@@ -37,7 +40,16 @@ var _locale_names: Dictionary = {
 	"en": "English",
 }
 
+## The steps a volume moves in. Five, and a tap goes to the next one: on a
+## phone a slider a hundred and eighty pixels wide is a worse control than a
+## button that says what it is set to.
+const VOLUME_STEPS: int = 4
+
 var locale: String = DEFAULT_LOCALE
+
+## Nought to one, each on its own bus.
+var music_volume: float = 0.6
+var sound_volume: float = 0.8
 
 
 func _ready() -> void:
@@ -72,9 +84,27 @@ func set_locale(code: String) -> void:
 	locale_changed.emit()
 
 
+## Moves [param which] — "music" or "sound" — on to its next step, wrapping
+## round from full back to silent.
+func step_volume(which: StringName) -> void:
+	var current: float = music_volume if which == &"music" else sound_volume
+	var step: int = int(roundf(current * VOLUME_STEPS))
+	var next: float = float((step + 1) % (VOLUME_STEPS + 1)) / float(VOLUME_STEPS)
+
+	if which == &"music":
+		music_volume = next
+	else:
+		sound_volume = next
+
+	write()
+	volumes_changed.emit()
+
+
 func write() -> void:
 	var file := ConfigFile.new()
 	file.set_value("player", "locale", locale)
+	file.set_value("player", "music_volume", music_volume)
+	file.set_value("player", "sound_volume", sound_volume)
 
 	var error: int = file.save(PATH)
 	if error != OK:
@@ -93,6 +123,9 @@ func _read() -> void:
 
 	var stored: String = String(file.get_value("player", "locale", DEFAULT_LOCALE))
 	locale = stored if _locale_files.has(stored) else DEFAULT_LOCALE
+
+	music_volume = clampf(float(file.get_value("player", "music_volume", music_volume)), 0.0, 1.0)
+	sound_volume = clampf(float(file.get_value("player", "sound_volume", sound_volume)), 0.0, 1.0)
 
 
 func _install_translations() -> void:

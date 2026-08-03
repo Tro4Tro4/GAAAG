@@ -44,6 +44,8 @@ entries = {
 "MENU_NEW_GAME": "Nuova partita",
 "MENU_SAVE": "Salva",
 "SETTINGS_LANGUAGE": "Lingua",
+"SETTINGS_MUSIC": "Musica: %d%%",
+"SETTINGS_SOUND": "Effetti: %d%%",
 "SETTINGS_TITLE": "Impostazioni",
 "TITLE_CONTINUE": "Continua",
 "ROOM_HALL_CLERK": "Impiegato",

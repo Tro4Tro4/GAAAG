@@ -17,8 +17,15 @@ extends Control
 const FONT_SIZE: int = 8
 const ROW_MINIMUM_SIZE: Vector2 = Vector2(0, 14)
 
+## The two things that have a volume, and the line each one is written on.
+var _volumes: Array = [
+	{&"which": &"music", &"text": "SETTINGS_MUSIC"},
+	{&"which": &"sound", &"text": "SETTINGS_SOUND"},
+]
+
 @onready var _frame: Panel = $Frame
 @onready var _languages: VBoxContainer = $Frame/Languages
+@onready var _volume_rows: VBoxContainer = $Frame/Volumes
 
 
 func _ready() -> void:
@@ -49,6 +56,13 @@ func _input(event: InputEvent) -> void:
 		if not button_event.pressed or button_event.button_index != MOUSE_BUTTON_LEFT:
 			return
 
+		var which: StringName = _volume_at(button_event.position)
+
+		if which != &"":
+			Settings.step_volume(which)
+			_build()
+			return
+
 		var code: String = _language_at(button_event.position)
 
 		if not code.is_empty():
@@ -74,6 +88,15 @@ func _language_at(point: Vector2) -> String:
 	return ""
 
 
+func _volume_at(point: Vector2) -> StringName:
+	for child in _volume_rows.get_children():
+		var row := child as Button
+		if row != null and row.get_global_rect().has_point(point):
+			return row.get_meta(&"which", &"") as StringName
+
+	return &""
+
+
 func _build() -> void:
 	for child in _languages.get_children():
 		_languages.remove_child(child)
@@ -81,6 +104,13 @@ func _build() -> void:
 
 	for code in Settings.available_locales():
 		_languages.add_child(_make_row(code))
+
+	for child in _volume_rows.get_children():
+		_volume_rows.remove_child(child)
+		child.queue_free()
+
+	for volume in _volumes:
+		_volume_rows.add_child(_make_volume_row(volume))
 
 
 func _make_row(code: String) -> Button:
@@ -102,4 +132,22 @@ func _make_row(code: String) -> Button:
 	row.disabled = code == Settings.locale
 
 	row.set_meta(&"locale", code)
+	return row
+
+
+## A volume is a button that says what it is set to and moves on when tapped.
+## Not a slider: a hundred and eighty pixels of slider is a worse target for a
+## thumb than a button, and five steps is as fine as anybody needs.
+func _make_volume_row(volume: Dictionary) -> Button:
+	var current: float = Settings.music_volume if volume[&"which"] == &"music" else Settings.sound_volume
+
+	var row := Button.new()
+	row.text = tr(volume[&"text"]) % int(roundf(current * 100.0))
+	row.custom_minimum_size = ROW_MINIMUM_SIZE
+	row.add_theme_font_size_override("font_size", FONT_SIZE)
+	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	row.focus_mode = Control.FOCUS_NONE
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.set_meta(&"which", volume[&"which"])
+
 	return row

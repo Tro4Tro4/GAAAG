@@ -44,6 +44,8 @@ entries = {
 "MENU_NEW_GAME": "New game",
 "MENU_SAVE": "Save",
 "SETTINGS_LANGUAGE": "Language",
+"SETTINGS_MUSIC": "Music: %d%%",
+"SETTINGS_SOUND": "Sound: %d%%",
 "SETTINGS_TITLE": "Settings",
 "TITLE_CONTINUE": "Continue",
 "ROOM_HALL_CLERK": "Clerk",

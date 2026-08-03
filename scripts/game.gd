@@ -40,6 +40,10 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 ## Every item in the game, for turning the ids in a save back into things.
 @export var catalogue: ItemCatalogue = null
 
+## The noise a choice makes. One sound for the whole interface: a menu that
+## clicks differently from a verb would be saying something it does not mean.
+@export var ui_click: AudioStream = null
+
 @onready var _room_container: Node2D = $RoomContainer
 @onready var _caption: Caption = $UI/Caption
 @onready var _verb_coin: VerbCoin = $UI/VerbCoin
@@ -56,6 +60,7 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _title_screen: TitleScreen = $UI/TitleScreen
 @onready var _fade: Fade = $UI/Fade
 @onready var _camera: GameCamera = $Camera
+@onready var _audio: AudioDirector = $Audio
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
@@ -177,6 +182,11 @@ func _show_room_of(character: PlayerCharacter) -> void:
 		_room.set_character(character)
 		_camera.frame_room(_room.room_size)
 
+		# Asked for on every showing, including coming back to a room already
+		# playing it. The director is what knows that the same music twice over
+		# is not a reason to start it again.
+		_audio.play_music(_room.music)
+
 	# After the room has been framed, or the first snap would be clamped to the
 	# old room's edges.
 	_camera.follow(character)
@@ -222,6 +232,7 @@ func _swap_room_to(room_path: String) -> void:
 	_room.hotspot_activated.connect(_verb_coin.open_for)
 	_room.held_item_released.connect(_release_held_item)
 	_room.wants_to_talk.connect(_on_wants_to_talk)
+	_room.wants_to_play.connect(_audio.play_sound)
 
 	_room_container.add_child(_room)
 
@@ -295,6 +306,8 @@ func _on_menu_button_pressed() -> void:
 
 
 func _on_menu_action(action: StringName) -> void:
+	_audio.play_sound(ui_click)
+
 	match action:
 		MenuPanel.SAVE:
 			_caption.show_text(SAVED if SaveGame.write(SaveGame.MANUAL_SLOT) else SAVE_FAILED)
@@ -392,6 +405,8 @@ func _notification(what: int) -> void:
 
 
 func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:
+	_audio.play_sound(ui_click)
+
 	if _room != null:
 		_room.begin_action(verb, hotspot)
 

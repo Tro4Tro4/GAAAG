@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=17 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
@@ -14,12 +14,15 @@
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="12_title"]
 [ext_resource type="Script" path="res://scripts/ui/fade.gd" id="13_fade"]
 [ext_resource type="Script" path="res://scripts/game_camera.gd" id="14_camera"]
+[ext_resource type="Script" path="res://scripts/audio_director.gd" id="15_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="16_click"]
 
 [node name="Game" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_game")
 combinations = ExtResource("7_combinations")
 catalogue = ExtResource("10_catalogue")
+ui_click = ExtResource("16_click")
 
 [node name="RoomContainer" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -38,6 +41,13 @@ position = Vector2(240, 190)
 display_name = "CHAR_PLAYER2"
 body_color = Color(0.35, 0.62, 0.85, 1)
 current_room = "res://scenes/rooms/Hallway.tscn"
+
+[node name="Audio" type="Node" parent="."]
+script = ExtResource("15_audio")
+
+[node name="Music" type="AudioStreamPlayer" parent="Audio"]
+
+[node name="Sound" type="AudioStreamPlayer" parent="Audio"]
 
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("14_camera")
@@ -194,9 +204,9 @@ script = ExtResource("11_settings")
 
 [node name="Frame" type="Panel" parent="UI/SettingsPanel"]
 offset_left = 92.0
-offset_top = 60.0
+offset_top = 40.0
 offset_right = 292.0
-offset_bottom = 150.0
+offset_bottom = 176.0
 
 [node name="Title" type="Label" parent="UI/SettingsPanel/Frame"]
 offset_left = 8.0
@@ -220,7 +230,15 @@ text = "SETTINGS_LANGUAGE"
 offset_left = 8.0
 offset_top = 42.0
 offset_right = 192.0
-offset_bottom = 82.0
+offset_bottom = 76.0
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Volumes" type="VBoxContainer" parent="UI/SettingsPanel/Frame"]
+offset_left = 8.0
+offset_top = 84.0
+offset_right = 192.0
+offset_bottom = 118.0
 mouse_filter = 2
 theme_override_constants/separation = 2
 
