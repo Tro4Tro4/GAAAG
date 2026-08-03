@@ -28,6 +28,11 @@ signal hotspot_activated(hotspot: Hotspot, at_screen_position: Vector2)
 ## says when it is over.
 signal held_item_released
 
+## Emitted when somebody has walked up to a hotspot with a conversation in it
+## and said hello. The room does not run the conversation any more than it runs
+## the caption: it reports that one is due and Game sees to it.
+signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
+
 ## The entry point used when a door names one this room does not have.
 const DEFAULT_ENTRY: StringName = &"Default"
 
@@ -225,6 +230,14 @@ func _on_destination_reached() -> void:
 		# still an attempt that is over, and leaving it in hand would make the
 		# next tap anywhere try the same thing again.
 		held_item_released.emit()
+		return
+
+	# A conversation replaces the line the hotspot would otherwise have said:
+	# what it has to say is inside the conversation, and the reach_text of
+	# somebody you can talk to would be a second opening line nobody asked for.
+	if _pending_verb == Hotspot.Verb.TALK and hotspot.dialogue != null:
+		hotspot.interact(_pending_verb, _character)
+		wants_to_talk.emit(hotspot.dialogue, _character)
 		return
 
 	wants_to_say.emit(hotspot.get_text_for(_pending_verb))

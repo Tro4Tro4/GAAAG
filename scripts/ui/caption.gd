@@ -3,12 +3,18 @@ extends Label
 
 ## The one line of text the game says to the player.
 ##
-## Deliberately minimal: it shows a line and clears it after a while. Real
-## dialogue — trees, conditions, several speakers — is a separate system that
-## comes later in the plan; this is what stands in for it until then.
+## Deliberately minimal: it shows a line and clears it after a while. It is also
+## where conversations are heard — a dialogue does not get a text box of its
+## own, it borrows this one and tints it, so that what a person says arrives in
+## the same place as what the room says and is told apart by colour.
 
 ## How long a line stays on screen.
 @export var seconds_on_screen: float = 2.5
+
+## The colour of the narrator: the room's own descriptions, the refusals, the
+## word under the finger during a verb-coin gesture. Anything said by somebody
+## comes in their own colour instead.
+const PLAIN: Color = Color(1, 1, 1)
 
 # Identifies the timer that owns the line currently displayed, so that a new
 # line replacing an old one does not get cleared by the old one's timer.
@@ -26,18 +32,41 @@ func _ready() -> void:
 ## must not fade out from under a player who is thinking.
 func show_persistent(new_text: String) -> void:
 	_current_timer = null
+	modulate = PLAIN
 	text = new_text
+
+
+## Shows [param new_text] as spoken by somebody, in [param color], and leaves it
+## there. Persistent because the player is reading their answers underneath it:
+## a line that faded out while they were still choosing would take the question
+## away with it.
+func show_speech(new_text: String, color: Color) -> void:
+	show_persistent(new_text)
+	modulate = color
 
 
 func clear() -> void:
 	_current_timer = null
+	modulate = PLAIN
 	text = ""
 
 
 ## Shows [param new_text], replacing whatever was on screen.
 func show_text(new_text: String) -> void:
+	modulate = PLAIN
 	text = new_text
 
+	await _fade_out()
+
+
+## Lets whatever is on screen go the way an ordinary line would, keeping its
+## colour on the way out. This is how a conversation ends: the last thing said
+## stays a moment longer instead of being snatched away with the panel.
+func fade() -> void:
+	await _fade_out()
+
+
+func _fade_out() -> void:
 	var timer: SceneTreeTimer = get_tree().create_timer(seconds_on_screen)
 	_current_timer = timer
 
@@ -46,4 +75,5 @@ func show_text(new_text: String) -> void:
 	# While this call was waiting, a newer line may have taken over. Clearing
 	# the text now would cut that one short.
 	if _current_timer == timer:
+		modulate = PLAIN
 		text = ""

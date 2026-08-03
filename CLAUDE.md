@@ -52,9 +52,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
 3. Sistema inventario *(fatto e **verificato sul dispositivo**: un inventario
    per personaggio, pannello a comparsa, verbi sugli oggetti, combinazione fra
    oggetti, uso di un oggetto su un hotspot)*
-4. Sistema dialoghi con condizioni *(in corso: la grammatica delle condizioni e
-   la persistenza dello stato di stanza sono fatte — `Conditions`, `present_if`
-   e le varianti degli hotspot; restano i dialoghi veri e propri)*
+4. Sistema dialoghi con condizioni *(fatto: `Conditions`, la persistenza dello
+   stato di stanza — `present_if` e varianti degli hotspot — e i dialoghi ad
+   albero, con risorse `.tres`, pannello modale di opzioni e caption tinta di
+   chi parla)*
 5. Prototipo verticale: 1 stanza, 2 personaggi, 1 puzzle cooperativo completo
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
@@ -79,10 +80,13 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
                      pickup_hotspot.gd, passage_hotspot.gd
   items/             inventory_item.gd, item_combination.gd,
                      combination_book.gd — dati, non nodi
+  dialogue/          dialogue.gd, dialogue_line.gd, dialogue_option.gd — dati;
+                     dialogue_runner.gd tiene il segno in una conversazione
   ui/                Interfaccia (caption.gd, character_bar.gd, verb_coin.gd,
-                     inventory_panel.gd)
+                     inventory_panel.gd, dialogue_panel.gd)
 resources/           Risorse di dati (.tres), niente scene e niente codice
   items/             Un file per oggetto, più combinations.tres con le ricette
+  dialogues/         Un file per conversazione
 assets/              sprites/ backgrounds/ audio/ fonts/
   ui/                Le sette icone dei verbi, in SVG — l'unica arte del
                      progetto che non è pixel art
@@ -961,7 +965,6 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Dialoghi: risorse `.tres` per il modello, elenco di opzioni in basso per la
   UI.** Una conversazione è un insieme di nodi; ogni nodo è una battuta più un
   elenco di opzioni; ogni opzione ha testo, condizioni, effetti e dove porta.
-  Decisione presa prima dell'implementazione, che è il passo successivo.
   - **File di testo con un formato minimo e un parser** (~150 righe): una
     conversazione si leggerebbe come un copione, compatta e diffabile, ed è il
     contenuto che crescerà di più. Vantaggio reale. **Rimandata, non scartata**:
@@ -986,6 +989,40 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Conseguenza: mentre un dialogo è aperto **la stanza smette di ascoltare** —
     niente camminate, niente verb-coin, niente cambio personaggio. È un `Control`
     a schermo pieno, la stessa tecnica che la moneta usa già.
+  - Scritte in implementazione, le regole che il modello ha dovuto darsi:
+  - **Il primo elemento dell'elenco è l'inizio**, invece di un campo che nomina
+    la battuta d'apertura: un campo in meno da tenere allineato quando si
+    riordinano le battute.
+  - **Rispondere e andare altrove si escludono.** Un'opzione che resta dov'è dice
+    il proprio `reply`; una che porta a un'altra battuta fa dire a quella il suo
+    `says`. Scriverli entrambi è un errore e viene segnalato, perché sulla
+    caption ce n'è posto per uno solo. Ne segue che l'elenco di argomenti — il
+    caso più comune del genere — costa una battuta sola con tante opzioni,
+    invece di una battuta per argomento.
+  - **Niente interruttore "chiedibile una volta sola".** Si esprime già con due
+    campi che ci sono comunque: `conditions = ["!chiesto_x"]` più
+    `raises = ["chiesto_x"]`. Un flag dedicato andrebbe ricavato dalla posizione
+    dell'opzione nell'elenco o dal suo testo, e cambiano entrambi quando si
+    riscrive una conversazione — cioè esattamente quando un "una volta sola" non
+    deve azzerarsi di nascosto.
+  - **Una battuta che non offre niente di dicibile chiude la conversazione.** Il
+    campo `ends` serve quindi solo al congedo esplicito messo accanto ad altre
+    opzioni ancora valide.
+  - **Il pannello è modale ingoiando i click**, non spegnendo i sistemi uno per
+    uno: la stanza ascolta in `_unhandled_input`, quindi un evento marcato come
+    gestito nel pannello non la raggiunge mai. Barra dei personaggi e zaino
+    vengono nascosti perché sarebbero comunque bottoni morti, e un bottone morto
+    è peggio di un bottone assente.
+  - **Chi parla è un colore, non un nome**: la caption è la stessa che usano il
+    narratore e gli oggetti, e `Dialogue.speaker_color` la tinge. Le battute
+    dell'interlocutore restano finché non si sceglie — svanissero, porterebbero
+    via la domanda mentre il giocatore legge le risposte — mentre la frase del
+    giocatore non viene ripetuta da nessuna parte: è scritta sul bottone che ha
+    appena premuto.
+  - **Parlare è un dato dell'hotspot, non un `TalkHotspot`**: chi ha qualcosa da
+    dire non ha comportamento speciale, ha solo `dialogue`. Un hotspot che offre
+    Parla *senza* un dialogo resta valido e utile — è il modo in cui un oggetto
+    risponde all'idea di essere interpellato con una battuta sola.
 
 ## Decisioni ancora aperte
 - **Telecamera**: oggi ogni stanza è esattamente grande quanto lo schermo

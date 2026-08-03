@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=9 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/ui/verb_coin.gd" id="5_coin"]
 [ext_resource type="Script" path="res://scripts/ui/inventory_panel.gd" id="6_inventory"]
 [ext_resource type="Resource" uid="uid://baggacombobk01" path="res://resources/items/combinations.tres" id="7_combinations"]
+[ext_resource type="Script" path="res://scripts/ui/dialogue_panel.gd" id="8_dialogue"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -95,3 +96,22 @@ vertical_alignment = 1
 offset_right = 384.0
 offset_bottom = 216.0
 script = ExtResource("5_coin")
+
+[node name="DialoguePanel" type="Control" parent="UI"]
+offset_right = 384.0
+offset_bottom = 216.0
+script = ExtResource("8_dialogue")
+
+[node name="Frame" type="Panel" parent="UI/DialoguePanel"]
+offset_left = 8.0
+offset_top = 126.0
+offset_right = 376.0
+offset_bottom = 208.0
+
+[node name="Options" type="VBoxContainer" parent="UI/DialoguePanel/Frame"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 360.0
+offset_bottom = 74.0
+mouse_filter = 2
+theme_override_constants/separation = 2

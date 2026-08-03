@@ -12,8 +12,10 @@ extends Node2D
 ## This node owns no state. Who is active, what has happened and who is
 ## carrying what stay in GameState and in the characters. Game is only the
 ## place in the tree where the pieces are held and wired to each other — plus
-## the one thing that belongs to no piece: which item the player has in hand
-## between choosing it in the bag and aiming it at something in the room.
+## the two things that belong to no piece: which item the player has in hand
+## between choosing it in the bag and aiming it at something in the room, and
+## the conversation currently going on, which outlives no room and belongs to
+## no hotspot.
 
 ## What the bag button says when the player is not holding anything.
 const BAG_LABEL: String = "Zaino"
@@ -32,6 +34,15 @@ const USING_TEMPLATE: String = "Usa %s con..."
 @onready var _verb_coin: VerbCoin = $UI/VerbCoin
 @onready var _inventory_panel: InventoryPanel = $UI/InventoryPanel
 @onready var _inventory_button: Button = $UI/InventoryButton
+# Typed as the container it is rather than by a class_name of its own: all this
+# node wants from the switch bar is to be able to put it away during a
+# conversation, and character_bar.gd has never needed to be nameable.
+@onready var _character_bar: HBoxContainer = $UI/CharacterBar
+@onready var _dialogue_panel: DialoguePanel = $UI/DialoguePanel
+
+# The conversation going on, if any. A plain object rather than a node: it has
+# nothing to draw, and one of them serves every conversation in the game.
+var _dialogue: DialogueRunner = DialogueRunner.new()
 
 # The room currently in the tree, and the scene file it came from. The path is
 # what tells a real room change from switching to someone standing next to you.
@@ -53,6 +64,13 @@ func _ready() -> void:
 	_inventory_panel.item_pressed.connect(_on_inventory_item_pressed)
 	_inventory_panel.combine_requested.connect(_on_combine_requested)
 	_inventory_panel.dismissed.connect(_on_inventory_dismissed)
+
+	# The runner keeps the place in the conversation, the caption says the words
+	# and the panel offers the answers: three pieces that never name each other.
+	_dialogue.said.connect(_caption.show_speech)
+	_dialogue.offered.connect(_dialogue_panel.show_options)
+	_dialogue.finished.connect(_on_dialogue_finished)
+	_dialogue_panel.option_selected.connect(_dialogue.choose)
 
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
@@ -147,6 +165,7 @@ func _swap_room_to(room_path: String) -> void:
 	_room.wants_to_say.connect(_caption.show_text)
 	_room.hotspot_activated.connect(_verb_coin.open_for)
 	_room.held_item_released.connect(_release_held_item)
+	_room.wants_to_talk.connect(_on_wants_to_talk)
 
 	_room_container.add_child(_room)
 
@@ -164,6 +183,33 @@ func _place_characters() -> void:
 		var entry: StringName = character.consume_pending_entry()
 		if entry != &"":
 			character.place_at(_room.get_entry_position(entry))
+
+
+func _on_wants_to_talk(dialogue: Dialogue, character: PlayerCharacter) -> void:
+	# The rest of the interface stands down for the duration. Not only because
+	# you cannot wander off in the middle of being talked at: the panel swallows
+	# every click while it is up, so the switch bar and the bag would be buttons
+	# that do nothing, and a dead button is worse than an absent one.
+	_set_ordinary_ui_visible(false)
+
+	# Started last, because a conversation whose opening line offers nothing the
+	# player can say is over before this call returns.
+	_dialogue.start(dialogue, character)
+
+
+func _on_dialogue_finished() -> void:
+	_dialogue_panel.close()
+
+	# Faded rather than cleared: the last thing said stays the couple of seconds
+	# any other line would, instead of being taken away with the panel.
+	_caption.fade()
+
+	_set_ordinary_ui_visible(true)
+
+
+func _set_ordinary_ui_visible(is_ui_visible: bool) -> void:
+	_character_bar.visible = is_ui_visible
+	_inventory_button.visible = is_ui_visible
 
 
 func _on_verb_chosen(verb: int, hotspot: Hotspot) -> void:

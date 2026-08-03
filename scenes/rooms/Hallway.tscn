@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://baggacorrid001"]
+[gd_scene load_steps=15 format=3 uid="uid://baggacorrid001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="7_passage"]
 [ext_resource type="Resource" uid="uid://baggaitembutt1" path="res://resources/items/button.tres" id="5_button"]
 [ext_resource type="Resource" uid="uid://baggaitemlabl1" path="res://resources/items/labelled_button.tres" id="6_labelled_button"]
+[ext_resource type="Resource" uid="uid://baggadlgclerk1" path="res://resources/dialogues/clerk.tres" id="8_clerk"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
@@ -25,6 +26,9 @@ size = Vector2(50, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
 size = Vector2(20, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_clerk"]
+size = Vector2(16, 34)
 
 [node name="Hallway" type="Node2D"]
 script = ExtResource("1_room")
@@ -126,6 +130,29 @@ shape = SubResource("RectangleShape2D_sign")
 
 [node name="ApproachPoint" type="Marker2D" parent="SignHotspot"]
 position = Vector2(0, 80)
+
+[node name="ClerkHotspot" type="Area2D" parent="."]
+position = Vector2(200, 132)
+script = ExtResource("2_hotspot")
+display_name = "Impiegato"
+reach_verb = 6
+default_verb = 6
+look_text = "Un impiegato dietro un banco che non c'è. Sta comunque come se il banco ci fosse."
+dialogue = ExtResource("8_clerk")
+
+[node name="Head" type="Polygon2D" parent="ClerkHotspot"]
+color = Color(0.94, 0.78, 0.58, 1)
+polygon = PackedVector2Array(-4, -16, 4, -16, 4, -8, -4, -8)
+
+[node name="Body" type="Polygon2D" parent="ClerkHotspot"]
+color = Color(0.87, 0.85, 0.45, 1)
+polygon = PackedVector2Array(-5, -8, 5, -8, 5, 16, -5, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClerkHotspot"]
+shape = SubResource("RectangleShape2D_clerk")
+
+[node name="ApproachPoint" type="Marker2D" parent="ClerkHotspot"]
+position = Vector2(0, 28)
 
 [node name="SlotHotspot" type="Area2D" parent="."]
 position = Vector2(86, 70)

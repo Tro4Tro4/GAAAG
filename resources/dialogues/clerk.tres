@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=13 format=3 uid="uid://baggadlgclerk1"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+[ext_resource type="Resource" uid="uid://baggaitemform1" path="res://resources/items/form.tres" id="4_form"]
+
+[sub_resource type="Resource" id="Option_loop"]
+script = ExtResource("3_option")
+text = "Ma lo sportello è chiuso."
+conditions = PackedStringArray("!asked_loop")
+reply = "Esatto. Vedo che si è già documentato."
+raises = PackedStringArray("asked_loop")
+
+[sub_resource type="Resource" id="Option_form"]
+script = ExtResource("3_option")
+text = "Mi serve il modulo 12-B."
+conditions = PackedStringArray("!given_form")
+goes_to = &"form"
+raises = PackedStringArray("given_form")
+gives = ExtResource("4_form")
+
+[sub_resource type="Resource" id="Option_sticker"]
+script = ExtResource("3_option")
+text = "Di là qualcuno ha staccato un adesivo da una cassa."
+conditions = PackedStringArray("taken:sticker")
+reply = "Era un adesivo di sicurezza. Adesso la cassa è insicura, e la cosa la riguarda."
+
+[sub_resource type="Resource" id="Option_bye"]
+script = ExtResource("3_option")
+text = "Arrivederci."
+reply = "Sportello chiuso."
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "Sportello chiuso. Per aprirlo serve il modulo 12-B, che si ritira allo sportello."
+options = Array[ExtResource("3_option")]([SubResource("Option_loop"), SubResource("Option_form"), SubResource("Option_sticker"), SubResource("Option_bye")])
+
+[sub_resource type="Resource" id="Option_third_copy"]
+script = ExtResource("3_option")
+text = "E la terza copia?"
+reply = "La terza la tiene lei, per ricordarsi delle altre due."
+
+[sub_resource type="Resource" id="Option_back"]
+script = ExtResource("3_option")
+text = "Va bene."
+goes_to = &"start"
+
+[sub_resource type="Resource" id="Line_form"]
+script = ExtResource("2_line")
+id = &"form"
+says = "Ecco il 12-B. Lo compili in duplice copia e ne consegni tre."
+options = Array[ExtResource("3_option")]([SubResource("Option_third_copy"), SubResource("Option_back")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.87, 0.85, 0.45, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start"), SubResource("Line_form")])

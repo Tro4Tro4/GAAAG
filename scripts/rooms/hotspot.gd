@@ -137,6 +137,16 @@ const ITEM_REFUSAL: String = "Non c'entra niente con questo."
 ## reaction is only a line of text.
 @export var accepted_flag: StringName = &""
 
+@export_group("Conversation")
+
+## What TALK starts. Data on the ordinary hotspot rather than a TalkHotspot with
+## a script, for the reason a crate has no script either: somebody you can talk
+## to has no special behaviour, only something to say.
+##
+## Leaving this empty while still offering TALK is allowed and useful — it is
+## how an object answers the idea of being spoken to with a line of its own.
+@export var dialogue: Dialogue = null
+
 # The collision layer this hotspot was authored with, so that one which is not
 # currently there can be handed it back when it comes into being again.
 var _own_collision_layer: int = 0
