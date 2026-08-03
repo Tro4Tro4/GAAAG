@@ -1503,6 +1503,14 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   senza chiedere. Deciso dopo che un `main` rimasto indietro ha fatto provare
   sul dispositivo una versione vecchia del gioco per parecchi giri, con i
   sintomi attribuiti al codice nuovo invece che al codice mancante
+- **Skill disponibili**: `godot-gdscript` (convenzioni e trappole di GDScript),
+  `narratore` (materiale narrativo, con l'attrattore documentato),
+  `registra-decisione` (questa sezione), `vincolo-ip` (controllo IP) e
+  `pixel-adventure-assets` (generare pixel art, sprite e sfondi via Pillow).
+  L'ultima è generica e arriva da fuori: la sua sezione "Vincoli di AGGGA" è
+  quella che la lega a questo progetto, e va letta prima di disegnare
+- **Pillow non è installato nell'ambiente remoto**: `pip install pillow` prima di
+  generare qualunque immagine, come si fa già con `gdtoolkit`
 - **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
   `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
   sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni
