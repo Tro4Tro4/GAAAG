@@ -45,9 +45,21 @@ extends Resource
 ## mark on the world: a hotspot elsewhere can be waiting on the same name.
 @export var raises: PackedStringArray = PackedStringArray()
 
+## Switches turned on and off by choosing this. Flags record that something
+## happened; these are for what can go back the way it came, and a conversation
+## can move both — refusing it would have meant a conversation that can lock a
+## door but not unlock it.
+@export var switches_on: PackedStringArray = PackedStringArray()
+@export var switches_off: PackedStringArray = PackedStringArray()
+
 ## Handed to whoever is doing the talking. Null for the ordinary option that
 ## only says something.
 @export var gives: InventoryItem = null
+
+## Taken off them. The other half of [member gives], and the reason both exist
+## is that handing something over is half of what conversations in this genre
+## are for.
+@export var takes: InventoryItem = null
 
 ## Whether the conversation is over once the reply has been said. A line that
 ## offers nothing the player can currently say ends by itself, so this is only

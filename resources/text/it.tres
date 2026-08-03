@@ -53,6 +53,8 @@ entries = {
 "ROOM_HALL_DISPENSER": "Distributore",
 "ROOM_HALL_DISPENSER_ACT": "Premi i pulsanti uno dopo l'altro. La macchina ronza, si spegne, si riaccende e torna come prima.",
 "ROOM_HALL_DISPENSER_HAND": "Premi un pulsante a caso. La macchina si illumina, ronza, e ti restituisce il pulsante.",
+"ROOM_HALL_DISPENSER_LOOK_ANNOYED": "Il distributore è acceso e non fa niente. Da qui sembra un modo di stare fermi molto attivo.",
+"SEQ_DISPENSER_END": "La macchina si spegne. Poi si riaccende, e adesso ronza a una nota più alta.",
 "ROOM_HALL_DISPENSER_LOOK": "Un distributore automatico. Sette pulsanti, tutti con la stessa etichetta illeggibile.",
 "ROOM_HALL_DISPENSER_TAKEN": "Gli altri sei pulsanti restano al loro posto. Sembrano più uniti di prima.",
 "ROOM_HALL_DOOR": "Porta",

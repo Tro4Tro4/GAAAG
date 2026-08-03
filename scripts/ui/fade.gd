@@ -30,6 +30,18 @@ func is_fading() -> bool:
 	return _tween != null and _tween.is_valid()
 
 
+## Stands in the way without being seen: still transparent, but visible, which
+## is what makes it eat clicks. This is how a scripted scene stops the player
+## half-cancelling it — the same trick the panels use, with nothing drawn.
+func block() -> void:
+	visible = true
+
+
+func unblock() -> void:
+	if not is_fading():
+		visible = false
+
+
 ## Goes to black, calls [param action], and comes back.
 ##
 ## The action runs in a tween callback, which is idle time — the same reason

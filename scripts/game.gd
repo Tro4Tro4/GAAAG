@@ -61,6 +61,7 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _fade: Fade = $UI/Fade
 @onready var _camera: GameCamera = $Camera
 @onready var _audio: AudioDirector = $Audio
+@onready var _sequence: SequenceRunner = $Sequence
 
 # The conversation going on, if any. A plain object rather than a node: it has
 # nothing to draw, and one of them serves every conversation in the game.
@@ -97,6 +98,13 @@ func _ready() -> void:
 	_dialogue.offered.connect(_dialogue_panel.show_options)
 	_dialogue.finished.connect(_on_dialogue_finished)
 	_dialogue_panel.option_selected.connect(_dialogue.choose)
+
+	# The runner is told where to ask how long a line takes to read, so a scene
+	# keeps pace with the reading speed rather than with a number in its code.
+	_sequence.caption = _caption
+	_sequence.wants_to_say.connect(_caption.show_text)
+	_sequence.wants_to_play.connect(_audio.play_sound)
+	_sequence.finished.connect(_on_sequence_finished)
 
 	_menu_button.pressed.connect(_on_menu_button_pressed)
 	_menu_panel.action_chosen.connect(_on_menu_action)
@@ -233,6 +241,7 @@ func _swap_room_to(room_path: String) -> void:
 	_room.held_item_released.connect(_release_held_item)
 	_room.wants_to_talk.connect(_on_wants_to_talk)
 	_room.wants_to_play.connect(_audio.play_sound)
+	_room.wants_to_run.connect(_on_wants_to_run)
 
 	_room_container.add_child(_room)
 
@@ -254,6 +263,22 @@ func _place_characters() -> void:
 		var entry: StringName = character.consume_pending_entry()
 		if entry != &"":
 			character.place_at(_room.get_entry_position(entry))
+
+
+## Hands a scene over to the runner, with everything out of its way.
+##
+## The screen is blocked rather than the systems switched off one by one — the
+## same trick the panels use, except that nothing is drawn. A scene that could
+## be half-cancelled by a tap in the middle would be worse than no scene.
+func _on_wants_to_run(sequence: Sequence, character: PlayerCharacter) -> void:
+	_set_ordinary_ui_visible(false)
+	_fade.block()
+	_sequence.run(sequence, character, _room)
+
+
+func _on_sequence_finished() -> void:
+	_fade.unblock()
+	_set_ordinary_ui_visible(true)
 
 
 func _on_wants_to_talk(dialogue: Dialogue, character: PlayerCharacter) -> void:

@@ -71,8 +71,20 @@ func choose(index: int) -> void:
 	for flag in option.raises:
 		GameState.raise_flag(StringName(flag))
 
-	if option.gives != null and _character != null:
-		_character.take(option.gives)
+	for switch in option.switches_on:
+		GameState.set_switch(StringName(switch), true)
+
+	for switch in option.switches_off:
+		GameState.set_switch(StringName(switch), false)
+
+	if _character != null:
+		# Taken before given, so that an option which swaps one thing for
+		# another cannot briefly leave somebody holding both.
+		if option.takes != null:
+			_character.give_up(option.takes)
+
+		if option.gives != null:
+			_character.take(option.gives)
 
 	if option.ends:
 		_say(option.reply)

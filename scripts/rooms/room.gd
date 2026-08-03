@@ -33,6 +33,10 @@ signal held_item_released
 ## the caption: it reports that one is due and Game sees to it.
 signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
 
+## Emitted when a hotspot has set off a scene. As with everything else the room
+## reports, it does not run it: what runs a scene outlives the room.
+signal wants_to_run(sequence: Sequence, character: PlayerCharacter)
+
 ## Emitted when something in the room has made a noise. Reported rather than
 ## played, for the reason the room reports what it wants said: the thing that
 ## makes noises outlives the room, and the room has never been allowed to know
@@ -281,6 +285,13 @@ func _on_destination_reached() -> void:
 		# still an attempt that is over, and leaving it in hand would make the
 		# next tap anywhere try the same thing again.
 		held_item_released.emit()
+		return
+
+	# A scene replaces the line too, and for the same reason a conversation does:
+	# what the hotspot has to say is inside it.
+	if _pending_verb == hotspot.sequence_verb and hotspot.sequence != null:
+		hotspot.interact(_pending_verb, _character)
+		wants_to_run.emit(hotspot.sequence, _character)
 		return
 
 	# A conversation replaces the line the hotspot would otherwise have said:

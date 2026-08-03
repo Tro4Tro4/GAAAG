@@ -148,6 +148,20 @@ const ITEM_REFUSAL: String = "GENERIC_ITEM_REFUSAL"
 ## file, not a script.
 @export var sound: AudioStream = null
 
+@export_group("Scene")
+
+## A short scene this hotspot sets off, instead of saying a line.
+##
+## Data again, and next to the conversation for the same reason: something that
+## puts on a show has no special behaviour, it has a script in the theatrical
+## sense rather than the programming one.
+@export var sequence: Sequence = null
+
+## Which verb sets it off. Left at NONE the scene never plays, which is what
+## almost every hotspot wants — a sequence that ran on every verb would go off
+## when somebody merely looked.
+@export var sequence_verb: Verb = Verb.NONE
+
 @export_group("Conversation")
 
 ## What TALK starts. Data on the ordinary hotspot rather than a TalkHotspot with

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://baggagame00001"]
+[gd_scene load_steps=18 format=3 uid="uid://baggagame00001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://baggaplayer001" path="res://scenes/characters/Player.tscn" id="2_player"]
@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/ui/fade.gd" id="13_fade"]
 [ext_resource type="Script" path="res://scripts/game_camera.gd" id="14_camera"]
 [ext_resource type="Script" path="res://scripts/audio_director.gd" id="15_audio"]
+[ext_resource type="Script" path="res://scripts/sequence/sequence_runner.gd" id="17_sequence"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="16_click"]
 
 [node name="Game" type="Node2D"]
@@ -41,6 +42,9 @@ position = Vector2(240, 190)
 display_name = "CHAR_PLAYER2"
 body_color = Color(0.35, 0.62, 0.85, 1)
 current_room = "res://scenes/rooms/Hallway.tscn"
+
+[node name="Sequence" type="Node" parent="."]
+script = ExtResource("17_sequence")
 
 [node name="Audio" type="Node" parent="."]
 script = ExtResource("15_audio")

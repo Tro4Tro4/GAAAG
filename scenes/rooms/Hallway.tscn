@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://baggacorrid001"]
+[gd_scene load_steps=21 format=3 uid="uid://baggacorrid001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -12,6 +12,8 @@
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
 [ext_resource type="AudioStream" path="res://assets/audio/chime.wav" id="12_chime"]
+[ext_resource type="Resource" uid="uid://baggaseqdisp01" path="res://resources/sequences/dispenser.tres" id="13_dispenser_scene"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="14_variant"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
@@ -30,6 +32,11 @@ size = Vector2(50, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
 size = Vector2(20, 30)
+
+[sub_resource type="Resource" id="Resource_dispenser_annoyed"]
+script = ExtResource("14_variant")
+conditions = PackedStringArray("dispenser_annoyed")
+look_text = "ROOM_HALL_DISPENSER_LOOK_ANNOYED"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_clerk"]
 size = Vector2(16, 34)
@@ -89,6 +96,12 @@ position = Vector2(44, 112)
 [node name="FromLongHall" type="Marker2D" parent="EntryPoints"]
 position = Vector2(350, 112)
 
+[node name="DispenserBack" type="Marker2D" parent="EntryPoints"]
+position = Vector2(280, 180)
+
+[node name="DispenserFront" type="Marker2D" parent="EntryPoints"]
+position = Vector2(280, 110)
+
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(44, 68)
 script = ExtResource("3_door")
@@ -115,6 +128,9 @@ position = Vector2(280, 70)
 script = ExtResource("4_pickup")
 display_name = "ROOM_HALL_DISPENSER"
 sound = ExtResource("12_chime")
+variants = Array[ExtResource("14_variant")]([SubResource("Resource_dispenser_annoyed")])
+sequence = ExtResource("13_dispenser_scene")
+sequence_verb = 3
 hand_verb = 2
 act_verb = 3
 look_text = "ROOM_HALL_DISPENSER_LOOK"

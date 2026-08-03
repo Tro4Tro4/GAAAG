@@ -53,6 +53,8 @@ entries = {
 "ROOM_HALL_DISPENSER": "Vending machine",
 "ROOM_HALL_DISPENSER_ACT": "You press the buttons one after another. The machine hums, goes out, comes back on and is exactly as it was.",
 "ROOM_HALL_DISPENSER_HAND": "You press a button at random. The machine lights up, hums, and gives you the button back.",
+"ROOM_HALL_DISPENSER_LOOK_ANNOYED": "The machine is on and doing nothing. From here it looks like a very active way of standing still.",
+"SEQ_DISPENSER_END": "The machine goes out. Then it comes back on, humming a note higher than before.",
 "ROOM_HALL_DISPENSER_LOOK": "A vending machine. Seven buttons, all with the same unreadable label.",
 "ROOM_HALL_DISPENSER_TAKEN": "The other six buttons stay where they are. They look closer together than before.",
 "ROOM_HALL_DOOR": "Door",

@@ -79,7 +79,7 @@ func fade() -> void:
 
 
 func _fade_out() -> void:
-	var timer: SceneTreeTimer = get_tree().create_timer(_seconds_for(text))
+	var timer: SceneTreeTimer = get_tree().create_timer(seconds_for(text))
 	_current_timer = timer
 
 	await timer.timeout
@@ -91,5 +91,11 @@ func _fade_out() -> void:
 		text = ""
 
 
-func _seconds_for(line: String) -> float:
-	return maxf(minimum_seconds, line.length() * seconds_per_character)
+## How long [param line] would be left on screen. Public because a scripted
+## scene has to hold a line for as long as this would, and guessing a number
+## would mean a scene that runs ahead of a slow reader — or drags for a fast
+## one — the moment the reading speed becomes a setting.
+##
+## Translated first: what is measured has to be the sentence, not the key.
+func seconds_for(line: String) -> float:
+	return maxf(minimum_seconds, tr(line).length() * seconds_per_character)
