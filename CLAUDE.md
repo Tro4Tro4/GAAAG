@@ -2215,17 +2215,37 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **Quattro varianti per superficie, e mai due volte la stessa di fila.** Un
     file solo ripetuto quattro volte al secondo è il segno più udibile dell'audio
     fatto in casa: l'orecchio si aggancia alla ripetizione in due passi e smette
-    di sentire una persona che cammina. Ogni variante ha il proprio seme e non
-    solo il proprio guadagno — misurato, gli RMS vanno da −26,0 a −28,1 dB, quindi
-    sono davvero suoni diversi. E la scelta casuale pura ripeterebbe un quarto
-    delle volte, che è esattamente la cosa da evitare, quindi una collisione viene
-    spinta sulla variante successiva.
-  - **Il livello è forzato a −12 dB**, contro i −3 che la categoria dà a un
-    effetto. È giusto per qualcosa che accade una volta e sbagliato per il suono
-    che il gioco fa di più: allo stesso picco, attraversare l'atrio è più forte
-    che risolvere l'enigma. È il secondo caso in cui il bersaglio della categoria
-    va contro l'uso, dopo il tonfo lontano — e sono entrambi casi di **distanza o
-    frequenza**, non di gusto.
+    di sentire una persona che cammina. E la scelta casuale pura ripeterebbe un
+    quarto delle volte, quindi una collisione viene spinta sulla variante
+    successiva.
+  - **La variazione di livello fra le varianti non può stare nell'audio**, ed è una
+    trappola nella ricetta della skill che si vede solo misurando: la libreria
+    normalizza ogni file al picco della categoria, quindi un guadagno applicato
+    all'array viene riscalato via. Con il livello scritto dentro, le quattro
+    varianti di pietra sono uscite a −30,6 / −30,7 / −30,7 / −30,7 dB di RMS, cioè
+    un suono solo quattro volte. La differenza di livello va chiesta **al
+    normalizzatore**, un bersaglio di picco per variante. Quello che sopravvive
+    dentro l'audio sono altezza e durata.
+  - **Il livello è forzato quasi venti decibel sotto il clak**, contro i −3 che la
+    categoria dà a un effetto. È giusto per qualcosa che accade una volta e
+    sbagliato per il suono che il gioco fa di più: allo stesso picco, attraversare
+    l'atrio è più forte che risolvere l'enigma. È il secondo caso in cui il
+    bersaglio della categoria va contro l'uso, dopo il tonfo lontano — e sono
+    entrambi casi di **distanza o frequenza**, non di gusto.
+  - **"Più morbido" sono quattro cose, non il volume**, e l'ho imparato perché la
+    prima versione è tornata dal dispositivo come "troppo forte e troppo
+    incisiva". Misurato sulla variante di legno, prima e dopo: picco da −12 a −17,
+    energia sopra i 2 kHz dal **14,6% al 2,1%**, centroide spettrale da **925 a
+    335 Hz**, attacco da istantaneo a 9 ms. Il livello era la metà facile; le
+    altre tre sono ciò che "incisivo" significava — il tetto della banda di rumore,
+    dove vive il ticchettio di una suola dura; l'attacco, perché un inviluppo di
+    decadimento è al massimo già al primo campione e quello scalino **è** un clic;
+    e la saturazione della catena lo-fi, che fabbrica proprio le armoniche che si
+    leggono come mordente.
+  - **Morbido non è spento**, e la distanza fra i due è circa un'ottava di
+    centroide. Portandolo fino in fondo — banda a 900, taglio a 4200 — il centroide
+    scende a 156 Hz e il passo smette di essere un passo: a quattro e mezzo al
+    secondo una serie di tonfi a 150 Hz è un rimbombo, non qualcuno che cammina.
   - Due superfici perché il prototipo ha due pavimenti: legno nell'atrio, che è
     disegnato a listoni, e pietra nel corridoio e nella postazione, che sono
     lastre. La superficie la dice il disegno, non la scena.

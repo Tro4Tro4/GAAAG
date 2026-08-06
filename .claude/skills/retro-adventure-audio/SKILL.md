@@ -94,6 +94,20 @@ registrate in `CLAUDE.md`. Queste sono quelle che la restringono.
   `hum_high.wav`, e i loro percorsi sono scritti dentro le scene. Adottare
   `<categoria>_<nome>.wav` è giusto, ma **rinominare vuol dire modificare le
   scene nello stesso commit**, o il gioco resta muto senza dire perché.
+- **La variazione di livello fra varianti non sopravvive a `Batch`.** La ricetta
+  dei passi in `references/recipes.md` finisce con `* (0.85 + 0.15 * (variant % 3))`,
+  ma `Batch.add` normalizza ogni file al picco della categoria, quindi quel guadagno
+  viene riscalato via. Verificato: con il livello scritto nell'array, quattro
+  varianti di passo su pietra escono a −30,6 / −30,7 / −30,7 / −30,7 dB di RMS.
+  Quello che sopravvive alla normalizzazione è **altezza, durata e timbro**; per il
+  livello si passa un `peak_db` diverso per variante.
+- **"Più morbido" non è il volume.** Sono quattro parametri: il tetto della banda
+  di rumore, l'attacco dell'inviluppo (un `decay` è al massimo già al primo
+  campione, e quello scalino si sente come un clic — vuole 8-10 ms di salita), il
+  `drive` della catena lo-fi che fabbrica le armoniche del mordente, e solo per
+  ultimo il picco. Le due misure che dicono se ci sei arrivato sono la quota di
+  energia sopra i 2 kHz e il centroide spettrale. E attenzione a non esagerare:
+  sotto i 200 Hz di centroide un passo smette di essere un passo.
 - **`vox` non ha un posto nel gioco.** La voce del gioco è la `Caption`, e non
   c'è nessun sistema che sincronizzi un suono con una battuta. La voce finta
   stile LucasArts è una bella idea ma è una decisione di design da prendere,

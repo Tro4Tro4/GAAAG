@@ -126,29 +126,83 @@ SURFACES = {
     # band: where the scuff of the sole lives. tau: how fast it dies -- wood
     # rings on a little, stone stops. thump: the mass of the person landing.
     # ring: the resonance of the floor itself, which stone does not have.
-    "wood":  dict(band=(150, 2200), tau=0.070, thump=110, ring=230),
-    "stone": dict(band=(180, 2600), tau=0.045, thump=95, ring=None),
+    #
+    # The bands stop far lower than a first version had them -- 1400 and 1600
+    # instead of 2200 and 2600 -- because reported from the device the steps came
+    # out too loud and too sharp. See _soft() for the whole of what that meant.
+    "wood":  dict(band=(120, 1400), tau=0.075, thump=104, ring=210),
+    "stone": dict(band=(140, 1600), tau=0.050, thump=92, ring=None),
 }
+
+# What "softer" turned out to be, and it was four separate things, not a volume
+# knob. Measured on the wood variant, before and after:
+#
+#                       loud & sharp      soft
+#   peak                -12 dB            -17 dB
+#   energy above 2 kHz  14.6 %            2.1 %
+#   spectral centroid   925 Hz            328 Hz
+#   attack              instant           9 ms
+#
+# The level was the easy half. The other three are what "incisive" meant:
+#
+# * the top of the noise band, which is where the tack of a hard sole lives;
+# * the attack. A decay envelope starts at full amplitude on its first sample,
+#   and that step *is* a click -- nine milliseconds of rise removes it without
+#   making the step feel late;
+# * the drive in the lo-fi chain, because saturation manufactures the very
+#   harmonics that read as bite.
+#
+# And a warning found by overshooting: taken all the way down -- band at 900,
+# cutoff at 4200 -- the centroid falls to 156 Hz and the step stops being a step.
+# At four and a half a second a series of 150 Hz thumps is a rumble, not somebody
+# walking. Soft is not the same as dull, and the distance between the two is
+# about one octave of centroid.
+
+
+# How much each variant is nudged, and one of these is not where you would
+# expect. Level variation cannot live inside the audio: Batch normalises every
+# file to the category's peak, so a gain applied to the array is scaled straight
+# back out again. It was measured -- with the level baked in, the four stone
+# variants came out at -30.6, -30.7, -30.7 and -30.7 dB RMS, which is one sound
+# four times, which is the exact thing variants exist to avoid. So the level
+# difference is asked of the *normaliser* instead, one peak target per variant.
+#
+# The pitch and length nudges do survive normalisation, and they matter more here
+# than they did in the loud version: with the band heavily lowpassed there is far
+# less noise left to tell the variants apart on its own.
+STEP_PITCH = (0.91, 0.97, 1.03, 1.09)          # +/- 9% on band and thump
+STEP_LENGTH = (1.00, 1.16, 0.92, 1.08)         # how long each one takes to die
+STEP_PEAK = (-17.8, -16.6, -17.3, -16.9)       # +/- 0.6 dB, which normalising keeps
 
 
 def footstep(surface, variant):
     p = SURFACES[surface]
     ra.seed(4000 + variant + (100 if surface == "wood" else 0))
-    jitter = 1.0 + (variant - 2) * 0.05
-    dur = p["tau"] * 4
+    jitter = STEP_PITCH[variant - 1]
+    tau = p["tau"] * STEP_LENGTH[variant - 1]
+    dur = tau * 4
 
     # The scuff: filtered noise under a fast decay. On its own this is a "tss",
     # which is why the thump underneath it is what makes it a footfall.
     s = ra.bandpass(ra.noise(dur, "white"), p["band"][0] * jitter, p["band"][1])
-    s *= ra.decay(dur, p["tau"])
+
+    # An ADSR and not a decay, for the attack alone: a decay envelope is at full
+    # amplitude on its first sample, and that vertical step is heard as a click on
+    # top of the sound. The release is long relative to the decay so the step
+    # tails off instead of stopping.
+    s *= ra.adsr(dur, a=0.009, d=tau, s=0.18, r=tau * 1.6)
 
     if p["thump"]:
+        # Louder relative to the scuff than it was: in a soft footfall the mass
+        # of the person is the body of the sound and the scuff is only its edge.
         s = ra.mix(s, ra.sine((p["thump"] * jitter, p["thump"] * 0.6), 0.12)
-                   * ra.decay(0.12, 0.03), gains=[1.0, 0.5])
+                   * ra.decay(0.12, 0.03), gains=[1.0, 0.80])
     if p["ring"]:
-        s = ra.mix(s, ra.resonator(s, p["ring"] * jitter, q=16) * 0.4)
+        # Lower Q and less of it: at q=16 the board answered with a note, which
+        # is charming once and a bell after four seconds of walking.
+        s = ra.mix(s, ra.resonator(s, p["ring"] * jitter, q=9) * 0.20)
 
-    return s * (0.85 + 0.15 * (variant % 3))
+    return s
 
 
 if __name__ == "__main__":
@@ -171,15 +225,20 @@ if __name__ == "__main__":
           note="the capsule arriving at the far end, heard through a wall",
           cutoff=6000, bits=11, drive=1.3, peak_db=-8.0)
 
-    # Twelve decibels under the clack, and forced there. The category targets -3
-    # like any effect, which is right for something that happens once and wrong
+    # Seventeen decibels under the clack, and forced there. The category targets
+    # -3 like any effect, which is right for something that happens once and wrong
     # for the sound the game makes most: at the same peak, walking across the
-    # lobby is louder than solving the puzzle. A footstep is the most frequent
-    # and least informative sound in the game and it has to sit under everything.
+    # lobby is louder than solving the puzzle. A footstep is the most frequent and
+    # least informative sound in the game and it has to sit under everything.
+    #
+    # The cutoff and the drive are the low end of the house range rather than the
+    # high end, which is the opposite of what an interaction SFX gets: a mechanism
+    # has to cut through, a footstep has to disappear into the floor.
     for surface in SURFACES:
         for variant in range(1, 5):
             b.add("step", f"{surface}_{variant:02d}", footstep(surface, variant),
-                  note=f"footfall on {surface}, variant {variant} of 4",
-                  cutoff=7600, bits=11, drive=1.4, peak_db=-12.0)
+                  note=f"soft footfall on {surface}, variant {variant} of 4",
+                  cutoff=5200, bits=11, drive=1.10,
+                  peak_db=STEP_PEAK[variant - 1])
 
     b.finish()
