@@ -41,8 +41,14 @@ size = Vector2(24, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_capsule"]
 size = Vector2(20, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe"]
-size = Vector2(583, 53)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe_left"]
+size = Vector2(166, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe_middle"]
+size = Vector2(184, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe_right"]
+size = Vector2(128, 48)
 
 [sub_resource type="Resource" id="Resource_tubes_door_open"]
 script = ExtResource("6_variant")
@@ -81,18 +87,27 @@ position = Vector2(100, 133)
 position = Vector2(83, 128)
 
 [node name="PipeHotspot" type="Area2D" parent="."]
-position = Vector2(320, 52)
+position = Vector2(320, 50)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_TUBES_PIPE"
 act_verb = 3
 look_text = "PROTO_TUBES_PIPE_LOOK"
 act_text = "PROTO_TUBES_PIPE_ACT"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PipeHotspot"]
-shape = SubResource("RectangleShape2D_pipe")
+[node name="Left" type="CollisionShape2D" parent="PipeHotspot"]
+position = Vector2(-171, 0)
+shape = SubResource("RectangleShape2D_pipe_left")
+
+[node name="Middle" type="CollisionShape2D" parent="PipeHotspot"]
+position = Vector2(40, 0)
+shape = SubResource("RectangleShape2D_pipe_middle")
+
+[node name="Right" type="CollisionShape2D" parent="PipeHotspot"]
+position = Vector2(228, 0)
+shape = SubResource("RectangleShape2D_pipe_right")
 
 [node name="ApproachPoint" type="Marker2D" parent="PipeHotspot"]
-position = Vector2(0, 66)
+position = Vector2(0, 68)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(50, 90)
@@ -166,7 +181,7 @@ shape = SubResource("RectangleShape2D_plate")
 position = Vector2(0, 35)
 
 [node name="PublicPointHotspot" type="Area2D" parent="."]
-position = Vector2(467, 65)
+position = Vector2(467, 88)
 script = ExtResource("5_passage")
 display_name = "PROTO_TUBES_POINT"
 sound = ExtResource("11_click")
@@ -184,7 +199,7 @@ texture = ExtResource("17_point")
 shape = SubResource("RectangleShape2D_point")
 
 [node name="ApproachPoint" type="Marker2D" parent="PublicPointHotspot"]
-position = Vector2(0, 53)
+position = Vector2(-20, 30)
 
 [node name="CapsuleHotspot" type="Area2D" parent="."]
 position = Vector2(467, 162)
@@ -206,4 +221,4 @@ position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_capsule")
 
 [node name="ApproachPoint" type="Marker2D" parent="CapsuleHotspot"]
-position = Vector2(0, 6)
+position = Vector2(-20, 6)

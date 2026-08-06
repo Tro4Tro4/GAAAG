@@ -18,7 +18,7 @@ dictated by Tubes.tscn, whose hotspots are verified against its navigation mesh:
     the pneumatic tube  centred on y=52, thick enough to fill y 26..78
     porthole            x 236..264, y 49..77   -- left plain, a sprite covers it
     plate               x 234..266, y 77..89   -- left plain
-    posting point       x 455..479, y 49..81   -- left plain
+    posting point       x 455..479, y 72..104  -- left plain, hangs off the tube
 
 Drawing anything into those three windows would be a collision the background
 cannot see coming, the same rule the lobby's fuse box had to obey.
@@ -68,7 +68,7 @@ LAMPS = (96, 320, 544)
 # showing around each round sprite, which read as a border stuck on the picture.
 # The rule from CLAUDE.md is about a painted fixture hiding behind a sprite, not
 # about the surface the sprite is bolted to. x0, y0, x1, y1.
-KEEP_CLEAR = ((234, 47, 266, 91), (453, 47, 481, 83))
+KEEP_CLEAR = ((234, 47, 266, 91), (453, 70, 481, 106))
 
 rng = np.random.default_rng(4711)
 

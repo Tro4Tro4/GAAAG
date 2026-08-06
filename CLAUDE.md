@@ -1349,10 +1349,20 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     Il controllo che la verifica in un colpo solo è la distanza fra le mani e il
     bordo basso dell'oggetto: dentro ±10 va bene, oltre significa che il
     personaggio parla a un oggetto che non tocca.
-  - **Il personaggio che copre in parte quello che usa non è un difetto**, ed è
-    la ragione per cui la regola non scappa di lato: nei LucasArts ci si mette
-    davanti alle cose, l'informazione sta nella caption, e uno spostamento
-    laterale per non coprire l'oggetto si legge come rivolgersi altrove.
+  - **Il personaggio che copre in parte quello che usa non è un difetto**: nei
+    LucasArts ci si mette davanti alle cose, l'informazione sta nella caption, e
+    uno spostamento laterale per non coprire l'oggetto si legge come rivolgersi
+    altrove. Ma "in parte" ha una soglia, e si misura: la quota dell'oggetto che
+    il corpo (17×40) copre stando al punto di avvicinamento. **Sopra il 50% si
+    sposta di lato, sotto no.** Misurati i quattordici hotspot del prototipo,
+    dodici stanno fra 0 e 49% e due sforavano — il punto d'imbuco del corridoio
+    al 58% e la capsula all'85%, che sparivano dietro chi li usa. Quei due hanno
+    un offset orizzontale di venti unità, gli altri no.
+  - Ne segue una nota sull'ordine in cui si lavora: **abbassare un oggetto
+    all'altezza di una mano lo mette all'altezza del corpo**, quindi la
+    correzione della portata e quella dell'occlusione vanno fatte insieme. Il
+    punto d'imbuco è passato dal non essere raggiungibile al non essere visibile
+    nello stesso commit, e l'ho scoperto solo guardando il render.
   - Scartate le altre due opzioni che erano in elenco: il punto calpestabile più
     vicino all'oggetto (niente controllo su dove ci si ferma, e la navmesh non
     sa cosa sia "davanti") e il raggio entro cui non si cammina affatto (rende
