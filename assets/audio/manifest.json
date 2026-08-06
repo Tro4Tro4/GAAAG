@@ -11,6 +11,17 @@
       "peak_db": -3.000000000003112,
       "rms_db": -26.127930550721608,
       "channels": 1
+    },
+    {
+      "file": "sfx_capsule_land_far.wav",
+      "category": "sfx",
+      "name": "capsule_land_far",
+      "loop": false,
+      "note": "the capsule arriving at the far end, heard through a wall",
+      "dur": 0.8499773242630385,
+      "peak_db": -7.999999999990459,
+      "rms_db": -22.31645227234023,
+      "channels": 1
     }
   ]
 }

@@ -2136,6 +2136,22 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     transiente largo più due risonatori, 235 Hz la piastra e 1180 Hz il perno — e
     il molleggio che riprende il gioco dietro la tacca. Senza il primo sembra un
     martello, senza il terzo sembra una porta.
+  - **Due suoni e non uno: il clak è la leva, il tonfo è la capsula che arriva**,
+    e il secondo lo dettava già il testo — `SEQ_LEVER_END` dice *"poi silenzio, e
+    un tonfo lontano dalla parte dell'atrio"*. Sta fra l'attesa e quella battuta:
+    l'attesa è il silenzio, il suono arriva, la battuta lo descrive mentre ancora
+    risuona.
+  - **Quello che va sintetizzato in un tonfo lontano non è il tonfo, è la
+    distanza**, e la distanza è quasi tutta assenza di acuti più una coda. Un muro
+    e quaranta metri di corridoio si mangiano il transiente — che è lo schiocco —
+    e lasciano il corpo, che è la massa. Misurato: la leva ha il **62%**
+    dell'energia sopra i 3 kHz, il tonfo lo **0,0%**. Costruito vicino e poi
+    filtrato, non costruito piano: un tonfo vicino e piano suona piccolo, non
+    lontano.
+  - **E lontano vuol dire anche più piano**: è l'unico caso in cui il bersaglio di
+    livello della categoria (−3 dB di picco per un effetto d'interazione) va
+    contro quello che il suono deve fare, quindi è forzato a −8. Allo stesso picco
+    del clak arrivava come una porta sbattuta nella stanza accanto.
   - **La coda del riverbero si taglia a mano.** `ra.reverb` accoda una coda della
     propria lunghezza a prescindere da quanto è corta la sorgente, quindi un clak
     di 200 ms usciva come un file di 1,14 s — una leva che risuona mentre si legge

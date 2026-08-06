@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="Sequence" load_steps=10 format=3 uid="uid://baggaseqleve01"]
+[gd_resource type="Resource" script_class="Sequence" load_steps=14 format=3 uid="uid://baggaseqleve01"]
 
 [ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
 [ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx_lever_throw.wav" id="3_clack"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="4_rumble"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx_capsule_land_far.wav" id="5_thud"]
 
 [sub_resource type="Resource" id="Step_pull"]
 script = ExtResource("2_step")
@@ -25,6 +26,11 @@ script = ExtResource("2_step")
 kind = 4
 sound = ExtResource("4_rumble")
 
+[sub_resource type="Resource" id="Step_thud"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("5_thud")
+
 [sub_resource type="Resource" id="Step_wait"]
 script = ExtResource("2_step")
 kind = 1
@@ -42,4 +48,4 @@ name = &"line_reversed"
 
 [resource]
 script = ExtResource("1_sequence")
-steps = Array[ExtResource("2_step")]([SubResource("Step_pull"), SubResource("Step_clack"), SubResource("Step_flag"), SubResource("Step_rumble_sound"), SubResource("Step_rumble_say"), SubResource("Step_wait"), SubResource("Step_end_say")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_pull"), SubResource("Step_clack"), SubResource("Step_flag"), SubResource("Step_rumble_sound"), SubResource("Step_rumble_say"), SubResource("Step_wait"), SubResource("Step_thud"), SubResource("Step_end_say")])

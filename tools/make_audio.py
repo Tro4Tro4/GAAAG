@@ -83,6 +83,36 @@ def lever_throw():
     return ra.fade(wet[:keep], fin=0.0, fout=0.07)
 
 
+def capsule_land_far():
+    """The capsule arriving at the far end: a thud heard through a wall.
+
+    The text dictates this one -- SEQ_LEVER_END is "poi silenzio, e un tonfo
+    lontano dalla parte dell'atrio" -- so what has to be synthesised is not a
+    thud but *distance*. Distance is almost entirely the absence of high
+    frequencies and the presence of a tail: a wall and forty metres of corridor
+    eat the transient, which is the crack of the impact, and leave the body,
+    which is its mass. Built close and then filtered, rather than built quiet:
+    a quiet close thud sounds small, not far.
+    """
+    # The mass landing in a brass tray: a falling sub and a soft broadband body.
+    sub = ra.sine((96, 38), 0.45) * ra.decay(0.45, 0.11)
+    body = ra.lowpass(ra.noise(0.28, "brown"), (1200, 240)) * ra.decay(0.28, 0.06)
+    # It has come a long way and it is dented: it settles rather than stopping.
+    settle = ra.mix(*[
+        ra.offset(ra.lowpass(ra.noise(0.05, "brown"), 700)
+                  * ra.decay(0.05, 0.012) * g, s)
+        for g, s in ((0.30, 0.13), (0.18, 0.22), (0.10, 0.29))
+    ])
+    dry = ra.mix(sub, body, settle, gains=[1.0, 0.55, 0.5])
+
+    # The wall. One lowpass at 900 Hz is what turns this from "a thud" into "a
+    # thud somewhere else", and the long wet reverb is the corridor it crossed.
+    far = ra.lowpass(dry, 900)
+    wet = ra.reverb(far, room=0.72, mix=0.42)
+    keep = ra.n_samples(0.85)
+    return ra.fade(wet[:keep], fin=0.0, fout=0.16)
+
+
 if __name__ == "__main__":
     b = ra.Batch("assets/audio")
 
@@ -91,5 +121,16 @@ if __name__ == "__main__":
     b.add("sfx", "lever_throw", lever_throw(),
           note="industrial lever thrown into its notch: scrape, seat, spring",
           cutoff=8800, bits=11, drive=1.7)
+
+    # Longer and duller than the lever on purpose: it is far away, and the lo-fi
+    # chain must not brighten back what the wall took out.
+    # Longer, duller *and quieter* than the lever. The -3 dB the sfx category
+    # targets is right for something happening in front of you and wrong for
+    # something happening two rooms away: at the same peak as the clack this
+    # arrives like a door slamming next door, not like a thud down the corridor.
+    # It is the one case where the category default fights what the sound is for.
+    b.add("sfx", "capsule_land_far", capsule_land_far(),
+          note="the capsule arriving at the far end, heard through a wall",
+          cutoff=6000, bits=11, drive=1.3, peak_db=-8.0)
 
     b.finish()
