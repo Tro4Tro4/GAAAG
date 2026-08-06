@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://baggastation01"]
+[gd_scene load_steps=21 format=3 uid="uid://baggastation01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -9,6 +9,11 @@
 [ext_resource type="Resource" uid="uid://baggaseqleve01" path="res://resources/sequences/lever.tres" id="7_lever_scene"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_high.wav" id="8_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="9_click"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_station.png" id="20_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_console.png" id="21_console"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lever.png" id="22_lever"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_service_point.png" id="23_point"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_log.png" id="24_log"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)
@@ -42,25 +47,10 @@ depth_bottom_y = 172.0
 depth_top_scale = 0.8
 depth_bottom_scale = 1.1
 
-[node name="Wall" type="Polygon2D" parent="."]
-color = Color(0.12, 0.16, 0.16, 1)
-polygon = PackedVector2Array(0, 0, 320, 0, 320, 100, 0, 100)
-
-[node name="Floor" type="Polygon2D" parent="."]
-color = Color(0.21, 0.23, 0.23, 1)
-polygon = PackedVector2Array(0, 100, 320, 100, 320, 180, 0, 180)
-
-[node name="FloorEdge" type="Polygon2D" parent="."]
-color = Color(0.28, 0.3, 0.3, 1)
-polygon = PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)
-
-[node name="Skirting" type="Polygon2D" parent="."]
-color = Color(0.17, 0.2, 0.2, 1)
-polygon = PackedVector2Array(0, 94, 320, 94, 320, 100, 0, 100)
-
-[node name="Shelf" type="Polygon2D" parent="."]
-color = Color(0.36, 0.31, 0.26, 1)
-polygon = PackedVector2Array(223, 92, 280, 92, 280, 98, 223, 98)
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(0, 0)
+centered = false
+texture = ExtResource("20_bg")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -82,9 +72,8 @@ cache_id = &"tube"
 posted_text = "PROTO_STATION_POINT_POSTED"
 waiting_text = "PROTO_STATION_POINT_WAITING"
 
-[node name="Picture" type="Polygon2D" parent="ServicePointHotspot"]
-color = Color(0.76, 0.64, 0.3, 1)
-polygon = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
+[node name="Picture" type="Sprite2D" parent="ServicePointHotspot"]
+texture = ExtResource("23_point")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ServicePointHotspot"]
 shape = SubResource("RectangleShape2D_point")
@@ -101,17 +90,8 @@ default_verb = 6
 look_text = "PROTO_STATION_CONSOLE_LOOK"
 dialogue = ExtResource("6_console")
 
-[node name="Picture" type="Polygon2D" parent="ConsoleHotspot"]
-color = Color(0.3, 0.36, 0.38, 1)
-polygon = PackedVector2Array(-40, -40, 40, -40, 40, 40, -40, 40)
-
-[node name="Screen" type="Polygon2D" parent="ConsoleHotspot"]
-color = Color(0.35, 0.62, 0.5, 1)
-polygon = PackedVector2Array(-26, -30, 26, -30, 26, -4, -26, -4)
-
-[node name="Lamp" type="Polygon2D" parent="ConsoleHotspot"]
-color = Color(0.85, 0.28, 0.24, 1)
-polygon = PackedVector2Array(-6, 10, 6, 10, 6, 22, -6, 22)
+[node name="Picture" type="Sprite2D" parent="ConsoleHotspot"]
+texture = ExtResource("21_console")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ConsoleHotspot"]
 shape = SubResource("RectangleShape2D_console")
@@ -131,13 +111,9 @@ sequence = ExtResource("7_lever_scene")
 sequence_verb = 3
 sequence_if = PackedStringArray("complaint_logged", "!line_reversed")
 
-[node name="Picture" type="Polygon2D" parent="LeverHotspot"]
-color = Color(0.68, 0.6, 0.34, 1)
-polygon = PackedVector2Array(-4, -26, 4, -26, 4, 10, -4, 10)
-
-[node name="Knob" type="Polygon2D" parent="LeverHotspot"]
-color = Color(0.8, 0.35, 0.3, 1)
-polygon = PackedVector2Array(-8, -30, 8, -30, 8, -22, -8, -22)
+[node name="Picture" type="Sprite2D" parent="LeverHotspot"]
+position = Vector2(0, -8)
+texture = ExtResource("22_lever")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LeverHotspot"]
 position = Vector2(0, -8)
@@ -159,9 +135,9 @@ accepted_text = "PROTO_STATION_LOG_ACCEPTED"
 consumes_accepted_item = true
 accepted_flag = &"complaint_logged"
 
-[node name="Picture" type="Polygon2D" parent="LogHotspot"]
-color = Color(0.62, 0.5, 0.4, 1)
-polygon = PackedVector2Array(-18, -10, 18, -10, 18, 4, -18, 4)
+[node name="Picture" type="Sprite2D" parent="LogHotspot"]
+position = Vector2(0, -3)
+texture = ExtResource("24_log")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LogHotspot"]
 position = Vector2(0, -3)

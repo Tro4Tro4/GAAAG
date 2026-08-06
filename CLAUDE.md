@@ -122,7 +122,9 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
 tools/               Script che producono asset, da eseguire dalla radice
   make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 320x180
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
-  make_tubes_pixel_background.py  Il corridoio, disegnato a 640x180
+  make_tubes_pixel_background.py    Il corridoio, disegnato a 640x180
+  make_station_pixel_background.py La postazione, disegnata a 320x180
+  make_station_props.py     Consolle, leva, sportello di servizio e registro
   make_lobby_background.py  Il vecchio sfondo dipinto dell'atrio, non piu' usato
   make_tubes_background.py  I due piani dipinti del corridoio, non piu' usati
   make_tubes_props.py       Oblo', targhetta, punto d'imbuco, capsula, battenti
@@ -130,8 +132,8 @@ tools/               Script che producono asset, da eseguire dalla radice
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
-                     stanza, a scala 1 e filtro Nearest: 320x180 l'atrio,
-                     640x180 il corridoio
+                     stanza, a scala 1 e filtro Nearest: 320x180 l'atrio e la
+                     postazione, 640x180 il corridoio
   ui/                Le sette icone dei verbi, in SVG
   audio/             Cinque suoni segnaposto generati da uno script
 ```
@@ -1979,6 +1981,45 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     regola "il dithering va ai bordi delle fasce" era già registrata: l'atrio
     semplicemente non la rispettava, e il confronto fra due stanze l'ha reso
     visibile come un'immagine sola non faceva.
+
+- **La postazione smette di essere un blockout**, ed è l'ultima stanza a farlo.
+  Aveva quattro `Polygon2D` piatti al posto di muro, pavimento, battiscopa e
+  mensola, e altri quattro al posto dei suoi oggetti. Adesso ha un fondale a
+  320×180 e quattro sprite; **non ha più nessun `Polygon2D`**, come il corridoio.
+  - **Ogni sprite è esattamente il rettangolo del poligono che sostituisce**, e
+    con l'unica eccezione della leva sta allo stesso offset. Non è pigrizia: le
+    geometrie degli hotspot sono già verificate contro la navmesh, quindi il modo
+    più sicuro di cambiare il disegno è non muovere niente altro.
+  - **L'eccezione è la leva, allargata da 16×40 a 20×44** per riempire la propria
+    forma di collisione invece di starci dentro. Disegnata più stretta si leggeva
+    come un graffio sul muro: una leva ha bisogno della sua piastra a settore per
+    essere una leva, e la piastra vuole tutta la larghezza che l'hotspot già
+    dichiara.
+  - **La tavolozza è quella del corridoio**, ed è una scelta di finzione oltre che
+    di colore: la postazione manovra la linea pneumatica, quindi è lo stesso
+    impianto, lo stesso acciaio, lo stesso ottone oliva. Il tubo entra dal muro di
+    sinistra e finisce nello sportello di servizio, così i due si leggono come una
+    cosa sola invece di due che stanno vicine.
+  - **L'ambra è l'unica nota calda della stanza, e viene spesa dove serve**: lo
+    schermo della consolle, la sua lampada, la spia della leva. In un ambiente
+    tutto freddo il caldo è il canale più rapido per dire dove si lavora — cioè
+    dove sta l'enigma. È la stessa logica dell'ocra nell'atrio, dove era l'unica
+    nota calda e veniva dai capelli di Lino.
+  - **La mensola resta dipinta nel fondale**, il registro no. Il criterio è quello
+    già registrato: la mensola non cambia mai e nessuno la tocca, il registro è un
+    hotspot e deve poter cambiare aspetto.
+  - **Lo schema della linea appeso al muro non ha lettere.** Nessuna scritta è
+    promettibile a questa dimensione, e quello che va letto sta nei testi
+    dell'hotspot; il quadro dà solo linee e spinotti, cioè dice *cosa* è la stanza
+    senza dover essere leggibile.
+  - Un guadagno che non era l'obiettivo: `bg_station.png` sta in **6 kB** e la
+    stanza ha 17 colori, quindi il prototipo intero — tre stanze, sedici prop,
+    otto icone, due fogli personaggio — pesa meno di uno solo dei vecchi sfondi
+    dipinti.
+  - Restano nel repository due generatori ormai morti, `make_lobby_background.py`
+    e `make_tubes_background.py`, che producevano gli sfondi dipinti. Non li
+    cancello per la stessa ragione per cui le tre stanze di prova sono ancora
+    lì: si cancellano quando vuoi.
 
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
