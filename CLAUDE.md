@@ -1686,6 +1686,61 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     senza cappello: serviva a non lasciare un personaggio disegnato e uno fatto di
     poligoni. Si ridisegna cambiando un dizionario, quando sarà descritto.
 
+- **Una sola skill grafica, con la verifica automatica degli asset dentro.**
+  Le skill grafiche erano due — `pixel-adventure-assets`, adattata al progetto, e
+  `pixelart-adventure`, aggiunta il 3 agosto e mai adattata — e portavano numeri
+  incompatibili: 640×360 contro 384×216, personaggio alto 72 px contro 40, celle
+  64×96 contro 24×44, palette master fissa contro tavolozza madre per stanza. Il
+  commit che aggiungeva la seconda lo diceva apertamente (*"la decisione sulla
+  risoluzione di base che questa specifica implica non è ancora presa"*), ma da
+  allora quella decisione è stata presa nella direzione opposta, e l'elenco delle
+  skill in fondo a questo file non l'ha mai nominata. Resta `pixel-adventure-assets`,
+  che eredita da quella rimossa i due strumenti che qui servono davvero.
+  Il motivo di consolidare invece di tenerle entrambe è che una skill si sceglie
+  da sola, in base alla propria `description`, e quella rimossa era scritta per
+  attivarsi anche sulle richieste generiche (*"fammi uno sfondo per il gioco"*).
+  Due skill in disaccordo sui numeri non sono ridondanza: sono un sorteggio, e
+  l'esito sbagliato produce asset inutilizzabili con notevole sicurezza di sé.
+  - **Tenerle entrambe e scegliere di volta in volta**: nessun lavoro, e la
+    seconda ha materiale di qualità — la quantizzazione in Oklab e il controllo
+    automatico non esistevano da questa parte. Scartata perché la scelta non la
+    fa chi conosce il progetto: la fa l'attivazione automatica, prima che
+    qualcuno legga i numeri.
+  - **Adattare `pixelart-adventure` al posto dell'altra**: i suoi script sono più
+    completi e ha 1000 righe di reference sul colore e sui materiali. Scartata
+    perché la sua specifica è un sistema coerente costruito su 640×360 e su una
+    palette fissa: adattarla voleva dire riscriverne le premesse e tenere le
+    conclusioni, cioè fidarsi di numeri che non discendono più da niente.
+  - **Cosa è stato salvato**: `pxlib.py` (Oklab, HSV, I/O palette) invariato;
+    `palette.py` ridotto a estrazione e swatch; `qa_check.py` riscritto sui
+    numeri del progetto. Scartati `pixelate.py` e `spritesheet.py`: il primo
+    converte un render in pixel art nativa, che è la pipeline che il progetto ha
+    già respinto per gli sfondi; il secondo è meno di quello che fa già
+    `tools/make_character_sheets.py`, che scrive il foglio **e** lo `SpriteFrames`
+    in un colpo solo. Le 1000 righe di reference restano in git.
+  - **`palette.py` non usa scikit-learn**: il k-means è venti righe di numpy. Una
+    dipendenza da centinaia di megabyte per un algoritmo di quella misura non si
+    installa su un telefono, che è la macchina dove le skill devono funzionare.
+  - **Le soglie sono misurate, non prese da una guida.** La distanza oltre la
+    quale un colore non appartiene più alla tavolozza della stanza è 0,16 in
+    Oklab perché sull'atrio gli asset già approvati arrivano al massimo a 0,129
+    (Lino) e dei colori volutamente estranei stanno a 0,23-0,27: la soglia sta nel
+    vuoto in mezzo. La prima soglia che avevo scritto a occhio era 0,10, e
+    **avrebbe bocciato Lino**. Va rimisurata se cambia lo sfondo di riferimento.
+  - **Tarare i controlli ha trovato due volte un difetto nel controllo e non
+    nell'asset**: il contorno scuro sta fuori dalla figura, quindi un corpo alto
+    40 misura 41 righe di pixel; e l'ombra di contatto è semitrasparente per
+    decisione registrata, non per sbaglio. Ne segue la regola scritta nella
+    skill: quando un controllo fallisce, prima si stabilisce **se ha ragione lo
+    strumento o l'asset**.
+  - Il controllo che vale più di tutti è **l'ancoraggio dei piedi**: in ogni cella
+    l'ultima riga di pixel opachi deve essere l'ultima riga della cella, o il
+    personaggio sobbalza a ogni passo. È un difetto che nel PNG fermo non si vede
+    e in gioco non si smette di vedere.
+  - Nota: da rivedere se il progetto adottasse una palette fissa di gioco invece
+    di una tavolozza per stanza — allora il controllo di parentela diventerebbe
+    aderenza a una lista, che è più semplice e più severo.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1785,18 +1840,27 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     non permette di rinominare directory, quindi la cartella rotta non si sposta
     — si neutralizza cancellandole `project.godot`, così l'editor non la propone
     più nella lista progetti, e si elimina dall'app Files invece che dalla shell.
-- **Skill disponibili**: `godot-gdscript` (convenzioni e trappole di GDScript),
-  `narratore` (materiale narrativo, con l'attrattore documentato),
+- **Skill disponibili**, e sono **sei**: `godot-gdscript` (convenzioni e trappole
+  di GDScript), `narratore` (materiale narrativo, con l'attrattore documentato),
   `registra-decisione` (questa sezione), `vincolo-ip` (controllo IP),
-  `pixel-adventure-assets` (pixel art, sprite e sfondi via Pillow) e
+  `pixel-adventure-assets` (pixel art, sprite, sfondi e verifica degli asset) e
   `retro-adventure-audio` (suoni, ambienze, musica e stinger via numpy/scipy).
   Le ultime due sono generiche e arrivano da fuori: ognuna ha una sezione
   "Vincoli di AGGGA" che la lega a questo progetto, e va letta **prima** di
   produrre qualcosa — è lì che stanno la risoluzione, il filtro texture, i due
-  soli riproduttori audio e i nomi dei file già in uso
+  soli riproduttori audio e i nomi dei file già in uso.
+  **Chi aggiunge una skill aggiorna questo elenco nello stesso commit**: una
+  skill che c'è nel repository ma non qui si attiva lo stesso, perché a
+  sceglierla è la sua `description` e non questa lista. È così che
+  `pixelart-adventure` è rimasta per giorni a contraddire i numeri del progetto
+  senza che l'elenco lo dicesse
 - **Le librerie delle skill non sono installate nell'ambiente remoto**:
-  `pip install pillow` per la grafica, `pip install numpy scipy` per l'audio,
-  come si fa già con `gdtoolkit`
+  `pip install pillow numpy` per la grafica, `pip install numpy scipy` per
+  l'audio, come si fa già con `gdtoolkit`
+- **Ogni asset grafico passa da `qa_check.py` prima del commit**, come ogni
+  `.gd` passa da `gdparse`: `python .claude/skills/pixel-adventure-assets/
+  scripts/qa_check.py <file> --profile sheet|sprite|shadow|background
+  [--palette-from <sfondo>]`. Esce con 1 se qualcosa fallisce
 - **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
   `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
   sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni

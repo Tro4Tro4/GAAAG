@@ -1,6 +1,6 @@
 ---
 name: pixel-adventure-assets
-description: Genera asset grafici per avventure grafiche (point-and-click) - personaggi/sprite pixel art animati, sfondi di scena, oggetti/inventory item, ed elementi UI (dialoghi, cursori, finestre) - producendo file PNG e sprite sheet reali via codice Python/Pillow, non solo prompt testuali. Usa questa skill ogni volta che l'utente chiede di disegnare, creare o generare pixel art, sprite, walk cycle, sfondi di gioco, asset 2D per un'avventura grafica, un point-and-click, o un mix di stile pixel art retro con grafica 2D moderna (sfondi puliti/vettoriali/painterly abbinati a personaggi in pixel art). Attivala anche per richieste più generiche come "disegnami un personaggio in pixel art" o "crea uno sfondo per la mia scena di gioco", anche se non viene nominata esplicitamente la parola "skill".
+description: Usa questa skill ogni volta che si tocca la grafica di AGGGA - disegnare, generare, modificare o verificare pixel art, sprite, fogli di animazione, cicli di camminata, sfondi di stanza, fondali, oggetti, icone di inventario, hotspot, cursori, HUD o elementi di interfaccia. Attivala anche per richieste generiche ("disegnami un personaggio", "serve lo sfondo della stanza", "fai le icone"), quando un'immagine generata con uno strumento esterno va misurata, ritagliata e portata nel progetto, quando si sceglie o si deriva una tavolozza, e quando un asset grafico va controllato prima di committarlo.
 ---
 
 # Pixel Adventure Assets
@@ -36,7 +36,14 @@ Prima di scrivere codice di disegno, leggi (se non già in contesto in questa se
 
 ## Step 3 — Genera con Python + Pillow
 
-Usa `scripts/pixel_helpers.py` come libreria di appoggio (funzioni per canvas a griglia, palette, outline, dithering, upscaling nearest-neighbor, composizione di sprite sheet). Importalo così:
+Le librerie di appoggio sono due, e servono a cose diverse:
+
+- `scripts/pixel_helpers.py` — **per disegnare**: canvas a griglia, outline,
+  dithering, upscaling nearest-neighbor, composizione di sprite sheet.
+- `scripts/pxlib.py` — **per misurare**: conversioni Oklab e HSV, lettura e
+  scrittura di palette, quantizzazione. La usano `palette.py` e `qa_check.py`.
+
+Importa la prima così:
 
 ```python
 import sys
@@ -54,10 +61,32 @@ Linee guida di codice:
   in git e arrivano sul telefono dello sviluppatore con un `git pull`. I file di
   lavoro e le prove scartate vanno nella cartella scratchpad della sessione, e
   non si committano.
-- **Pillow non è installato di default** in questo ambiente: `pip install pillow`
-  prima di eseguire qualunque cosa.
+- **Le librerie non sono installate di default** in questo ambiente:
+  `pip install pillow numpy` prima di eseguire qualunque cosa. Pillow serve a
+  disegnare, numpy a misurare (`palette.py`, `qa_check.py`). Nient'altro: il
+  k-means è scritto a mano in venti righe apposta per non tirarsi dietro
+  scikit-learn, che sono centinaia di megabyte da installare su un telefono.
 
-## Step 4 — Nomina e organizza i file
+## Step 4 — Deriva la tavolozza, non inventarla
+
+Vale per qualunque cosa vada dentro una stanza che ha gia' uno sfondo. La
+regola del progetto e' che la tavolozza dello sprite si **deriva** da quella
+dello sfondo; `palette.py` la rende meccanica invece che a occhio, che e' dove
+si sbaglia — due verdi diversi sembrano lo stesso verde finche' non stanno
+accanto.
+
+```bash
+python .claude/skills/pixel-adventure-assets/scripts/palette.py \
+    extract assets/backgrounds/bg_lobby.webp -n 24 --out /tmp/lobby.hex
+python .claude/skills/pixel-adventure-assets/scripts/palette.py \
+    swatch /tmp/lobby.hex -o /tmp/lobby_swatch.png
+```
+
+Si disegna scegliendo da li'. Le tinte si possono schiarire e scurire — un
+personaggio non e' fatto degli stessi colori del muro — ma restano nella
+famiglia. Quanto si e' liberi lo dice `qa_check.py` allo Step 6.
+
+## Step 5 — Nomina e organizza i file
 
 Convenzione di naming utile per un motore di gioco:
 - `char_<nome>_<animazione>_sheet.png` (es. `char_luca_walk_sheet.png`)
@@ -66,6 +95,48 @@ Convenzione di naming utile per un motore di gioco:
 - `ui_<elemento>.png`
 
 Se generi più asset correlati (es. un intero set per una scena: sfondo + 2 oggetti + 1 personaggio), organizzali in una singola cartella di output prima di presentarli.
+
+## Step 6 — Verifica prima di committare
+
+`qa_check.py` controlla quello che in un PNG non si vede ma in gioco si'. Esce
+con codice 1 se qualcosa fallisce, quindi si puo' mettere in uno script.
+**Passaci ogni asset prima di committarlo**, come si fa gia' con `gdparse` per
+gli script.
+
+```bash
+python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
+    assets/sprites/char_lino_sheet.png --profile sheet \
+    --palette-from assets/backgrounds/bg_lobby.webp
+```
+
+| Profilo | Per cosa | Cosa guarda in piu' |
+|---|---|---|
+| `sheet` | foglio personaggio | griglia 96x396, **piedi ancorati al fondo di ogni cella**, celle attese non vuote, bob solo nelle camminate |
+| `sprite` | prop, oggetto, `StateVisual` | alpha binaria, altezza entro la figura intera |
+| `shadow` | ombra di contatto | alpha a pochi livelli invece che binaria |
+| `background` | sfondo di stanza | `.webp`, altezza 1080, larghezza multipla di 1920 |
+
+Su tutti: formato del file, **un pixel = un pixel** (intercetta lo sprite
+disegnato grande e rimpicciolito), numero di colori, e con `--palette-from` la
+parentela con la tavolozza della stanza.
+
+Due controlli meritano una parola perche' hanno trovato cose che l'occhio non
+trova:
+
+- **Piedi ancorati.** In ogni cella l'ultima riga di pixel opachi deve essere
+  l'ultima riga della cella. Un frame con i piedi un pixel piu' su fa
+  sobbalzare il personaggio a ogni passo, e guardando il PNG da fermo non si
+  vede niente.
+- **Tavolozza derivata.** La distanza si misura in Oklab, dove la distanza
+  euclidea approssima la differenza percepita. La soglia (0,16) non e' di
+  gusto: e' misurata sugli asset gia' approvati contro dei colori volutamente
+  estranei, e i numeri stanno in testa a `qa_check.py`. Se cambia lo sfondo di
+  riferimento va rimisurata.
+
+Quando un controllo fallisce, la prima domanda e' **se ha ragione lo strumento
+o l'asset**: durante la taratura entrambi i falsi positivi trovati (il
+contorno che sfora di 1 px, l'ombra semitrasparente per scelta) erano difetti
+del controllo, non del disegno. Verifica prima di correggere il PNG.
 
 ## Vincoli di AGGGA (leggere prima di disegnare qualunque cosa)
 
@@ -112,7 +183,9 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
 - **Una tavolozza madre e una sola direzione di luce per stanza**, condivise fra
   sfondo e sprite: la tavolozza ridotta del personaggio si **deriva** da quella
   dello sfondo, non si inventa a parte. È la parte che decide se i due stili
-  convivono o litigano.
+  convivono o litigano. Non è più una regola da applicare a occhio: `palette.py`
+  la estrae (Step 4) e `qa_check.py --palette-from` verifica che lo sprite non
+  se ne sia allontanato (Step 6).
 - **Ombra di contatto sotto i piedi** dei personaggi: uno sprite netto su uno
   sfondo morbido galleggia. Va come figlio del nodo `Visual`, disegnata prima del
   corpo.
