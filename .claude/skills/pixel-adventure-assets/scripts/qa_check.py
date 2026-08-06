@@ -7,14 +7,14 @@ uno script di build o in un hook pre-commit.
 
 I numeri non sono di stile generico: vengono dalle decisioni registrate in
 CLAUDE.md — base 384x216, un pixel di texture per unita' di gioco, filtro
-Nearest sugli sprite, celle 24x44 con il corpo alto 40, sfondi 1920x1080.
+Nearest, celle 24x44 con il corpo alto 40, sfondi alle misure della stanza.
 
     python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
         assets/sprites/char_lino_sheet.png --profile sheet \
-        --palette-from assets/backgrounds/bg_lobby.webp
+        --palette-from assets/backgrounds/bg_lobby.png
 
     python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
-        assets/backgrounds/bg_lobby.webp --profile background
+        assets/backgrounds/bg_lobby.png --profile background
 
 Profili: sheet (foglio personaggio), sprite (prop, oggetto, StateVisual),
 background (sfondo di stanza), shadow (ombra di contatto — l'unica cosa che
@@ -44,7 +44,12 @@ OUTLINE = 1
 BOB = 1
 SHEET_ROWS = 9                    # nove animazioni
 SHEET_COLS = 4                    # la camminata e' l'animazione piu' lunga
-BG_W, BG_H = 1920, 1080           # 5x la base 384x216
+# Uno sfondo e' pixel art come tutto il resto: disegnato alle dimensioni della
+# stanza, usato a scala 1 e filtro Nearest. Erano 1920x1080 finche' gli sfondi
+# erano dipinti; da "Tutto in pixel art: anche gli sfondi" l'altezza e' quella
+# dello schermo e la larghezza un suo multiplo — 384x216 per una stanza di una
+# schermata, 768x216 per il corridoio largo due.
+BG_W, BG_H = 384, 216
 FRAMES_PER_ROW = [1, 1, 1, 4, 4, 4, 2, 2, 2]
 ROW_NAMES = ["idle_down", "idle_side", "idle_up",
              "walk_down", "walk_side", "walk_up",
@@ -221,17 +226,20 @@ def main() -> int:
     uniq = np.unique(vrgb.reshape(-1, 3), axis=0)
 
     # --- formato del file ----------------------------------------------------
-    want = ".webp" if is_bg else ".png"
+    # PNG per tutto: da quando gli sfondi sono pixel art alle dimensioni della
+    # stanza pesano 9 kB, quindi il .webp con perdita che li reggeva a 1920x1080
+    # non ha piu' niente da comprimere — e la pixel art vuole l'esattezza pixel
+    # per pixel.
+    want = ".png"
     check("formato del file", path.suffix.lower() == want,
           f"{path.suffix}" if path.suffix.lower() == want else
-          f"{path.suffix}, atteso {want}"
-          + (" (gli sfondi si salvano in .webp: 21 volte piu' leggeri)" if is_bg
-             else " (la pixel art vuole un formato senza perdita)"))
+          f"{path.suffix}, atteso {want} (la pixel art vuole un formato senza perdita)")
 
     # --- geometria -----------------------------------------------------------
     if is_bg:
         # Una stanza larga il doppio vuole uno sfondo largo il doppio, quindi
-        # la larghezza e' un multiplo di 1920 ma l'altezza e' sempre 1080.
+        # la larghezza e' un multiplo della schermata ma l'altezza e' sempre
+        # quella dello schermo: un pixel di texture resta un'unita' di gioco.
         ok = h == BG_H and w % BG_W == 0
         check("dimensioni dello sfondo", ok,
               f"{w}x{h}" + (f" ({w // BG_W} schermate)" if ok else

@@ -32,7 +32,15 @@ ASSET = "assets/backgrounds/bg_lobby.png"
 W, H = 384, 216
 FLOOR_Y = 136
 SKIRT_H = 7
-DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 313, 26, 102, 146
+DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 313, 26, 92, FLOOR_Y
+# The threshold is FLOOR_Y and not a number of its own, and it is the measure
+# that decides whether this reads as a door at all. Drawn ten pixels lower --
+# which it was -- the frame closes below the skirting and paints over the near
+# floor, so the whole thing stops being an opening in the wall and becomes a
+# cabinet standing in front of it. A door in a wall seen face on meets the floor
+# exactly where the wall does; anything else is furniture.
+# Its height stays 44, the figure "L'atrio in scala" calibrated: with the
+# threshold here, the handle lands at 47% of a 40-unit character.
 NEON_X, NEON_Y, NEON_W = 170, 9, 80
 VP_X, VP_Y = 176, 96              # vanishing point for the floor
 

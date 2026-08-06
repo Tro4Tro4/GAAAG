@@ -77,7 +77,7 @@ accanto.
 
 ```bash
 python .claude/skills/pixel-adventure-assets/scripts/palette.py \
-    extract assets/backgrounds/bg_lobby.webp -n 24 --out /tmp/lobby.hex
+    extract assets/backgrounds/bg_lobby.png -n 24 --out /tmp/lobby.hex
 python .claude/skills/pixel-adventure-assets/scripts/palette.py \
     swatch /tmp/lobby.hex -o /tmp/lobby_swatch.png
 ```
@@ -106,7 +106,7 @@ gli script.
 ```bash
 python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
     assets/sprites/char_lino_sheet.png --profile sheet \
-    --palette-from assets/backgrounds/bg_lobby.webp
+    --palette-from assets/backgrounds/bg_lobby.png
 ```
 
 | Profilo | Per cosa | Cosa guarda in piu' |
@@ -114,7 +114,7 @@ python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
 | `sheet` | foglio personaggio | griglia 96x396, **piedi ancorati al fondo di ogni cella**, celle attese non vuote, bob solo nelle camminate |
 | `sprite` | prop, oggetto, `StateVisual` | alpha binaria, altezza entro la figura intera |
 | `shadow` | ombra di contatto | alpha a pochi livelli invece che binaria |
-| `background` | sfondo di stanza | `.webp`, altezza 1080, larghezza multipla di 1920 |
+| `background` | sfondo di stanza | `.png`, altezza 216, larghezza multipla di 384 |
 
 Su tutti: formato del file, **un pixel = un pixel** (intercetta lo sprite
 disegnato grande e rimpicciolito), numero di colori, e con `--palette-from` la
@@ -166,12 +166,26 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   in scena**: a 0,5 di scala su uno schermo 5× un pixel diventa 2,5 pixel veri e
   alcuni escono grandi il doppio degli altri. È l'errore che questa guida chiama
   "fattori non interi", visto dal lato di questo progetto.
-- **Gli sfondi si disegnano a 1920×1080** — esattamente 5× la base 384×216 — e in
-  scena vanno su uno `Sprite2D` con `scale = 0.2` e `texture_filter` a `Linear`
-  sul nodo. Così su un telefono alto 1080 lo sfondo è 1:1. Una stanza larga il
-  doppio vuole uno sfondo largo il doppio (il corridoio dei tubi: 3840×1080).
-- **`Nearest` resta il default globale, `Linear` è un override sul nodo.** Non il
-  contrario: gli sfondi sono uno per stanza, gli sprite sono decine.
+- **Anche gli sfondi sono pixel art**, e la regola qui sopra vale per loro senza
+  eccezioni: si disegnano alle dimensioni della stanza — 384×216 per una stanza
+  di una schermata, 768×216 per il corridoio largo due — e in scena vanno su uno
+  `Sprite2D` a `scale = 1`, `centered = false`, posizione (0, 0) e nessun
+  override di filtro. Erano 1920×1080 a `scale = 0.2` con filtro `Linear`
+  finché erano dipinti: quella strada è stata revocata perché uno sprite netto
+  appoggiato su un fondo morbido galleggia, e l'ombra di contatto non è bastata
+  a rimediare.
+- **`Nearest` senza eccezioni**, adesso: nel progetto l'unico override a
+  `Linear` che resta è sulle sette icone dei verbi, che sono SVG.
+- **Il dithering va ai bordi delle fasce, mai su tutta la superficie.** A questa
+  risoluzione un gradiente dithered per intero si legge come una zanzariera: si
+  quantizza in fasce piatte e si mescola solo la striscia dove due si toccano.
+  E **niente rumore casuale prima di quantizzare** — vicino a un confine sparge
+  pixel isolati e si legge come sporco. La grana si dà in forme: scrostature,
+  macchie, crepe.
+- **Una porta in un muro visto di fronte incontra il pavimento dove lo incontra
+  il muro.** Disegnata con la soglia più in basso, il telaio si chiude sotto il
+  battiscopa e copre il pavimento vicino: smette di essere un'apertura e diventa
+  un armadietto appoggiato davanti. Vale per qualunque apertura nel fondale.
 - **Nello sfondo va solo ciò che è fermo, muto e sempre dietro**: muro,
   pavimento, battiscopa, telaio della porta, sporco e usura. Restano sprite
   separati tre categorie — quello che cambia con lo stato del gioco (la luce

@@ -120,11 +120,17 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
   sequences/         Un file per scena scriptata
   text/              it.tres e en.tres — tutte le frasi del gioco
 tools/               Script che producono asset, da eseguire dalla radice
-  make_lobby_background.py  Immagine esterna -> texture dello sfondo
+  make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 384x216
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
+  make_lobby_background.py  Il vecchio sfondo dipinto dell'atrio, non piu' usato
+  make_tubes_background.py  I due piani dipinti del corridoio, ancora in uso
+  make_tubes_props.py       Oblo', targhetta, punto d'imbuco e capsula
+  make_item_icons.py        Le otto icone d'inventario, 12x12
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
 assets/              sprites/ backgrounds/ audio/ fonts/
-  backgrounds/       Uno sfondo per stanza, .webp 1920x1080, filtro lineare
+  backgrounds/       Uno sfondo per stanza. L'atrio e' pixel art .png alle
+                     misure della stanza, a scala 1 e filtro Nearest; il
+                     corridoio e' ancora .webp dipinto, da rifare
   ui/                Le sette icone dei verbi, in SVG
   audio/             Cinque suoni segnaposto generati da uno script
 ```

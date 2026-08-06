@@ -52,7 +52,7 @@ centered = false
 texture = ExtResource("10_bg")
 
 [node name="DoorLight" type="Node2D" parent="."]
-position = Vector2(313, 146)
+position = Vector2(313, 136)
 script = ExtResource("8_state")
 visible_if = PackedStringArray("on:lobby_door")
 
@@ -130,7 +130,7 @@ shape = SubResource("RectangleShape2D_chairs")
 position = Vector2(0, 12)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(313, 124)
+position = Vector2(313, 114)
 script = ExtResource("3_door")
 display_name = "PROTO_LOBBY_DOOR"
 sound = ExtResource("7_thud")
@@ -147,4 +147,4 @@ variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_ope
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 34)
+position = Vector2(0, 44)
