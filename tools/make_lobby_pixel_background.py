@@ -29,10 +29,16 @@ import numpy as np
 from PIL import Image
 
 ASSET = "assets/backgrounds/bg_lobby.png"
-W, H = 384, 216
-FLOOR_Y = 136
-SKIRT_H = 7
-DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 313, 26, 92, FLOOR_Y
+# The room is exactly one screen, so these are the base resolution: the camera
+# then has nowhere to go and the lobby stays the still tableau it has always
+# been. A room wider than a screen wants a multiple of W and the same H.
+W, H = 320, 180
+# 60% of the height and not the 63% it was: the fascia of bare wall above the
+# props was the emptiest part of the picture, and lowering the line trims it
+# while giving the floor back the walkable depth that the closer framing took.
+FLOOR_Y = 108
+SKIRT_H = 6
+DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 260, 26, FLOOR_Y - 44, FLOOR_Y
 # The threshold is FLOOR_Y and not a number of its own, and it is the measure
 # that decides whether this reads as a door at all. Drawn ten pixels lower --
 # which it was -- the frame closes below the skirting and paints over the near
@@ -41,8 +47,8 @@ DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 313, 26, 92, FLOOR_Y
 # exactly where the wall does; anything else is furniture.
 # Its height stays 44, the figure "L'atrio in scala" calibrated: with the
 # threshold here, the handle lands at 47% of a 40-unit character.
-NEON_X, NEON_Y, NEON_W = 170, 9, 80
-VP_X, VP_Y = 176, 96              # vanishing point for the floor
+NEON_X, NEON_Y, NEON_W = 142, 8, 66
+VP_X, VP_Y = 147, 80              # vanishing point for the floor
 
 rng = np.random.default_rng(1994)
 
@@ -116,16 +122,16 @@ def main():
     # dirtiest where mops and shoulders reach it, and that gradient alone is
     # what stops a big flat surface from reading as cardboard.
     dy = np.clip(yy / FLOOR_Y, 0, 1)
-    cone = np.clip(1 - np.abs(xx - cx) / (70 + dy * 300), 0, 1)
+    cone = np.clip(1 - np.abs(xx - cx) / (58 + dy * 250), 0, 1)
     lit = 0.30 + cone * 0.62 - dy * 0.22
-    lit -= np.clip(1 - np.minimum(xx, W - xx) / 64, 0, 1) * 0.14
+    lit -= np.clip(1 - np.minimum(xx, W - xx) / 53, 0, 1) * 0.14
     img[:FLOOR_Y] = banded(lit, WALL)
 
     # Damp blooms. Lighter than the wall, not darker: a stain on painted
     # plaster leaches the colour out rather than making a hole, and the first
     # version drew them dark and they read as craters.
-    for bx, by, r in ((46, 62, 19), (206, 44, 24), (238, 88, 14),
-                      (100, 106, 12), (344, 34, 16), (296, 116, 10)):
+    for bx, by, r in ((38, 49, 16), (172, 35, 20), (198, 70, 12),
+                      (83, 84, 10), (287, 27, 13), (247, 92, 8)):
         for y in range(max(0, by - r - 4), min(FLOOR_Y, by + r + 5)):
             for x in range(max(0, bx - r - 5), min(W, bx + r + 6)):
                 wob = 0.16 * np.sin(x * 0.55 + y * 0.3) + 0.12 * np.sin(y * 0.8)
@@ -139,7 +145,7 @@ def main():
 
     # Rust runs: something above has been leaking for years. Drawn as thin
     # tapering streaks so they read as flow, not as scratches.
-    for rx, ry, ln in ((228, 22, 46), (232, 22, 30), (92, 40, 26), (350, 50, 34)):
+    for rx, ry, ln in ((190, 17, 37), (193, 17, 24), (77, 32, 21), (292, 40, 27)):
         for i in range(ln):
             t = i / ln
             put(img, ry + i, rx + int(np.sin(i * 0.35) * 1.4), RUST[1 if t < 0.6 else 2])
@@ -148,8 +154,8 @@ def main():
 
     # Cracks: a walk that mostly goes down, with a lit pixel on one side of the
     # upper half so it reads as an opening rather than a drawn line.
-    for sx, sy, steps in ((80, 14, 58), (266, 20, 44), (152, 66, 28),
-                          (336, 70, 30), (20, 92, 20)):
+    for sx, sy, steps in ((67, 11, 46), (222, 16, 35), (127, 52, 22),
+                          (280, 56, 24), (17, 73, 16)):
         x, y = sx, sy
         for i in range(steps):
             put(img, y, x, INK)
@@ -159,8 +165,8 @@ def main():
             x += int(rng.integers(-1, 2))
 
     # Chipped plaster, and the coarser layer underneath.
-    for px, py, pw, ph in ((122, 118, 11, 6), (252, 124, 15, 7), (58, 126, 8, 5),
-                           (328, 120, 9, 6), (188, 128, 13, 5)):
+    for px, py, pw, ph in ((102, 90, 9, 5), (210, 96, 12, 6), (48, 98, 7, 4),
+                           (273, 92, 8, 5), (157, 100, 11, 4)):
         for y in range(py, min(FLOOR_Y, py + ph)):
             for x in range(px, min(W, px + pw)):
                 edge = (x == px or y == py or x == px + pw - 1)
@@ -168,10 +174,10 @@ def main():
                     img[y, x] = WALL[0] if edge else WALL[1]
 
     # A fuse box: the room needs one thing that is made, among all the decay.
-    # Kept clear of x 64..96 and x 160..180, where the notice board and the
+    # Kept clear of x 50..82 and x 132..152, where the notice board and the
     # form rack hang: a painted fixture behind a sprite is a collision the
     # background cannot see coming.
-    bx, by, bw, bh = 246, 74, 22, 26
+    bx, by, bw, bh = 205, FLOOR_Y - 62, 22, 26
     img[by:by + bh, bx:bx + bw] = INK
     img[by + 1:by + bh - 1, bx + 1:bx + bw - 1] = DOOR[1]
     img[by + 1:by + bh - 1, bx + 1:bx + 3] = DOOR[3]
@@ -186,13 +192,13 @@ def main():
     for y in range(6, by):
         img[y, bx + 9:bx + 11] = DOOR[1]
         img[y, bx + 9] = DOOR[3]
-    for y in (30, 58):
+    for y in (18, 34):
         img[y:y + 2, bx + 7:bx + 13] = DOOR[0]
 
     # ------------------------------------------------------------- skirting --
     s0 = FLOOR_Y - SKIRT_H
     band = np.linspace(0.95, 0.2, SKIRT_H)[:, None] * np.ones((1, W))
-    band *= 0.55 + np.clip(1 - np.abs(np.arange(W) - cx) / 300, 0, 1)[None, :] * 0.5
+    band *= 0.55 + np.clip(1 - np.abs(np.arange(W) - cx) / 250, 0, 1)[None, :] * 0.5
     img[s0:FLOOR_Y] = banded(band, SKIRT, width=0.5)
     img[s0] = SKIRT[4]
     img[s0 - 1] = SKIRT[2]
@@ -205,7 +211,7 @@ def main():
     fh = H - FLOOR_Y
     yy, xx = np.mgrid[0:fh, 0:W]
     depth = yy / fh
-    pool = np.clip(1 - np.abs(xx - cx) / (54 + depth * 250), 0, 1)
+    pool = np.clip(1 - np.abs(xx - cx) / (45 + depth * 208), 0, 1)
     lit = 0.26 + pool * (0.60 - depth * 0.22) - depth * 0.06
     img[FLOOR_Y:] = banded(lit, FLOOR)
 
@@ -226,8 +232,8 @@ def main():
         if gy + 1 < H:
             img[gy + 1, :] = FLOOR[3]                 # the lit edge of the next
         # End joints, staggered board to board like a real floor.
-        off = (i * 97) % 160
-        for jx in range(-off, W, 160):
+        off = (i * 97) % 133
+        for jx in range(-off, W, 133):
             top = gy
             bot = FLOOR_Y + (seams[i + 1] if i + 1 < len(seams) else fh)
             for j in range(top, min(H, bot)):

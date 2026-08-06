@@ -20,9 +20,9 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_capsule.png" id="18_capsule"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 138, 760, 138, 760, 208, 8, 208)
+vertices = PackedVector2Array(8, 116, 632, 116, 632, 172, 8, 172)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 138, 760, 138, 760, 208, 8, 208)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 116, 632, 116, 632, 172, 8, 172)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
@@ -41,7 +41,7 @@ size = Vector2(24, 32)
 size = Vector2(20, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe"]
-size = Vector2(700, 64)
+size = Vector2(583, 53)
 
 [sub_resource type="Resource" id="Resource_tubes_door_open"]
 script = ExtResource("6_variant")
@@ -57,9 +57,9 @@ look_text = "PROTO_TUBES_PORTHOLE_LOOK_CLEAR"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("9_hum")
-room_size = Vector2(768, 216)
-depth_top_y = 138.0
-depth_bottom_y = 208.0
+room_size = Vector2(640, 180)
+depth_top_y = 116.0
+depth_bottom_y = 172.0
 depth_top_scale = 0.78
 depth_bottom_scale = 1.1
 
@@ -86,13 +86,13 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="EntryPoints" type="Node2D" parent="."]
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
-position = Vector2(120, 160)
+position = Vector2(100, 133)
 
 [node name="FromLobby" type="Marker2D" parent="EntryPoints"]
-position = Vector2(100, 150)
+position = Vector2(83, 128)
 
 [node name="PipeHotspot" type="Area2D" parent="."]
-position = Vector2(384, 62)
+position = Vector2(320, 52)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_TUBES_PIPE"
 act_verb = 3
@@ -103,10 +103,10 @@ act_text = "PROTO_TUBES_PIPE_ACT"
 shape = SubResource("RectangleShape2D_pipe")
 
 [node name="ApproachPoint" type="Marker2D" parent="PipeHotspot"]
-position = Vector2(0, 88)
+position = Vector2(0, 74)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(60, 124)
+position = Vector2(50, 90)
 script = ExtResource("3_door")
 display_name = "PROTO_TUBES_DOOR"
 sound = ExtResource("10_thud")
@@ -155,10 +155,10 @@ polygon = PackedVector2Array(-13, -21, -8, -21, -8, 21, -13, 21)
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 34)
+position = Vector2(0, 44)
 
 [node name="PortholeHotspot" type="Area2D" parent="."]
-position = Vector2(300, 76)
+position = Vector2(250, 63)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_TUBES_PORTHOLE"
 act_verb = 4
@@ -173,10 +173,10 @@ texture = ExtResource("15_porthole")
 shape = SubResource("RectangleShape2D_porthole")
 
 [node name="ApproachPoint" type="Marker2D" parent="PortholeHotspot"]
-position = Vector2(0, 66)
+position = Vector2(0, 63)
 
 [node name="PlateHotspot" type="Area2D" parent="."]
-position = Vector2(300, 100)
+position = Vector2(250, 83)
 script = ExtResource("4_pickup")
 display_name = "PROTO_TUBES_PLATE"
 sound = ExtResource("11_click")
@@ -192,10 +192,10 @@ texture = ExtResource("16_plate")
 shape = SubResource("RectangleShape2D_plate")
 
 [node name="ApproachPoint" type="Marker2D" parent="PlateHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 43)
 
 [node name="PublicPointHotspot" type="Area2D" parent="."]
-position = Vector2(560, 78)
+position = Vector2(467, 65)
 script = ExtResource("5_passage")
 display_name = "PROTO_TUBES_POINT"
 sound = ExtResource("11_click")
@@ -213,10 +213,10 @@ texture = ExtResource("17_point")
 shape = SubResource("RectangleShape2D_point")
 
 [node name="ApproachPoint" type="Marker2D" parent="PublicPointHotspot"]
-position = Vector2(0, 64)
+position = Vector2(0, 61)
 
 [node name="CapsuleHotspot" type="Area2D" parent="."]
-position = Vector2(560, 196)
+position = Vector2(467, 162)
 script = ExtResource("4_pickup")
 display_name = "PROTO_TUBES_CAPSULE"
 sound = ExtResource("10_thud")
@@ -235,4 +235,4 @@ position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_capsule")
 
 [node name="ApproachPoint" type="Marker2D" parent="CapsuleHotspot"]
-position = Vector2(0, 10)
+position = Vector2(0, 8)

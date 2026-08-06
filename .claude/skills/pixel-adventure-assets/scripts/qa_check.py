@@ -6,7 +6,7 @@ Esce con codice 1 se almeno un controllo FALLISCE, quindi si puo' mettere in
 uno script di build o in un hook pre-commit.
 
 I numeri non sono di stile generico: vengono dalle decisioni registrate in
-CLAUDE.md — base 384x216, un pixel di texture per unita' di gioco, filtro
+CLAUDE.md — base 320x180, un pixel di texture per unita' di gioco, filtro
 Nearest, celle 24x44 con il corpo alto 40, sfondi alle misure della stanza.
 
     python .claude/skills/pixel-adventure-assets/scripts/qa_check.py \
@@ -47,9 +47,9 @@ SHEET_COLS = 4                    # la camminata e' l'animazione piu' lunga
 # Uno sfondo e' pixel art come tutto il resto: disegnato alle dimensioni della
 # stanza, usato a scala 1 e filtro Nearest. Erano 1920x1080 finche' gli sfondi
 # erano dipinti; da "Tutto in pixel art: anche gli sfondi" l'altezza e' quella
-# dello schermo e la larghezza un suo multiplo — 384x216 per una stanza di una
-# schermata, 768x216 per il corridoio largo due.
-BG_W, BG_H = 384, 216
+# dello schermo e la larghezza un suo multiplo — 320x180 per una stanza di una
+# schermata, 640x180 per il corridoio largo due.
+BG_W, BG_H = 320, 180
 FRAMES_PER_ROW = [1, 1, 1, 4, 4, 4, 2, 2, 2]
 ROW_NAMES = ["idle_down", "idle_side", "idle_up",
              "walk_down", "walk_side", "walk_up",

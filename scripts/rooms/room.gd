@@ -54,7 +54,7 @@ const DEFAULT_ENTRY: StringName = &"Default"
 ## The default is exactly one screen, which is what every room was before there
 ## was a camera — and a room that size leaves the camera nowhere to go, so
 ## nothing about it changes.
-@export var room_size: Vector2 = Vector2(384, 216)
+@export var room_size: Vector2 = Vector2(320, 180)
 
 @export_group("Depth")
 

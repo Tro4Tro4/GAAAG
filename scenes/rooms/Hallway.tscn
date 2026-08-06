@@ -16,22 +16,22 @@
 [ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="14_variant"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
+vertices = PackedVector2Array(7, 83, 313, 83, 313, 173, 7, 173)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(7, 83, 313, 83, 313, 173, 7, 173)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(40, 64)
+size = Vector2(33, 53)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dispenser"]
-size = Vector2(40, 60)
+size = Vector2(33, 50)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sign"]
-size = Vector2(50, 20)
+size = Vector2(42, 17)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
-size = Vector2(20, 30)
+size = Vector2(17, 25)
 
 [sub_resource type="Resource" id="Resource_dispenser_annoyed"]
 script = ExtResource("14_variant")
@@ -39,7 +39,7 @@ conditions = PackedStringArray("dispenser_annoyed")
 look_text = "ROOM_HALL_DISPENSER_LOOK_ANNOYED"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_clerk"]
-size = Vector2(16, 34)
+size = Vector2(13, 28)
 
 [node name="Hallway" type="Node2D"]
 y_sort_enabled = true
@@ -52,35 +52,35 @@ depth_bottom_scale = 1.1
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.1, 0.18, 0.2, 1)
-polygon = PackedVector2Array(0, 0, 384, 0, 384, 100, 0, 100)
+polygon = PackedVector2Array(0, 0, 320, 0, 320, 83, 0, 83)
 
 [node name="Floor" type="Polygon2D" parent="."]
 color = Color(0.24, 0.26, 0.28, 1)
-polygon = PackedVector2Array(0, 100, 384, 100, 384, 216, 0, 216)
+polygon = PackedVector2Array(0, 83, 320, 83, 320, 180, 0, 180)
 
 [node name="FloorEdge" type="Polygon2D" parent="."]
 color = Color(0.31, 0.33, 0.35, 1)
-polygon = PackedVector2Array(8, 100, 376, 100, 376, 208, 8, 208)
+polygon = PackedVector2Array(7, 83, 313, 83, 313, 173, 7, 173)
 
 [node name="Door" type="Polygon2D" parent="."]
 color = Color(0.35, 0.24, 0.18, 1)
-polygon = PackedVector2Array(24, 36, 64, 36, 64, 100, 24, 100)
+polygon = PackedVector2Array(20, 30, 53, 30, 53, 83, 20, 83)
 
 [node name="Slot" type="Polygon2D" parent="."]
 color = Color(0.05, 0.11, 0.12, 1)
-polygon = PackedVector2Array(76, 55, 96, 55, 96, 85, 76, 85)
+polygon = PackedVector2Array(63, 46, 80, 46, 80, 71, 63, 71)
 
 [node name="FarDoor" type="Polygon2D" parent="."]
 color = Color(0.32, 0.22, 0.16, 1)
-polygon = PackedVector2Array(330, 36, 370, 36, 370, 100, 330, 100)
+polygon = PackedVector2Array(275, 30, 308, 30, 308, 83, 275, 83)
 
 [node name="Dispenser" type="Polygon2D" parent="."]
 color = Color(0.45, 0.45, 0.5, 1)
-polygon = PackedVector2Array(260, 40, 300, 40, 300, 100, 260, 100)
+polygon = PackedVector2Array(217, 33, 250, 33, 250, 83, 217, 83)
 
 [node name="Sign" type="Polygon2D" parent="."]
 color = Color(0.85, 0.8, 0.35, 1)
-polygon = PackedVector2Array(120, 30, 170, 30, 170, 50, 120, 50)
+polygon = PackedVector2Array(100, 25, 142, 25, 142, 42, 100, 42)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -88,22 +88,22 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="EntryPoints" type="Node2D" parent="."]
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
-position = Vector2(200, 180)
+position = Vector2(167, 150)
 
 [node name="FromTestRoom" type="Marker2D" parent="EntryPoints"]
-position = Vector2(44, 112)
+position = Vector2(37, 93)
 
 [node name="FromLongHall" type="Marker2D" parent="EntryPoints"]
-position = Vector2(350, 112)
+position = Vector2(292, 93)
 
 [node name="DispenserBack" type="Marker2D" parent="EntryPoints"]
-position = Vector2(280, 180)
+position = Vector2(233, 150)
 
 [node name="DispenserFront" type="Marker2D" parent="EntryPoints"]
-position = Vector2(280, 110)
+position = Vector2(233, 92)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(44, 68)
+position = Vector2(37, 57)
 script = ExtResource("3_door")
 display_name = "ROOM_HALL_DOOR"
 sound = ExtResource("10_thud")
@@ -121,10 +121,10 @@ closing_text = "ROOM_HALL_DOOR_CLOSE"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 37)
 
 [node name="DispenserHotspot" type="Area2D" parent="."]
-position = Vector2(280, 70)
+position = Vector2(233, 58)
 script = ExtResource("4_pickup")
 display_name = "ROOM_HALL_DISPENSER"
 sound = ExtResource("12_chime")
@@ -144,10 +144,10 @@ taken_text = "ROOM_HALL_DISPENSER_TAKEN"
 shape = SubResource("RectangleShape2D_dispenser")
 
 [node name="ApproachPoint" type="Marker2D" parent="DispenserHotspot"]
-position = Vector2(0, 50)
+position = Vector2(0, 42)
 
 [node name="SignHotspot" type="Area2D" parent="."]
-position = Vector2(145, 40)
+position = Vector2(121, 33)
 script = ExtResource("2_hotspot")
 display_name = "ROOM_HALL_SIGN"
 act_verb = 3
@@ -164,10 +164,10 @@ accepted_flag = &"sign_has_button"
 shape = SubResource("RectangleShape2D_sign")
 
 [node name="ApproachPoint" type="Marker2D" parent="SignHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 67)
 
 [node name="ClerkHotspot" type="Area2D" parent="."]
-position = Vector2(200, 148)
+position = Vector2(167, 123)
 script = ExtResource("2_hotspot")
 display_name = "ROOM_HALL_CLERK"
 reach_verb = 6
@@ -177,21 +177,21 @@ dialogue = ExtResource("8_clerk")
 
 [node name="Head" type="Polygon2D" parent="ClerkHotspot"]
 color = Color(0.94, 0.78, 0.58, 1)
-polygon = PackedVector2Array(-4, -32, 4, -32, 4, -24, -4, -24)
+polygon = PackedVector2Array(-3, -27, 3, -27, 3, -20, -3, -20)
 
 [node name="Body" type="Polygon2D" parent="ClerkHotspot"]
 color = Color(0.87, 0.85, 0.45, 1)
-polygon = PackedVector2Array(-5, -24, 5, -24, 5, 0, -5, 0)
+polygon = PackedVector2Array(-4, -20, 4, -20, 4, 0, -4, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ClerkHotspot"]
-position = Vector2(0, -17)
+position = Vector2(0, -14)
 shape = SubResource("RectangleShape2D_clerk")
 
 [node name="ApproachPoint" type="Marker2D" parent="ClerkHotspot"]
-position = Vector2(0, 12)
+position = Vector2(0, 10)
 
 [node name="FarDoorHotspot" type="Area2D" parent="."]
-position = Vector2(350, 68)
+position = Vector2(292, 57)
 script = ExtResource("3_door")
 display_name = "ROOM_HALL_FARDOOR"
 sound = ExtResource("10_thud")
@@ -206,10 +206,10 @@ target_entry = &"FromHallway"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="FarDoorHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 37)
 
 [node name="SlotHotspot" type="Area2D" parent="."]
-position = Vector2(86, 70)
+position = Vector2(72, 58)
 script = ExtResource("7_passage")
 display_name = "ROOM_HALL_SLOT"
 sound = ExtResource("11_click")
@@ -224,4 +224,4 @@ waiting_text = "ROOM_HALL_SLOT_WAITING"
 shape = SubResource("RectangleShape2D_slot")
 
 [node name="ApproachPoint" type="Marker2D" parent="SlotHotspot"]
-position = Vector2(0, 50)
+position = Vector2(0, 42)

@@ -120,7 +120,7 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
   sequences/         Un file per scena scriptata
   text/              it.tres e en.tres — tutte le frasi del gioco
 tools/               Script che producono asset, da eseguire dalla radice
-  make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 384x216
+  make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 320x180
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
   make_lobby_background.py  Il vecchio sfondo dipinto dell'atrio, non piu' usato
   make_tubes_background.py  I due piani dipinti del corridoio, ancora in uso
@@ -161,7 +161,9 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     `stretch/mode = canvas_items` e `aspect = keep`: si disegna a bassa
     risoluzione "retro" e si scala in modo pulito mantenendo il rapporto.
     Valori facilmente modificabili; scelti come default ragionevole, non
-    definitivi.
+    definitivi. **Decisione superata** — vedi "Da 384×216 a 320×180" in fondo
+    all'elenco. Le due parti che non sono cadute sono `canvas_items` e
+    `aspect = keep`, e la previsione che i valori fossero provvisori era giusta.
   - *(Decadute con il passaggio a GDScript: la scelta di `.NET 8 / net8.0` come
     runtime e del nome assembly/namespace `Aggga`. I file `Aggga.csproj/.sln`
     non esistono più.)*
@@ -1553,8 +1555,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   punto che era rimasto aperto sull'altezza. Scelto guardando le tre altezze
   affiancate nella stessa stanza, che è l'unico modo di giudicarlo: il numero da
   solo non dice niente, il confronto sì. A 216 unità di schermo un personaggio
-  occupa quindi il 18,5% dell'altezza, e la stanza gli sta sopra per due volte e
-  mezzo.
+  occupava quindi il 18,5% dell'altezza, e la stanza gli stava sopra per due
+  volte e mezzo. Le 40 unità non sono cambiate, ma lo schermo sì: da quando la
+  base è 320×180 la stessa figura occupa il **22,2%**. Il numero scelto qui
+  regge, quello derivato no — ed è la ragione per cui la voce sulla risoluzione
+  in fondo all'elenco non ha richiesto di ridisegnare un solo sprite.
   - **27 unità** (l'altezza dei segnaposto di allora): la stanza respira e ci sta
     più scenografia. Scartata perché a quella misura il personaggio è appena più
     alto di una sedia, e in un genere dove si guarda il personaggio camminare per
@@ -1806,7 +1811,8 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 
 - **Tutto in pixel art: anche gli sfondi** (revoca dello stile ibrido). Gli
   sfondi tornano a essere pixel art disegnata alle dimensioni della stanza —
-  384×216 per l'atrio, 768×216 per il corridoio — usata a `scale = 1` con il
+  allora 384×216 per l'atrio e 768×216 per il corridoio, oggi 320×180 e 640×180
+  dopo il cambio di risoluzione base — usata a `scale = 1` con il
   filtro `Nearest`, come ogni altro asset. Cadono il `.webp` a 1920×1080, la
   scala 0,2 e l'override a `Linear` sul nodo.
   Il motivo è quello che la voce sullo stile ibrido aveva messo per iscritto
@@ -1852,6 +1858,76 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     hotspot vanno tenute libere e annotate nello script.
   - Nota: da rivedere solo se lo sviluppatore cambiasse di nuovo gusto. Non c'è
     una premessa tecnica che possa cadere, perché non è una decisione tecnica.
+
+- **Da 384×216 a 320×180** (revoca della risoluzione base scelta nello scaffold).
+  Lo schermo si stringe di un quinto e il personaggio passa dal 18,5% al **22,2%**
+  dell'altezza, senza che venga ridisegnato un solo sprite: lo zoom si ottiene
+  mostrando *meno stanza*, non ingrandendo le cose. Finestra desktop 4× = 1280×720.
+  Il motivo è una misura riportata dal dispositivo: tutto sembrava lontano e lo
+  schermo vuoto. Ed è la decisione da prendere adesso e non dopo, perché è
+  l'unica il cui costo cresce con ogni stanza aggiunta — con tre stanze è un
+  ritaglio, con venti è una riscrittura. Lo stesso argomento della versione del
+  salvataggio.
+  - **`Camera2D.zoom` invece della risoluzione base**: è quello che si chiede
+    d'istinto, ed è una riga. Scartato perché rompe la regola portante: il
+    fattore di scala è `altezza finestra / altezza base` e deve venire intero, o
+    alcuni pixel escono più grandi di altri. Uno `zoom = 1.2` dà 6 su un telefono
+    alto 1080 (nitido) ma 3,6 sulla finestra desktop (non nitido): sarebbe una
+    scommessa per dispositivo. E siccome 216 / 1,2 = 180, **zoom 1,2 e base
+    320×180 producono gli stessi pixel** — la differenza è che con lo zoom
+    `room_size`, i limiti della telecamera e ogni numero di layout continuerebbero
+    a descrivere una vista larga 384 che nessuno vede, e la proprietà per cui
+    l'atrio è "esattamente una schermata, quindi la telecamera non ha dove
+    andare" smetterebbe di essere vera in silenzio.
+  - **240×135** (personaggio al 29,6%): il passo successivo disponibile.
+    Scartato perché è oltre il 25% "LucasArts classico" che la voce sull'altezza
+    dei personaggi aveva già rifiutato come troppo stretto, e mostrerebbe 240
+    unità di una stanza larga 384.
+  - **Non è un continuo, sono tre valori.** Le sole risoluzioni 16:9 che dividono
+    1080 esattamente sono 216 (5×), 180 (6×) e 135 (8×). Qualunque valore
+    intermedio dà un fattore non intero.
+  - Regalo collaterale non cercato: **180 divide esattamente 720, 1080, 1440 e
+    2160**, mentre 216 era nitido solo su 1080p e 4K (720/216 = 3,33 e
+    1440/216 = 6,67). Il gioco è nitido su più schermi di prima, non su meno.
+  - **La premessa da cui la domanda era partita era sbagliata**, e vale
+    registrarla: con `canvas_items` e `aspect = keep` il gioco riempie sempre
+    tutto lo schermo, quindi una base più piccola **non** dà "un effetto gigante
+    su uno schermo grande". Dà pixel più grossi — 12 pixel veri per pixel di
+    texture su 4K invece di 10 — e meno mondo inquadrato. Il costo è quello, non
+    la dimensione della finestra.
+  - **Il criterio che ha reso la modifica affrontabile**: quello che è
+    dimensionato sul personaggio o sul dito non cambia, quello che è ancorato
+    allo schermo sì. Quindi restano identici porta, prop, sedie, badge della
+    verb-coin, altezza degli slot e font; cambiano estensioni delle stanze,
+    posizioni e contenitori della UI. Effetto secondario gradito: badge e testi
+    sono ora relativamente **più grandi**, quindi più facili da colpire e da
+    leggere — un badge passa da 120 a 144 pixel veri su un telefono.
+  - **L'atrio è stato ricomposto e non riscalato**, perché per 5/6 nessuna
+    coordinata resta intera, e la pixel art vuole interi. Ne è stato approfittato
+    per abbassare la linea del pavimento dal 63% al **60%**: la fascia di muro
+    nudo sopra i prop era la parte più vuota dell'immagine, e abbassarla
+    restituisce al pavimento la profondità calpestabile che l'inquadratura più
+    stretta aveva tolto.
+  - **Il corridoio è stato ricampionato, non ridisegnato**: le sue due immagini
+    sorgente non stanno nel repository, per la decisione già registrata, quindi
+    da 3840×1080 sono passate a 3200×900 con Lanczos. È materiale dipinto,
+    morbido, che vive già sotto filtro lineare — l'unica cosa del progetto per
+    cui un ricampionamento è lecito. Resta da rifare in pixel art.
+  - **Le tre stanze di prova ritirate sono state riscalate meccanicamente**, non
+    ricomposte: un fondale largo 384 in un mondo largo 320 farebbe scorrere la
+    telecamera in verticale, e lasciarcelo era una mina. Sono blockout di
+    `Polygon2D` senza composizione da salvare; in quelle tre il personaggio
+    risulta il 20% più grande del dovuto, e non importa perché non sono
+    raggiungibili.
+  - Costo accettato: **si vede meno stanza**, 320 unità invece di 384. È
+    esattamente ciò che si stava comprando.
+  - Costo accettato e ancora da pagare: **il vuoto non è risolto**. Tre oggetti
+    su un muro non riempiono una stanza a nessuna risoluzione, e il confronto
+    fatto prima di decidere lo mostrava anche a 240×135. La risposta è arredare,
+    che è additivo e non tocca nessuna geometria.
+  - Nota: da rivedere solo se un giorno il gioco volesse stanze molto più larghe
+    dello schermo, dove vedere meno mondo pesa più che vedere il personaggio
+    grande.
 
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma

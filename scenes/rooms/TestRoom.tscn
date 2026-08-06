@@ -12,22 +12,22 @@
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="10_click"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 120, 160, 120, 224, 120, 376, 120, 8, 140, 160, 140, 224, 140, 376, 140, 8, 180, 160, 180, 224, 180, 376, 180, 8, 208, 160, 208, 224, 208, 376, 208)
+vertices = PackedVector2Array(7, 100, 133, 100, 187, 100, 313, 100, 7, 117, 133, 117, 187, 117, 313, 117, 7, 150, 133, 150, 187, 150, 313, 150, 7, 173, 133, 173, 187, 173, 313, 173)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 5, 4), PackedInt32Array(1, 2, 6, 5), PackedInt32Array(2, 3, 7, 6), PackedInt32Array(4, 5, 9, 8), PackedInt32Array(6, 7, 11, 10), PackedInt32Array(8, 9, 13, 12), PackedInt32Array(9, 10, 14, 13), PackedInt32Array(10, 11, 15, 14)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208), PackedVector2Array(160, 140, 224, 140, 224, 180, 160, 180)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(7, 100, 313, 100, 313, 173, 7, 173), PackedVector2Array(133, 117, 187, 117, 187, 150, 133, 150)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
-size = Vector2(64, 40)
+size = Vector2(53, 33)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(40, 64)
+size = Vector2(33, 53)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_slot"]
-size = Vector2(20, 30)
+size = Vector2(17, 25)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_draft"]
-size = Vector2(64, 30)
+size = Vector2(53, 25)
 
 [sub_resource type="Resource" id="Resource_crate_peeled"]
 script = ExtResource("7_variant")
@@ -45,23 +45,23 @@ depth_bottom_scale = 1.1
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.13, 0.15, 0.24, 1)
-polygon = PackedVector2Array(0, 0, 384, 0, 384, 120, 0, 120)
+polygon = PackedVector2Array(0, 0, 320, 0, 320, 100, 0, 100)
 
 [node name="Floor" type="Polygon2D" parent="."]
 color = Color(0.29, 0.27, 0.31, 1)
-polygon = PackedVector2Array(0, 120, 384, 120, 384, 216, 0, 216)
+polygon = PackedVector2Array(0, 100, 320, 100, 320, 180, 0, 180)
 
 [node name="FloorEdge" type="Polygon2D" parent="."]
 color = Color(0.36, 0.34, 0.39, 1)
-polygon = PackedVector2Array(8, 120, 376, 120, 376, 208, 8, 208)
+polygon = PackedVector2Array(7, 100, 313, 100, 313, 173, 7, 173)
 
 [node name="Door" type="Polygon2D" parent="."]
 color = Color(0.35, 0.24, 0.18, 1)
-polygon = PackedVector2Array(296, 56, 336, 56, 336, 120, 296, 120)
+polygon = PackedVector2Array(247, 47, 280, 47, 280, 100, 247, 100)
 
 [node name="Slot" type="Polygon2D" parent="."]
 color = Color(0.08, 0.09, 0.14, 1)
-polygon = PackedVector2Array(348, 70, 368, 70, 368, 100, 348, 100)
+polygon = PackedVector2Array(290, 58, 307, 58, 307, 83, 290, 83)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -69,13 +69,13 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="EntryPoints" type="Node2D" parent="."]
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
-position = Vector2(48, 198)
+position = Vector2(40, 165)
 
 [node name="FromHallway" type="Marker2D" parent="EntryPoints"]
-position = Vector2(316, 132)
+position = Vector2(263, 110)
 
 [node name="CrateHotspot" type="Area2D" parent="."]
-position = Vector2(192, 180)
+position = Vector2(160, 150)
 script = ExtResource("4_pickup")
 display_name = "ROOM_TEST_CRATE"
 sound = ExtResource("9_thud")
@@ -91,28 +91,28 @@ taken_text = "ROOM_TEST_CRATE_TAKEN"
 
 [node name="Picture" type="Polygon2D" parent="CrateHotspot"]
 color = Color(0.55, 0.35, 0.22, 1)
-polygon = PackedVector2Array(-32, -40, 32, -40, 32, 0, -32, 0)
+polygon = PackedVector2Array(-27, -33, 27, -33, 27, 0, -27, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CrateHotspot"]
-position = Vector2(0, -20)
+position = Vector2(0, -17)
 shape = SubResource("RectangleShape2D_crate")
 
 [node name="ApproachPoints" type="Node2D" parent="CrateHotspot"]
 
 [node name="Below" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(0, 12)
+position = Vector2(0, 10)
 
 [node name="Above" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(0, -48)
+position = Vector2(0, -40)
 
 [node name="Left" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(-40, -20)
+position = Vector2(-33, -17)
 
 [node name="Right" type="Marker2D" parent="CrateHotspot/ApproachPoints"]
-position = Vector2(40, -20)
+position = Vector2(33, -17)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(316, 88)
+position = Vector2(263, 73)
 script = ExtResource("3_door")
 display_name = "ROOM_TEST_DOOR"
 sound = ExtResource("9_thud")
@@ -130,10 +130,10 @@ closing_text = "ROOM_TEST_DOOR_CLOSE"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 37)
 
 [node name="DraftHotspot" type="Area2D" parent="."]
-position = Vector2(316, 135)
+position = Vector2(263, 112)
 script = ExtResource("2_hotspot")
 display_name = "ROOM_TEST_DRAFT"
 look_text = "ROOM_TEST_DRAFT_LOOK"
@@ -141,16 +141,16 @@ present_if = PackedStringArray("on:hallway_door")
 
 [node name="Light" type="Polygon2D" parent="DraftHotspot"]
 color = Color(1, 0.93, 0.72, 0.16)
-polygon = PackedVector2Array(-20, -15, 20, -15, 32, 15, -32, 15)
+polygon = PackedVector2Array(-17, -12, 17, -12, 27, 12, -27, 12)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DraftHotspot"]
 shape = SubResource("RectangleShape2D_draft")
 
 [node name="ApproachPoint" type="Marker2D" parent="DraftHotspot"]
-position = Vector2(0, 35)
+position = Vector2(0, 29)
 
 [node name="SlotHotspot" type="Area2D" parent="."]
-position = Vector2(358, 85)
+position = Vector2(298, 71)
 script = ExtResource("6_passage")
 display_name = "ROOM_TEST_SLOT"
 sound = ExtResource("10_click")
@@ -165,4 +165,4 @@ waiting_text = "ROOM_TEST_SLOT_WAITING"
 shape = SubResource("RectangleShape2D_slot")
 
 [node name="ApproachPoint" type="Marker2D" parent="SlotHotspot"]
-position = Vector2(0, 45)
+position = Vector2(0, 38)

@@ -11,9 +11,9 @@
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="9_click"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
+vertices = PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_console"]
@@ -37,30 +37,30 @@ act_text = "PROTO_STATION_LEVER_ACT_DONE"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("8_hum")
-depth_top_y = 110.0
-depth_bottom_y = 208.0
+depth_top_y = 104.0
+depth_bottom_y = 172.0
 depth_top_scale = 0.8
 depth_bottom_scale = 1.1
 
 [node name="Wall" type="Polygon2D" parent="."]
 color = Color(0.12, 0.16, 0.16, 1)
-polygon = PackedVector2Array(0, 0, 384, 0, 384, 110, 0, 110)
+polygon = PackedVector2Array(0, 0, 320, 0, 320, 100, 0, 100)
 
 [node name="Floor" type="Polygon2D" parent="."]
 color = Color(0.21, 0.23, 0.23, 1)
-polygon = PackedVector2Array(0, 110, 384, 110, 384, 216, 0, 216)
+polygon = PackedVector2Array(0, 100, 320, 100, 320, 180, 0, 180)
 
 [node name="FloorEdge" type="Polygon2D" parent="."]
 color = Color(0.28, 0.3, 0.3, 1)
-polygon = PackedVector2Array(8, 110, 376, 110, 376, 208, 8, 208)
+polygon = PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)
 
 [node name="Skirting" type="Polygon2D" parent="."]
 color = Color(0.17, 0.2, 0.2, 1)
-polygon = PackedVector2Array(0, 102, 384, 102, 384, 110, 0, 110)
+polygon = PackedVector2Array(0, 94, 320, 94, 320, 100, 0, 100)
 
 [node name="Shelf" type="Polygon2D" parent="."]
 color = Color(0.36, 0.31, 0.26, 1)
-polygon = PackedVector2Array(268, 100, 336, 100, 336, 106, 268, 106)
+polygon = PackedVector2Array(223, 92, 280, 92, 280, 98, 223, 98)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -68,10 +68,10 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="EntryPoints" type="Node2D" parent="."]
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
-position = Vector2(200, 180)
+position = Vector2(167, 150)
 
 [node name="ServicePointHotspot" type="Area2D" parent="."]
-position = Vector2(60, 78)
+position = Vector2(50, 68)
 script = ExtResource("3_passage")
 display_name = "PROTO_STATION_POINT"
 sound = ExtResource("9_click")
@@ -93,7 +93,7 @@ shape = SubResource("RectangleShape2D_point")
 position = Vector2(0, 64)
 
 [node name="ConsoleHotspot" type="Area2D" parent="."]
-position = Vector2(140, 70)
+position = Vector2(117, 60)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_STATION_CONSOLE"
 reach_verb = 6
@@ -120,7 +120,7 @@ shape = SubResource("RectangleShape2D_console")
 position = Vector2(0, 80)
 
 [node name="LeverHotspot" type="Area2D" parent="."]
-position = Vector2(220, 70)
+position = Vector2(183, 60)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_STATION_LEVER"
 act_verb = 3
@@ -147,7 +147,7 @@ shape = SubResource("RectangleShape2D_lever")
 position = Vector2(0, 80)
 
 [node name="LogHotspot" type="Area2D" parent="."]
-position = Vector2(302, 96)
+position = Vector2(252, 86)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_STATION_LOG"
 sound = ExtResource("9_click")
@@ -168,4 +168,4 @@ position = Vector2(0, -3)
 shape = SubResource("RectangleShape2D_log")
 
 [node name="ApproachPoint" type="Marker2D" parent="LogHotspot"]
-position = Vector2(0, 54)
+position = Vector2(0, 50)

@@ -20,7 +20,7 @@ Lo stile NON è fisso: va chiarito ogni volta con l'utente (vedi sotto), perché
 Prima di generare, se l'utente non li ha già specificati, stabilisci (anche assumendo default ragionevoli e dichiarandoli, senza bloccare il lavoro per domande inutili):
 
 - **Tipo di asset**: personaggio/sprite, sfondo, oggetto, UI, o combinazione
-- **Griglia/risoluzione base** per elementi in pixel art: tipica 16x16, 32x32, 48x48, 64x64 px per personaggi/oggetti; per sfondi, dimensioni scena tipiche 320x180, 384x216, 640x360 (poi scalate)
+- **Griglia/risoluzione base** per elementi in pixel art: tipica 16x16, 32x32, 48x48, 64x64 px per personaggi/oggetti; per sfondi, in questo progetto le dimensioni della stanza: 320x180, o un multiplo della larghezza
 - **Palette**: numero di colori (es. 16, 32, palette storiche tipo NES/SNES/PICO-8) oppure palette libera se lo sfondo è "2D moderno"
 - **Stile linea/contorno**: outline nero pieno, outline colorato (selective outlining), nessun contorno
 - **Fattore di scala export**: upscaling nearest-neighbor (x4, x8...) per l'anteprima/uso finale, mantenendo i bordi netti
@@ -143,7 +143,7 @@ del controllo, non del disegno. Verifica prima di correggere il PNG.
 Questa skill è generica; il progetto ha già preso decisioni che la restringono.
 Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
 
-- **Risoluzione base 384×216**, finestra 3×. Un personaggio a figura intera in
+- **Risoluzione base 320×180**, finestra 4× = 1280×720. Un personaggio a figura intera in
   scena è alto **40 unità di gioco** — decisione presa guardando 27, 40 e 54
   affiancate, registrata in `CLAUDE.md`. Uno sprite si disegna quindi su una
   griglia alta 40 px (tipicamente 24×40 o 32×40) e si usa a scala 1:1 nel gioco,
@@ -167,8 +167,8 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   alcuni escono grandi il doppio degli altri. È l'errore che questa guida chiama
   "fattori non interi", visto dal lato di questo progetto.
 - **Anche gli sfondi sono pixel art**, e la regola qui sopra vale per loro senza
-  eccezioni: si disegnano alle dimensioni della stanza — 384×216 per una stanza
-  di una schermata, 768×216 per il corridoio largo due — e in scena vanno su uno
+  eccezioni: si disegnano alle dimensioni della stanza — 320×180 per una stanza
+  di una schermata, 640×180 per il corridoio largo due — e in scena vanno su uno
   `Sprite2D` a `scale = 1`, `centered = false`, posizione (0, 0) e nessun
   override di filtro. Erano 1920×1080 a `scale = 0.2` con filtro `Linear`
   finché erano dipinti: quella strada è stata revocata perché uno sprite netto
