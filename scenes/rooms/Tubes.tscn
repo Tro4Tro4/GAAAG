@@ -14,6 +14,10 @@
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_wall.webp" id="13_wall"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_pipes.webp" id="14_pipes"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_porthole.png" id="15_porthole"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_plate.png" id="16_plate"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_posting_point.png" id="17_point"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_capsule.png" id="18_capsule"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 138, 760, 138, 760, 208, 8, 208)
@@ -162,9 +166,8 @@ look_text = "PROTO_TUBES_PORTHOLE_LOOK"
 act_text = "PROTO_TUBES_PORTHOLE_ACT"
 variants = Array[ExtResource("6_variant")]([SubResource("Resource_porthole_clear")])
 
-[node name="Picture" type="Polygon2D" parent="PortholeHotspot"]
-color = Color(0.72, 0.82, 0.78, 1)
-polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+[node name="Picture" type="Sprite2D" parent="PortholeHotspot"]
+texture = ExtResource("15_porthole")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PortholeHotspot"]
 shape = SubResource("RectangleShape2D_porthole")
@@ -182,9 +185,8 @@ look_text = "PROTO_TUBES_PLATE_LOOK"
 hand_text = "PROTO_TUBES_PLATE_HAND"
 item = ExtResource("7_plate")
 
-[node name="Picture" type="Polygon2D" parent="PlateHotspot"]
-color = Color(0.88, 0.86, 0.8, 1)
-polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
+[node name="Picture" type="Sprite2D" parent="PlateHotspot"]
+texture = ExtResource("16_plate")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlateHotspot"]
 shape = SubResource("RectangleShape2D_plate")
@@ -204,9 +206,8 @@ cache_id = &"tube"
 posted_text = "PROTO_TUBES_POINT_POSTED"
 waiting_text = "PROTO_TUBES_POINT_WAITING"
 
-[node name="Picture" type="Polygon2D" parent="PublicPointHotspot"]
-color = Color(0.76, 0.64, 0.3, 1)
-polygon = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
+[node name="Picture" type="Sprite2D" parent="PublicPointHotspot"]
+texture = ExtResource("17_point")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PublicPointHotspot"]
 shape = SubResource("RectangleShape2D_point")
@@ -225,9 +226,9 @@ hand_text = "PROTO_TUBES_CAPSULE_HAND"
 present_if = PackedStringArray("line_reversed")
 item = ExtResource("8_renewal")
 
-[node name="Picture" type="Polygon2D" parent="CapsuleHotspot"]
-color = Color(0.7, 0.72, 0.76, 1)
-polygon = PackedVector2Array(-10, -8, 10, -8, 10, 0, -10, 0)
+[node name="Picture" type="Sprite2D" parent="CapsuleHotspot"]
+position = Vector2(0, -6)
+texture = ExtResource("18_capsule")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CapsuleHotspot"]
 position = Vector2(0, -6)
