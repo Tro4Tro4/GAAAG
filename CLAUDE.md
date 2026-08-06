@@ -86,9 +86,6 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
   rooms/Lobby        Prototipo: l'atrio dove comincia Nora, con sfondo dipinto
   rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
   rooms/Station      Prototipo: la postazione dove sta Cesare
-  rooms/TestRoom     Vecchia stanza di prova, non piu' collegata a niente
-  rooms/Hallway      Vecchio corridoio, non piu' collegato
-  rooms/LongHall     Vecchio corridoio lungo, non piu' collegato
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
 scripts/             Codice GDScript (.gd), nomi in snake_case,
                      rispecchia l'albero di scenes/
@@ -113,8 +110,9 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
                      inventory_panel.gd, dialogue_panel.gd, menu_panel.gd,
                      settings_panel.gd, title_screen.gd, fade.gd
 resources/           Risorse di dati (.tres), niente scene e niente codice
-  items/             Un file per oggetto, più combinations.tres con le ricette
-                     e catalogue.tres con l'elenco di tutti gli oggetti
+  items/             Un file per oggetto — quattro, quelli che il prototipo sa
+                     mettere in mano — più combinations.tres con le ricette e
+                     catalogue.tres con l'elenco di tutti gli oggetti
   characters/        Un .tres di SpriteFrames per personaggio, scritto da tools/
   dialogues/         Un file per conversazione
   sequences/         Un file per scena scriptata
@@ -125,10 +123,8 @@ tools/               Script che producono asset, da eseguire dalla radice
   make_tubes_pixel_background.py    Il corridoio, disegnato a 640x180
   make_station_pixel_background.py La postazione, disegnata a 320x180
   make_station_props.py     Consolle, leva, sportello di servizio e registro
-  make_lobby_background.py  Il vecchio sfondo dipinto dell'atrio, non piu' usato
-  make_tubes_background.py  I due piani dipinti del corridoio, non piu' usati
   make_tubes_props.py       Oblo', targhetta, punto d'imbuco, capsula, battenti
-  make_item_icons.py        Le otto icone d'inventario, 12x12
+  make_item_icons.py        Le quattro icone d'inventario, 12x12
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
@@ -1478,9 +1474,10 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **Nomi e ambientazione restano provvisori** e costano due righe cambiarli:
     grazie alla localizzazione, un nome e' una chiave in `it.tres` e `en.tres` e
     da nessun'altra parte. La storia completa resta il punto 6.
-  - Le tre vecchie stanze di prova non sono cancellate ma non sono piu'
-    raggiungibili. Non le ho tolte perche' sono superficie gia' verificata, e
-    buttarla via non era una decisione mia: si cancellano quando vuoi.
+  - Le tre vecchie stanze di prova sono state tenute a lungo perche' erano
+    superficie gia' verificata, e buttarla via non era una decisione mia. Sono
+    state cancellate quando lo sviluppatore l'ha chiesto — vedi "Si cancella
+    tutto quello che non e' raggiungibile" in fondo all'elenco.
 
 - **`StateVisual`: la scenografia reagisce allo stato, senza essere cliccabile.**
   Un `Node2D` che si mostra solo mentre le sue condizioni reggono — la
@@ -1488,7 +1485,8 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   Nasce da un difetto trovato provando il prototipo: lo stato della porta
   (`state_id`) c'era e nessuno lo vedeva.
   - **Un hotspot senza verbi** al posto di questo: nessun codice nuovo, ed è
-    come era fatto lo spiffero nella vecchia stanza di prova. Scartato perché un
+    come era fatto lo spiffero nella stanza di prova di allora, poi cancellata.
+    Scartato perché un
     hotspot risponde ai click, e una lama di luce distesa sul pavimento davanti a
     una porta sta esattamente dove il giocatore tocca per andarci: la
     scenografia che reagisce al mondo non deve anche competere per il tocco.
@@ -1918,10 +1916,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     cui un ricampionamento è lecito. Resta da rifare in pixel art.
   - **Le tre stanze di prova ritirate sono state riscalate meccanicamente**, non
     ricomposte: un fondale largo 384 in un mondo largo 320 farebbe scorrere la
-    telecamera in verticale, e lasciarcelo era una mina. Sono blockout di
-    `Polygon2D` senza composizione da salvare; in quelle tre il personaggio
-    risulta il 20% più grande del dovuto, e non importa perché non sono
-    raggiungibili.
+    telecamera in verticale, e lasciarcelo era una mina. Erano blockout di
+    `Polygon2D` senza composizione da salvare. Sono state cancellate poco dopo,
+    quindi quel lavoro è durato due commit — e va bene così: la scelta di
+    tenerle o no era dello sviluppatore, e finché erano lì dovevano essere
+    coerenti.
   - Costo accettato: **si vede meno stanza**, 320 unità invece di 384. È
     esattamente ciò che si stava comprando.
   - Costo accettato e ancora da pagare: **il vuoto non è risolto**. Tre oggetti
@@ -2016,10 +2015,55 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     stanza ha 17 colori, quindi il prototipo intero — tre stanze, sedici prop,
     otto icone, due fogli personaggio — pesa meno di uno solo dei vecchi sfondi
     dipinti.
-  - Restano nel repository due generatori ormai morti, `make_lobby_background.py`
-    e `make_tubes_background.py`, che producevano gli sfondi dipinti. Non li
-    cancello per la stessa ragione per cui le tre stanze di prova sono ancora
-    lì: si cancellano quando vuoi.
+  - I due generatori degli sfondi dipinti, `make_lobby_background.py` e
+    `make_tubes_background.py`, sono rimasti morti per un commit e poi
+    cancellati, insieme a tutto il resto del non raggiungibile.
+
+- **Si cancella tutto quello che non è raggiungibile**, e "raggiungibile" ha una
+  definizione operativa e non un'opinione: si parte da `project.godot` — scena
+  principale, autoload, icona — si segue ogni `res://` in modo transitivo, e per
+  gli script anche il riferimento per `class_name`, che non passa da un percorso.
+  Quello che resta fuori non esiste per il gioco. Sono usciti **sedici file**.
+  - **Tre stanze**: `TestRoom`, `Hallway`, `LongHall`. Erano tenute perché erano
+    superficie già verificata, e la voce che le teneva diceva "si cancellano
+    quando vuoi": è stato chiesto.
+  - **Due generatori morti**, quelli degli sfondi dipinti, che producevano file
+    che non esistono più.
+  - **Un dialogo, una sequenza, un suono**: il funzionario, il distributore e il
+    carillon, che vivevano solo nelle stanze ritirate.
+  - **E la parte che non si vedeva a occhio: quattro oggetti d'inventario.**
+    Togliendo quelle stanze, `sticker`, `button`, `labelled_button` e `form`
+    diventano **non ottenibili** — nessuna stanza, nessun dialogo e nessuna
+    sequenza li mette più in mano, e la ricetta adesivo+pulsante non è più
+    raggiungibile. Il catalogo li teneva in vita artificialmente, perché serve a
+    risolvere gli id di un salvataggio e quindi nomina tutti gli oggetti: cercare
+    i riferimenti non basta, va calcolato **cosa il gioco sa dare**, chiudendo
+    anche sulle ricette. Via loro sono uscite quattro icone e settantuno chiavi di
+    testo.
+  - **Il criterio che ha protetto `tools/`**: quegli script non sono raggiungibili
+    da `project.godot` per costruzione — non lo sono mai stati — e cancellarli
+    perché "non usati" sarebbe stato leggere lo strumento sbagliato. Restano
+    perché la decisione registrata dice che un asset che nessuno sa rifare è un
+    asset che non si può correggere. Sono stati tolti i due che rifacevano
+    qualcosa che non c'è più, che è un'altra cosa.
+  - **Ogni sistema conserva almeno un esempio vivo**, ed è la verifica che rende
+    il taglio sicuro invece che solo pulito: combinazioni sì
+    (modulo + targhetta = reclamo), dialoghi sì (la consolle), sequenze sì (la
+    leva), punti di passaggio sì (imbuco pubblico e sportello di servizio, che
+    condividono il `cache_id`). Non è stato cancellato nessun sistema, solo la
+    sua seconda copia.
+  - **La versione del salvataggio passa a 3.** Una partita che nomina una stanza
+    che non esiste più carica in un `RoomContainer` vuoto: nessuna regione di
+    navigazione, quindi nessuno cammina. È lo stesso soft lock che la versione 2
+    rifiutava per la geometria spostata, per un'altra strada.
+  - Il conto finale, che è il motivo per cui vale la pena: **109 chiavi di testo
+    invece di 180**, quattro oggetti invece di otto, tre stanze invece di sei. Da
+    qui in avanti la scrittura della storia riguarda solo cose che esistono.
+  - Nota di metodo: il controllo di raggiungibilità è uno script di venti righe e
+    va rifatto quando si taglia, non tenuto. Ma la sua conclusione va verificata
+    in tre modi che restano — ogni `res://` risolve, le due lingue hanno le stesse
+    chiavi e ogni chiave è usata, `gdparse` passa — e sono i tre controlli che
+    hanno detto che il taglio era completo e non eccessivo.
 
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma

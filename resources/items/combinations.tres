@@ -1,28 +1,18 @@
-[gd_resource type="Resource" script_class="CombinationBook" load_steps=10 format=3 uid="uid://baggacombobk01"]
+[gd_resource type="Resource" script_class="CombinationBook" load_steps=6 format=3 uid="uid://baggacombobk01"]
 
 [ext_resource type="Script" path="res://scripts/items/combination_book.gd" id="1_book"]
 [ext_resource type="Script" path="res://scripts/items/item_combination.gd" id="2_combination"]
-[ext_resource type="Resource" uid="uid://baggaitemstic1" path="res://resources/items/sticker.tres" id="3_sticker"]
-[ext_resource type="Resource" uid="uid://baggaitembutt1" path="res://resources/items/button.tres" id="4_button"]
-[ext_resource type="Resource" uid="uid://baggaitemlabl1" path="res://resources/items/labelled_button.tres" id="5_labelled_button"]
-[ext_resource type="Resource" uid="uid://baggaitemfblk1" path="res://resources/items/form_blank.tres" id="6_form_blank"]
-[ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="7_plate"]
-[ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="8_form_filled"]
-
-[sub_resource type="Resource" id="Resource_sticker_on_button"]
-script = ExtResource("2_combination")
-first = ExtResource("3_sticker")
-second = ExtResource("4_button")
-result = ExtResource("5_labelled_button")
-text = "COMBO_STICKER_BUTTON"
+[ext_resource type="Resource" uid="uid://baggaitemfblk1" path="res://resources/items/form_blank.tres" id="3_form_blank"]
+[ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="4_plate"]
+[ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="5_form_filled"]
 
 [sub_resource type="Resource" id="Resource_plate_on_form"]
 script = ExtResource("2_combination")
-first = ExtResource("6_form_blank")
-second = ExtResource("7_plate")
-result = ExtResource("8_form_filled")
+first = ExtResource("3_form_blank")
+second = ExtResource("4_plate")
+result = ExtResource("5_form_filled")
 text = "COMBO_FORM_PLATE"
 
 [resource]
 script = ExtResource("1_book")
-recipes = Array[ExtResource("2_combination")]([SubResource("Resource_sticker_on_button"), SubResource("Resource_plate_on_form")])
+recipes = Array[ExtResource("2_combination")]([SubResource("Resource_plate_on_form")])

@@ -73,15 +73,6 @@ def _lines(c: PixelCanvas, rows) -> None:
             c.set(x, y, INK)
 
 
-def draw_form(c: PixelCanvas) -> None:
-    """Modulo 12-B: print all the way down, and nothing to fill in.
-
-    It is the only paper item with no box, which is the joke — the form whose
-    next entry does not exist.
-    """
-    _sheet(c)
-    _lines(c, ((2, 8), (4, 7), (6, 8), (8, 7)))
-
 
 def draw_form_blank(c: PixelCanvas) -> None:
     """Modulo di reclamo: print, then the empty box the plate has to go in."""
@@ -150,80 +141,12 @@ _DISC = {2: (4, 7), 3: (3, 8), 4: (2, 9), 5: (2, 9),
          6: (2, 9), 7: (2, 9), 8: (3, 8), 9: (4, 7)}
 
 
-def _button_body(c: PixelCanvas) -> None:
-    """A round push button seen from above, filling the icon.
-
-    The first version was six pixels wide inside its outline and read as a
-    battery: at this size a disc has to be nearly as wide as the canvas, or
-    the outline eats the shape it is meant to describe.
-    """
-    for y, (x0, x1) in _DISC.items():                       # outline
-        c.rect(x0, y, x1, y, OUT)
-    for y, (x0, x1) in _DISC.items():                       # face, inset by 1
-        if 3 <= y <= 8:
-            c.rect(x0 + 1, y, x1 - 1, y, METAL)
-    for x in range(4, 8):                                   # lit top
-        c.set(x, 3, METAL_L)
-    c.set(3, 4, METAL_L)
-    c.set(3, 5, METAL_L)
-    for x in range(4, 8):                                   # shaded underside
-        c.set(x, 8, (86, 90, 104, 255))
-
-
-def draw_button(c: PixelCanvas) -> None:
-    """Pulsante: grey, detached from everything, convinced of itself."""
-    _button_body(c)
-
-
-def draw_labelled_button(c: PixelCanvas) -> None:
-    """Pulsante etichettato: the same button with the sticker on it.
-
-    Same body plus the ochre, exactly as the filled form is the blank one plus
-    the enamel. The two pairs teach the same reading.
-    """
-    _button_body(c)
-    # A band right across the disc, edge to edge: a label stuck on, not a
-    # smaller shape floating in the middle of the button.
-    c.rect(3, 5, 8, 7, OCHRE)
-    for x in range(3, 9):
-        c.set(x, 5, (232, 202, 146, 255))
-    for x in range(3, 9):
-        c.set(x, 7, OCHRE_D)
-    for x in range(4, 8):
-        c.set(x, 6, OUT)
-
-
-def draw_sticker(c: PixelCanvas) -> None:
-    """Adesivo NON IMPILARE: a peeling label, curled at one corner.
-
-    The curl is what says "it comes off", which is the only property of it the
-    puzzle uses.
-    """
-    c.rect(2, 2, 9, 9, OUT)
-    c.rect(3, 3, 8, 8, OCHRE)
-    for x in range(3, 9):
-        c.set(x, 3, (232, 202, 146, 255))
-    for x in range(3, 9):
-        c.set(x, 8, OCHRE_D)
-    for x in range(4, 8):
-        c.set(x, 5, OUT)
-    for x in range(4, 7):
-        c.set(x, 7, OUT)
-    # The peeled corner: paper-white underside lifting off the bottom right.
-    for x, y in ((8, 9), (9, 9), (9, 8)):
-        c.set(x, y, PAPER_L)
-    c.set(9, 9, OUT)
-
 
 ICONS = [
-    ("item_form", draw_form),
     ("item_form_blank", draw_form_blank),
     ("item_form_filled", draw_form_filled),
     ("item_renewal", draw_renewal),
     ("item_plate", draw_plate),
-    ("item_button", draw_button),
-    ("item_labelled_button", draw_labelled_button),
-    ("item_sticker", draw_sticker),
 ]
 
 

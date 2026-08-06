@@ -31,7 +31,12 @@ extends RefCounted
 ##
 ## 2: the floors of the lobby and of the pipe corridor moved (y=150 to 140 and
 ##    y=110 to 138), so positions written before that no longer stand on them.
-const VERSION: int = 2
+## 3: the base resolution went to 320x180 and every room was re-laid out; the
+##    three retired test rooms were deleted, along with four items that nothing
+##    could give out any more. A save naming a room that no longer exists loads
+##    into an empty RoomContainer -- no navigation region, so nobody walks --
+##    which is the same soft lock by another route.
+const VERSION: int = 3
 
 ## The slot the menu writes to.
 const MANUAL_SLOT: StringName = &"manual"
