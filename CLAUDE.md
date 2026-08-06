@@ -1178,6 +1178,26 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **Versione che rifiuta invece di migrare**: un file di versione diversa non
     si legge. Durante lo sviluppo i salvataggi sono usa e getta, e una
     migrazione scritta alla cieca è peggio di un rifiuto onesto.
+  - **La versione copre anche la geometria delle stanze**, non solo la forma del
+    file: si alza quando una navmesh si sposta. Una posizione salvata ha senso
+    solo contro il pavimento su cui stava, e chi si ritrova fuori dalla mesh non
+    ottiene percorso — un agente senza percorso restituisce la propria posizione
+    come prossimo angolo, quindi il personaggio resta fermo per sempre e ogni
+    tocco successivo non fa niente. È un soft lock, e un soft lock vale una
+    versione. Scartato **lasciarli caricabili** (il file si legge ancora, quindi
+    "tecnicamente" va bene: ma il sintomo è il gioco bloccato senza spiegazione,
+    che è il caso peggiore di tutti) e scartata la **migrazione delle posizioni**
+    verso il punto calpestabile più vicino, che è indovinare dove uno *voleva*
+    stare mentre lo stesso salvataggio porta anche flag e oggetti di un mondo di
+    prima. Il rimedio automatico resta comunque in `room.gd`, per chi si trovi
+    fuori mesh per qualunque altra ragione.
+  - **Chi offre di caricare chiede `is_loadable()` e non `exists()`**: da quando
+    la versione può rifiutare un file, esserci e potersi leggere hanno smesso di
+    essere la stessa cosa, e "Continua" tornerebbe a essere la voce che risponde
+    «non c'è niente che io sappia leggere» — cioè proprio quello che la decisione
+    su Continua voleva evitare. Per la stessa ragione `newest_slot()` considera
+    solo gli slot leggibili: altrimenti sceglierebbe il file più recente proprio
+    perché è il più recente fra quelli che non si possono aprire.
   - **Caricare non emette `flag_raised` uno per uno**: caricare non è cento cose
     che accadono, è un mondo diverso. La stanza viene buttata via e ricostruita,
     e i suoi hotspot si ricalcolano da soli salendo — che è più semplice e dà

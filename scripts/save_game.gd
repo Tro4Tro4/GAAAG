@@ -18,10 +18,20 @@ extends RefCounted
 ## which matters more than usual when the machine and the test device are the
 ## same phone.
 
-## Bumped whenever the shape below changes. A file from another version is
-## refused rather than migrated: during development saves are disposable, and a
-## migration written blind is worse than an honest refusal.
-const VERSION: int = 1
+## Bumped whenever the shape below changes — and whenever the world it describes
+## moves out from under it, which is the same problem wearing different clothes.
+## A saved position is only meaningful against the floor it was standing on: when
+## a room's navigation mesh moves, every older save puts somebody inside a wall,
+## and somebody off the mesh gets no path and never walks again. That is a soft
+## lock, and a soft lock is worth a version.
+##
+## A file from another version is refused rather than migrated: during
+## development saves are disposable, and a migration written blind is worse than
+## an honest refusal.
+##
+## 2: the floors of the lobby and of the pipe corridor moved (y=150 to 140 and
+##    y=110 to 138), so positions written before that no longer stand on them.
+const VERSION: int = 2
 
 ## The slot the menu writes to.
 const MANUAL_SLOT: StringName = &"manual"
@@ -41,12 +51,33 @@ static func exists(slot: StringName) -> bool:
 	return FileAccess.file_exists(path_for(slot))
 
 
+## True when [param slot] holds a save this build will actually read.
+##
+## Asked instead of [method exists] by anything that offers to load, because a
+## file that is there and a file that can be read stopped being the same thing
+## the moment the version could refuse one: an entry that answers "that save is
+## from another version" is worse than an entry that is not there, which is the
+## rule "Continua" was written to already.
+static func is_loadable(slot: StringName) -> bool:
+	if not exists(slot):
+		return false
+
+	var file := ConfigFile.new()
+	if file.load(path_for(slot)) != OK:
+		return false
+
+	return int(file.get_value("meta", "version", 0)) == VERSION
+
+
 ## The slot last written to, or empty if neither has been. What "Continua"
 ## means: the game you were in, whether you asked for it to be kept or the game
 ## kept it for you.
 static func newest_slot() -> StringName:
-	var manual: bool = exists(MANUAL_SLOT)
-	var auto: bool = exists(AUTO_SLOT)
+	# Only a slot this build can read counts as a candidate. Otherwise the newer
+	# of the two could be a file from another version, and "Continua" would pick
+	# it precisely because it is the most recent thing that cannot be loaded.
+	var manual: bool = is_loadable(MANUAL_SLOT)
+	var auto: bool = is_loadable(AUTO_SLOT)
 
 	if not manual and not auto:
 		return &""

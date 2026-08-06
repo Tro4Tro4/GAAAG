@@ -112,7 +112,10 @@ func _build() -> void:
 
 
 func _anything_to_continue() -> bool:
-	return SaveGame.exists(SaveGame.MANUAL_SLOT) or SaveGame.exists(SaveGame.AUTO_SLOT)
+	# Loadable and not merely present: a save this build refuses would put the
+	# entry back exactly where it was not wanted, answering "there is nothing
+	# I can read" instead of continuing anything.
+	return SaveGame.is_loadable(SaveGame.MANUAL_SLOT) or SaveGame.is_loadable(SaveGame.AUTO_SLOT)
 
 
 func _make_entry(entry: Dictionary) -> Button:
