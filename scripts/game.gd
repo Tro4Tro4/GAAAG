@@ -201,6 +201,11 @@ func _show_room_of(character: PlayerCharacter) -> void:
 
 
 func _swap_room_to(room_path: String) -> void:
+	# The invariant this whole arrangement rests on: exactly one room in the
+	# tree, ever. It is checked and not assumed because when it breaks nothing
+	# on screen explains it — see _sweep_stray_rooms().
+	_sweep_stray_rooms()
+
 	if _room != null:
 		# remove_child() before queue_free(), and not queue_free() alone:
 		# freeing is deferred to the end of the frame, so the outgoing room's
@@ -244,6 +249,33 @@ func _swap_room_to(room_path: String) -> void:
 	_room.wants_to_run.connect(_on_wants_to_run)
 
 	_room_container.add_child(_room)
+
+
+## Throws out anything in RoomContainer that this node is not keeping track of.
+##
+## It cannot happen by way of _swap_room_to(), which takes the old room out of
+## the tree before instancing the new one. The check is here anyway because the
+## consequence is out of all proportion to the cause: every NavigationRegion2D
+## in the tree feeds the same navigation map, so two rooms drawn at the same
+## coordinates merge into one unusable mesh — a click snaps onto the other
+## room's floor, or no path is found at all and nobody moves. It is the exact
+## failure that rooms being swapped, rather than shown and hidden, exists to
+## avoid, and it is worth more than the assumption that it cannot occur.
+##
+## Named in the warning and then cleared, rather than only reported: on screen
+## two rooms look like one room with the wrong scenery in it, which explains
+## nothing, and being unable to walk is worse than a line in the output.
+func _sweep_stray_rooms() -> void:
+	for child in _room_container.get_children():
+		if child == _room:
+			continue
+
+		push_warning("RoomContainer held a room nobody was tracking, %s: thrown out. %s" % [
+			child.name, "Two rooms in the tree stop anybody from walking."
+		])
+
+		_room_container.remove_child(child)
+		child.queue_free()
 
 
 func _place_characters() -> void:

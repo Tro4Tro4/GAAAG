@@ -245,7 +245,9 @@ func _walk_to(destination: Vector2) -> void:
 	# towards the top-left corner, where there is no path either, so the walk
 	# ends where it started. On screen that is indistinguishable from a tap that
 	# never registered, which is the one thing worth saying out loud.
-	if NavigationServer2D.map_get_regions(navigation_map).is_empty():
+	var regions: Array[RID] = NavigationServer2D.map_get_regions(navigation_map)
+
+	if regions.is_empty():
 		push_warning("Room %s: no navigation region on the map, so nobody can walk." % name)
 
 		# Nothing can arrive, so nothing may stay pending: an errand that cannot
@@ -253,6 +255,18 @@ func _walk_to(destination: Vector2) -> void:
 		_pending_hotspot = null
 		_pending_item = null
 		return
+
+	# More than one region means more than one room is in the tree: every 2D
+	# navigation region feeds this same map, so two floors at the same
+	# coordinates merge into a mesh that snaps clicks onto the wrong room or
+	# finds no path at all. Reported and not worked around — there is nothing
+	# sensible to do about it from down here, and the cause is upstairs in Game.
+	if regions.size() > 1:
+		push_warning(
+			"Room %s: %d navigation regions on the map, so more than one room is in the tree. Paths will be wrong." % [
+				name, regions.size()
+			]
+		)
 
 	# Somebody standing off the mesh gets no path at all, and an agent without a
 	# path reports its own position as the next corner — so the character stands
