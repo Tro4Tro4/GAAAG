@@ -60,9 +60,18 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    stato di stanza — `present_if` e varianti degli hotspot — e i dialoghi ad
    albero, con risorse `.tres`, pannello modale di opzioni e caption tinta di
    chi parla)*
-5. Prototipo verticale *(fatto: tre stanze, due personaggi separati per
-   autorizzazione, un enigma cooperativo completo — vedi "Il prototipo
-   verticale" fra le decisioni)*
+5. Prototipo verticale *(fatto e **percorso dall'inizio alla fine sul
+   dispositivo**: tre stanze, due personaggi separati per autorizzazione, un
+   enigma cooperativo completo — vedi "Il prototipo verticale" fra le decisioni)*.
+   La catena verificata è di tredici passi e attraversa ogni sistema una volta:
+   raccolta, combinazione nello zaino, punto di passaggio ai due capi con lo
+   stesso `cache_id`, oggetto accettato da un hotspot che alza un flag, dialogo
+   con condizioni, sequenza scriptata, `present_if` che fa comparire una cosa in
+   un'altra stanza, cambio personaggio e porta con stato. **È il primo giro
+   completo dopo il passaggio a 320×180**, che ha ricomposto tutte e tre le stanze
+   e spostato ogni coordinata, dopo la cancellazione del non raggiungibile e dopo
+   la correzione dei punti di avvicinamento: prima di questo giro la catena era
+   verificata solo sulla carta
 6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
    altre stanze, durata finale del gioco (ancora da stabilire)
 
