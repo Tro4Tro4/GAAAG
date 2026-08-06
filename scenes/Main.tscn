@@ -55,6 +55,8 @@ script = ExtResource("15_audio")
 
 [node name="Sound" type="AudioStreamPlayer" parent="Audio"]
 
+[node name="Steps" type="AudioStreamPlayer" parent="Audio"]
+
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("14_camera")
 

@@ -247,6 +247,7 @@ func _swap_room_to(room_path: String) -> void:
 	_room.held_item_released.connect(_release_held_item)
 	_room.wants_to_talk.connect(_on_wants_to_talk)
 	_room.wants_to_play.connect(_audio.play_sound)
+	_room.wants_to_step.connect(_audio.play_step)
 	_room.wants_to_run.connect(_on_wants_to_run)
 
 	_room_container.add_child(_room)

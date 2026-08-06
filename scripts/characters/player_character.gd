@@ -25,6 +25,19 @@ signal room_changed(character: PlayerCharacter)
 ## inventory panel can redraw without being told who did what.
 signal inventory_changed(character: PlayerCharacter)
 
+## Emitted every time a foot lands. The room listens, because the sound a step
+## makes is a property of the floor and not of the person walking on it — the
+## same division that has the room own its music and the character own nothing
+## about audio.
+signal stepped
+
+## Which frames of the walk cycle are a foot landing. The cycle is contact,
+## passing, opposite contact, passing — so the two contacts are frames 0 and 2,
+## and hanging the sound on them means it falls exactly when the foot does
+## without anybody counting time. It also means the sound follows whatever speed
+## the sheet is played at, for free.
+const CONTACT_FRAMES: Array[int] = [0, 2]
+
 ## The four ways a character can be turned. Four and not eight because that is
 ## what a sprite sheet of this kind of game holds, and because a diagonal walk
 ## in a room this size is over before anybody has read it.
@@ -44,7 +57,7 @@ enum State { IDLE, WALKING, TALKING }
 ## are three drawings for four ways of facing.
 @export var frames: SpriteFrames
 
-## Pixels per second, expressed at the game's 384x216 base resolution.
+## Pixels per second, expressed at the game's 320x180 base resolution.
 @export var walk_speed: float = 55.0
 
 ## The scene file of the room this character is standing in: set here for the
@@ -100,6 +113,7 @@ var _walk_target: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	_sprite.sprite_frames = frames
+	_sprite.frame_changed.connect(_on_frame_changed)
 	_refresh_visual()
 	GameState.register_character(self)
 
@@ -279,6 +293,16 @@ func _physics_process(delta: float) -> void:
 	# move_and_slide() applies velocity using the physics frame time on its
 	# own, which is why delta is not multiplied in here.
 	move_and_slide()
+
+
+## Reports a footfall when the walk cycle reaches a contact frame.
+##
+## Guarded on the state and not only on the frame number: idle and talk have
+## their own frame 0, and a character standing still breathing would otherwise
+## be heard walking on the spot.
+func _on_frame_changed() -> void:
+	if state == State.WALKING and _sprite.frame in CONTACT_FRAMES:
+		stepped.emit()
 
 
 func _stop_walking() -> void:

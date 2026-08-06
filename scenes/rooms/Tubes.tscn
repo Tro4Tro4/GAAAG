@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://baggatubes0001"]
+[gd_scene load_steps=35 format=3 uid="uid://baggatubes0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -19,6 +19,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_plate.png" id="16_plate"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_posting_point.png" id="17_point"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_capsule.png" id="18_capsule"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="31_step1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="32_step2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="33_step3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_04.wav" id="34_step4"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 116, 632, 116, 632, 172, 8, 172)
@@ -64,6 +68,7 @@ look_text = "PROTO_TUBES_PORTHOLE_LOOK_CLEAR"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("9_hum")
+footsteps = Array[AudioStream]([ExtResource("31_step1"), ExtResource("32_step2"), ExtResource("33_step3"), ExtResource("34_step4")])
 room_size = Vector2(640, 180)
 depth_top_y = 116.0
 depth_bottom_y = 172.0

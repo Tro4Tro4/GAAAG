@@ -3,10 +3,18 @@ extends Node
 
 ## The one thing that makes a noise.
 ##
-## Two players and no more: one for whatever the room sounds like, one for
-## whatever just happened. Adventure games of this kind never have more going on
-## at once, and a pool of voices would be infrastructure bought against a need
-## nobody has yet.
+## Three players, and no more than three: one for whatever the room sounds like,
+## one for whatever just happened, one for the feet. It was two for a long time,
+## on the grounds that an adventure of this kind never has more going on at once
+## — and footsteps are what falsified that. They are the only sound in the game
+## that is continuous and involuntary; everything else is discrete and caused by
+## the player. Sharing one player between them means the most frequent and least
+## informative sound in the game interrupts the rarest and most meaningful ones:
+## pick something up, tap to walk away, and the first footfall cuts the thud.
+##
+## This is still not a pool of voices, which remains infrastructure bought
+## against a need nobody has. It is one more named player for one named job, and
+## the next sound that wants its own has to make the same argument.
 ##
 ## It lives next to the characters and the camera rather than inside a room,
 ## because music that stopped and started again every time somebody walked
@@ -23,6 +31,7 @@ const SOUND_BUS: StringName = &"Sound"
 
 @onready var _music: AudioStreamPlayer = $Music
 @onready var _sound: AudioStreamPlayer = $Sound
+@onready var _steps: AudioStreamPlayer = $Steps
 
 # What the music player is currently on, so that asking for the same music
 # twice — which happens every time a room is rebuilt — does not restart it.
@@ -32,6 +41,10 @@ var _music_stream: AudioStream = null
 func _ready() -> void:
 	_music.bus = MUSIC_BUS
 	_sound.bus = SOUND_BUS
+	# The feet share the effects bus rather than getting a third one: the buses
+	# exist so the player can turn music and effects down separately, and nobody
+	# wants a slider for their own shoes.
+	_steps.bus = SOUND_BUS
 
 	# Looped by hand rather than by the import setting: whether a .wav comes out
 	# of Godot's importer with looping on depends on an .import file the editor
@@ -66,6 +79,18 @@ func play_sound(stream: AudioStream) -> void:
 
 	_sound.stream = stream
 	_sound.play()
+
+
+## Plays [param stream] as a footfall, on the player kept for them.
+##
+## Separate from [method play_sound] so that walking never interrupts anything
+## that matters, and so that nothing that matters interrupts the walking either.
+func play_step(stream: AudioStream) -> void:
+	if stream == null:
+		return
+
+	_steps.stream = stream
+	_steps.play()
 
 
 func _repeat() -> void:

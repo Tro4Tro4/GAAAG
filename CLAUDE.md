@@ -2173,6 +2173,63 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - `tools/make_audio.py` sta nel repository per la stessa ragione dei generatori
     grafici: un asset che nessuno sa rifare è un asset che non si può correggere.
 
+- **I passi, e il terzo riproduttore.** Chiude il punto che era rimasto aperto sul
+  suono dei passi. Il gioco cammina sempre — è l'azione più frequente che ha — e
+  non faceva alcun rumore. Ora il personaggio annuncia ogni appoggio, la stanza
+  risponde con quello che il proprio pavimento suona, e il direttore lo suona su
+  un riproduttore tenuto per loro.
+  - **Revoca "due riproduttori e basta", e per premessa caduta.** Quella decisione
+    diceva: *"un'avventura di questo tipo non ha mai più di questo in corso
+    insieme"*, e per tutto quello che c'era prima era vero. I passi sono il primo
+    suono **continuo e involontario** del gioco: tutto il resto è discreto e
+    causato dal giocatore. Con un riproduttore solo, il suono più frequente e meno
+    informativo che il gioco fa interrompe i più rari e significativi — raccogli
+    un oggetto, tocchi per andartene, e il primo appoggio taglia la coda del tonfo.
+    Non è il pool di voci, che resta infrastruttura comprata contro un bisogno che
+    nessuno ha: è **un riproduttore in più con un nome e un compito**, e il
+    prossimo suono che ne vuole uno deve rifare la stessa argomentazione.
+  - **I bus restano due**, e i passi vanno su `Sound`: i bus esistono perché il
+    giocatore possa abbassare musica ed effetti separatamente, e nessuno vuole un
+    cursore per le proprie scarpe.
+  - Scartato **dividere il riproduttore con una regola di priorità** — il passo
+    suona solo se il riproduttore è libero. Teneva la decisione intatta e non
+    costava nodi, ma lascia i piedi muti fino a 850 ms dopo ogni altro suono, e
+    camminare in silenzio si sente. Scartato anche **dividerlo e basta**: in
+    pratica funziona quasi sempre, perché i suoni degli hotspot scattano
+    all'arrivo quando sei fermo — ma funziona per coincidenza di tempi, non per
+    costruzione.
+  - **L'aggancio è sui fotogrammi di contatto dell'animazione, non su un timer.**
+    Il ciclo di camminata è contatto, passaggio, contatto opposto, passaggio,
+    quindi gli appoggi sono i fotogrammi 0 e 2: appendere il suono a quelli lo fa
+    cadere esattamente quando cade il piede, e lo fa seguire da sé qualunque
+    velocità venga data al foglio. Un timer avrebbe richiesto di tenere allineati
+    due numeri che non hanno ragione di sapere l'uno dell'altro. A 9 fps sono
+    circa quattro appoggi e mezzo al secondo, che è coerente con i 55 pixel al
+    secondo di camminata.
+  - **Il suono appartiene al pavimento, non a chi ci cammina**: `Room.footsteps`,
+    e il personaggio emette soltanto `stepped`. La stessa persona nell'atrio e nel
+    corridoio deve suonare diversa, e niente di questo è una proprietà della
+    persona. Ne segue che una stanza che non dice niente del proprio pavimento è
+    muta sotto i piedi, com'erano tutte prima: la funzione è opt-in e nessuna
+    stanza esistente è cambiata di comportamento senza essere toccata.
+  - **Quattro varianti per superficie, e mai due volte la stessa di fila.** Un
+    file solo ripetuto quattro volte al secondo è il segno più udibile dell'audio
+    fatto in casa: l'orecchio si aggancia alla ripetizione in due passi e smette
+    di sentire una persona che cammina. Ogni variante ha il proprio seme e non
+    solo il proprio guadagno — misurato, gli RMS vanno da −26,0 a −28,1 dB, quindi
+    sono davvero suoni diversi. E la scelta casuale pura ripeterebbe un quarto
+    delle volte, che è esattamente la cosa da evitare, quindi una collisione viene
+    spinta sulla variante successiva.
+  - **Il livello è forzato a −12 dB**, contro i −3 che la categoria dà a un
+    effetto. È giusto per qualcosa che accade una volta e sbagliato per il suono
+    che il gioco fa di più: allo stesso picco, attraversare l'atrio è più forte
+    che risolvere l'enigma. È il secondo caso in cui il bersaglio della categoria
+    va contro l'uso, dopo il tonfo lontano — e sono entrambi casi di **distanza o
+    frequenza**, non di gusto.
+  - Due superfici perché il prototipo ha due pavimenti: legno nell'atrio, che è
+    disegnato a listoni, e pietra nel corridoio e nella postazione, che sono
+    lastre. La superficie la dice il disegno, non la scena.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -2197,15 +2254,15 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   Nota sulla via di mezzo: **quantizzare a pochi gradini non risolve**, perché il
   fattore intero dipende anche dalla dimensione della finestra — 0,8 è esatto a 5×
   e non lo è a 3×. Cambiarla resta una funzione sola (`_depth_scale()`)
-- **Ambienza e musica insieme, o no**: `AudioDirector` ha due riproduttori, e le
-  categorie `amb` e `mus` della skill audio competono per lo stesso. In
-  un'avventura una stanza vuole spesso un tappeto ambientale *sotto* un tema.
-  Terzo riproduttore — che revoca la decisione "due riproduttori e basta" — o si
-  rinuncia a una delle due
-- **Suono dei passi**: il gioco cammina sempre, è l'azione più frequente che ha, e
-  non fa alcun rumore. Servono un suono per superficie sulla stanza e un aggancio
-  nel personaggio che lo faccia scattare a cadenza. È il sistema nuovo più
-  impattante che le skill mettono sul tavolo, e il più udibile
+- **Ambienza e musica insieme, o no**: le categorie `amb` e `mus` della skill
+  audio competono per il riproduttore della musica. In un'avventura una stanza
+  vuole spesso un tappeto ambientale *sotto* un tema. La domanda è cambiata di
+  termini da quando i passi hanno preso il loro riproduttore: il precedente
+  esiste, quindi non si tratta più di revocare "due riproduttori e basta" ma di
+  fare la stessa argomentazione una seconda volta — un'ambienza è continua come i
+  passi, quindi la farebbe. Resta aperta perché nessuna stanza ha ancora chiesto
+  le due cose insieme, e perché sarebbe il quarto riproduttore: il momento di
+  chiederselo è quando esiste una stanza che ne ha bisogno, non prima
 - **Se il gioco ha una voce**: `vox` non ha un posto perché la voce è la
   `Caption`. Un borbottio stile LucasArts sincronizzato con la battuta vorrebbe
   un campo su `Dialogue` e qualcosa che lo faccia partire, e cambierebbe il

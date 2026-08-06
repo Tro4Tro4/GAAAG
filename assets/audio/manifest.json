@@ -22,6 +22,94 @@
       "peak_db": -7.999999999990459,
       "rms_db": -22.31645227234023,
       "channels": 1
+    },
+    {
+      "file": "step_wood_01.wav",
+      "category": "step",
+      "name": "wood_01",
+      "loop": false,
+      "note": "footfall on wood, variant 1 of 4",
+      "dur": 0.28,
+      "peak_db": -11.999999999973884,
+      "rms_db": -28.000411531402698,
+      "channels": 1
+    },
+    {
+      "file": "step_wood_02.wav",
+      "category": "step",
+      "name": "wood_02",
+      "loop": false,
+      "note": "footfall on wood, variant 2 of 4",
+      "dur": 0.28,
+      "peak_db": -11.99999999997409,
+      "rms_db": -26.936969410180232,
+      "channels": 1
+    },
+    {
+      "file": "step_wood_03.wav",
+      "category": "step",
+      "name": "wood_03",
+      "loop": false,
+      "note": "footfall on wood, variant 3 of 4",
+      "dur": 0.28,
+      "peak_db": -11.999999999975287,
+      "rms_db": -27.565458846151678,
+      "channels": 1
+    },
+    {
+      "file": "step_wood_04.wav",
+      "category": "step",
+      "name": "wood_04",
+      "loop": false,
+      "note": "footfall on wood, variant 4 of 4",
+      "dur": 0.28,
+      "peak_db": -11.999999999973785,
+      "rms_db": -28.126314541022083,
+      "channels": 1
+    },
+    {
+      "file": "step_stone_01.wav",
+      "category": "step",
+      "name": "stone_01",
+      "loop": false,
+      "note": "footfall on stone, variant 1 of 4",
+      "dur": 0.18,
+      "peak_db": -11.99999999997469,
+      "rms_db": -25.96576638999948,
+      "channels": 1
+    },
+    {
+      "file": "step_stone_02.wav",
+      "category": "step",
+      "name": "stone_02",
+      "loop": false,
+      "note": "footfall on stone, variant 2 of 4",
+      "dur": 0.18,
+      "peak_db": -11.999999999974031,
+      "rms_db": -25.720131705119037,
+      "channels": 1
+    },
+    {
+      "file": "step_stone_03.wav",
+      "category": "step",
+      "name": "stone_03",
+      "loop": false,
+      "note": "footfall on stone, variant 3 of 4",
+      "dur": 0.18,
+      "peak_db": -11.999999999974566,
+      "rms_db": -27.217750715205995,
+      "channels": 1
+    },
+    {
+      "file": "step_stone_04.wav",
+      "category": "step",
+      "name": "stone_04",
+      "loop": false,
+      "note": "footfall on stone, variant 4 of 4",
+      "dur": 0.18,
+      "peak_db": -11.9999999999744,
+      "rms_db": -26.25547886924381,
+      "channels": 1
     }
   ]
 }

@@ -37,6 +37,12 @@ signal wants_to_talk(dialogue: Dialogue, character: PlayerCharacter)
 ## reports, it does not run it: what runs a scene outlives the room.
 signal wants_to_run(sequence: Sequence, character: PlayerCharacter)
 
+## Emitted when a foot has landed on this room's floor. Separate from
+## [signal wants_to_play] because it ends up on a player of its own: walking is
+## the only sound in the game that runs while something else is happening, and it
+## must interrupt nothing and be interrupted by nothing.
+signal wants_to_step(sound: AudioStream)
+
 ## Emitted when something in the room has made a noise. Reported rather than
 ## played, for the reason the room reports what it wants said: the thing that
 ## makes noises outlives the room, and the room has never been allowed to know
@@ -49,6 +55,16 @@ const DEFAULT_ENTRY: StringName = &"Default"
 ## What this room sounds like, going round and round for as long as somebody
 ## is in it. Left empty for silence.
 @export var music: AudioStream = null
+
+## What this room's floor sounds like underfoot. Several of them, and they are
+## picked between: a single footstep file played four times a second is the most
+## audible sign of amateur game audio there is, because the ear locks onto the
+## repetition within two steps and stops hearing a person walking.
+##
+## Left empty the room is silent underfoot, which is what every room was before
+## there were footsteps — so a room that says nothing about its floor does not
+## change.
+@export var footsteps: Array[AudioStream] = []
 
 ## How big this room is, in game units. The camera fences itself inside it.
 ## The default is exactly one screen, which is what every room was before there
@@ -107,6 +123,11 @@ var _pending_item: InventoryItem = null
 # room that is not on screen, and only Game knows when that has settled.
 var _character: PlayerCharacter = null
 
+# Which footstep was used last, so the next one is a different one. Two identical
+# steps in a row is exactly what the variants exist to avoid, and picking purely
+# at random produces that a quarter of the time.
+var _last_step: int = -1
+
 
 ## Hands [param character] this room's perspective, so it can size itself.
 func hand_depth_to(character: PlayerCharacter) -> void:
@@ -126,11 +147,13 @@ func set_character(character: PlayerCharacter) -> void:
 
 	if _character != null and is_instance_valid(_character):
 		_character.destination_reached.disconnect(_on_destination_reached)
+		_character.stepped.disconnect(_on_stepped)
 
 	_character = character
 
 	if _character != null:
 		_character.destination_reached.connect(_on_destination_reached)
+		_character.stepped.connect(_on_stepped)
 
 
 ## Tells the room which item, if any, the player is carrying in hand.
@@ -305,6 +328,27 @@ func _hotspot_at(point: Vector2) -> Hotspot:
 			return collider
 
 	return null
+
+
+## Answers a footfall with whatever this floor sounds like.
+##
+## The room and not the character, because the sound belongs to the floor: the
+## same person walking through the lobby and down the corridor should sound
+## different, and nothing about that is a property of the person.
+func _on_stepped() -> void:
+	if footsteps.is_empty():
+		return
+
+	var index: int = randi() % footsteps.size()
+
+	# Never the same one twice running. With four variants a plain random pick
+	# repeats a quarter of the time, and a repeat is precisely the thing the ear
+	# catches — so a collision is nudged to the next variant instead.
+	if index == _last_step and footsteps.size() > 1:
+		index = (index + 1) % footsteps.size()
+
+	_last_step = index
+	wants_to_step.emit(footsteps[index])
 
 
 func _on_destination_reached() -> void:

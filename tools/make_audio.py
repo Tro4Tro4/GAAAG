@@ -113,6 +113,44 @@ def capsule_land_far():
     return ra.fade(wet[:keep], fin=0.0, fout=0.16)
 
 
+# --------------------------------------------------------------- footsteps ----
+# Two surfaces, because the prototype has two floors: the lobby is drawn as
+# boards and the corridor and the station as concrete slabs.
+#
+# Four variants each, and that is not decoration. A single footstep file played
+# four and a half times a second is the most audible sign of amateur game audio
+# there is: the ear locks onto the repetition within two steps and stops hearing
+# a person walking. What breaks the lock is small differences in pitch, level and
+# noise -- so each variant gets its own seed, not just its own gain.
+SURFACES = {
+    # band: where the scuff of the sole lives. tau: how fast it dies -- wood
+    # rings on a little, stone stops. thump: the mass of the person landing.
+    # ring: the resonance of the floor itself, which stone does not have.
+    "wood":  dict(band=(150, 2200), tau=0.070, thump=110, ring=230),
+    "stone": dict(band=(180, 2600), tau=0.045, thump=95, ring=None),
+}
+
+
+def footstep(surface, variant):
+    p = SURFACES[surface]
+    ra.seed(4000 + variant + (100 if surface == "wood" else 0))
+    jitter = 1.0 + (variant - 2) * 0.05
+    dur = p["tau"] * 4
+
+    # The scuff: filtered noise under a fast decay. On its own this is a "tss",
+    # which is why the thump underneath it is what makes it a footfall.
+    s = ra.bandpass(ra.noise(dur, "white"), p["band"][0] * jitter, p["band"][1])
+    s *= ra.decay(dur, p["tau"])
+
+    if p["thump"]:
+        s = ra.mix(s, ra.sine((p["thump"] * jitter, p["thump"] * 0.6), 0.12)
+                   * ra.decay(0.12, 0.03), gains=[1.0, 0.5])
+    if p["ring"]:
+        s = ra.mix(s, ra.resonator(s, p["ring"] * jitter, q=16) * 0.4)
+
+    return s * (0.85 + 0.15 * (variant % 3))
+
+
 if __name__ == "__main__":
     b = ra.Batch("assets/audio")
 
@@ -132,5 +170,16 @@ if __name__ == "__main__":
     b.add("sfx", "capsule_land_far", capsule_land_far(),
           note="the capsule arriving at the far end, heard through a wall",
           cutoff=6000, bits=11, drive=1.3, peak_db=-8.0)
+
+    # Twelve decibels under the clack, and forced there. The category targets -3
+    # like any effect, which is right for something that happens once and wrong
+    # for the sound the game makes most: at the same peak, walking across the
+    # lobby is louder than solving the puzzle. A footstep is the most frequent
+    # and least informative sound in the game and it has to sit under everything.
+    for surface in SURFACES:
+        for variant in range(1, 5):
+            b.add("step", f"{surface}_{variant:02d}", footstep(surface, variant),
+                  note=f"footfall on {surface}, variant {variant} of 4",
+                  cutoff=7600, bits=11, drive=1.4, peak_db=-12.0)
 
     b.finish()

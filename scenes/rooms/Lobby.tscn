@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=26 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -15,6 +15,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_chairs.png" id="13_chairs"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_shut.png" id="14_shut"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_open.png" id="15_open"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="31_step1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="32_step2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="33_step3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_04.wav" id="34_step4"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 112, 312, 112, 312, 174, 8, 174)
@@ -43,6 +47,7 @@ look_text = "PROTO_LOBBY_DOOR_LOOK_OPEN"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("6_hum")
+footsteps = Array[AudioStream]([ExtResource("31_step1"), ExtResource("32_step2"), ExtResource("33_step3"), ExtResource("34_step4")])
 depth_top_y = 112.0
 depth_bottom_y = 174.0
 depth_top_scale = 0.85

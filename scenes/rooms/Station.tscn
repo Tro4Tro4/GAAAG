@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://baggastation01"]
+[gd_scene load_steps=27 format=3 uid="uid://baggastation01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -16,6 +16,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lever_down.png" id="25_lever_down"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_service_point.png" id="23_point"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_log.png" id="24_log"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="31_step1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="32_step2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="33_step3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_04.wav" id="34_step4"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 104, 312, 104, 312, 172, 8, 172)
@@ -44,6 +48,7 @@ act_text = "PROTO_STATION_LEVER_ACT_DONE"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("8_hum")
+footsteps = Array[AudioStream]([ExtResource("31_step1"), ExtResource("32_step2"), ExtResource("33_step3"), ExtResource("34_step4")])
 depth_top_y = 104.0
 depth_bottom_y = 172.0
 depth_top_scale = 0.8
