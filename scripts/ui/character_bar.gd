@@ -24,6 +24,13 @@ func _ready() -> void:
 	GameState.roster_changed.connect(_rebuild)
 	GameState.active_character_changed.connect(_on_active_character_changed)
 
+	# A character can join the party partway through the game, and joining is a
+	# flag going up. Both kinds of state change are listened to for the same
+	# reason the hotspots listen to them: whoever appears when the world changes
+	# has to hear the world change.
+	GameState.flag_raised.connect(_on_state_changed)
+	GameState.switch_changed.connect(_on_state_changed)
+
 	# Characters register during their own _ready(), which runs before this
 	# one, so the roster is already populated and the signals above will not
 	# fire for what is already there.
@@ -34,12 +41,24 @@ func _on_active_character_changed(_character: PlayerCharacter) -> void:
 	_rebuild()
 
 
+# Both signals carry an argument this does not care about, and one of them
+# carries two. Written out rather than bound away: a bar that rebuilt itself
+# only for some kinds of change would be a bug waiting for the first switch.
+func _on_state_changed(_a = null, _b = null) -> void:
+	_rebuild()
+
+
 func _rebuild() -> void:
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
 
 	for character in GameState.characters:
+		# Everyone is always on the roster and always alive somewhere. Whether
+		# they are offered is a separate question, and the character answers it.
+		if not character.is_available():
+			continue
+
 		add_child(_make_button(character))
 
 

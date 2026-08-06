@@ -72,8 +72,10 @@ Personaggi, nomi, luoghi e trama devono essere originali.
    e spostato ogni coordinata, dopo la cancellazione del non raggiungibile e dopo
    la correzione dei punti di avvicinamento: prima di questo giro la catena era
    verificata solo sulla carta
-6. Solo dopo il prototipo: scrittura della storia completa, capitoli,
-   altre stanze, durata finale del gioco (ancora da stabilire)
+6. Storia completa *(fatta: premessa, catena causale, cinque personaggi,
+   quattro capitoli e un epilogo, in `docs/storia.md` — vedi "La storia
+   completa: lo sgombero" fra le decisioni)*. Restano da dimensionare le
+   stanze per capitolo, e quindi la durata finale del gioco
 
 Fuori sequenza, e fatto tutto fra il punto 4 e il punto 5 per completare
 l'ossatura prima di costruirci sopra: **salvataggio e caricamento**,
@@ -92,7 +94,8 @@ icon.svg             Icona placeholder
 scenes/              Scene Godot (.tscn), nomi in PascalCase
   Main               Scena di avvio: personaggi, telecamera, audio, sequenze e
                      UI, e ospita la stanza corrente in RoomContainer
-  rooms/Lobby        Prototipo: l'atrio dove comincia Nora, con sfondo dipinto
+  rooms/Street       Capitolo 1: la via di casa, larga due schermate
+  rooms/Lobby        L'atrio dell'ufficio, dove Lino si fa emettere la notifica
   rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
   rooms/Station      Prototipo: la postazione dove sta Cesare
   characters/Player  Personaggio giocabile (CharacterBody2D + NavigationAgent2D)
@@ -115,7 +118,7 @@ scripts/             Codice GDScript (.gd), nomi in snake_case,
   sequence/          sequence.gd, sequence_step.gd — dati;
                      sequence_runner.gd mette in scena, con await
   text/              locale_texts.gd — una lingua, chiave per chiave
-  ui/                caption.gd, character_bar.gd, verb_coin.gd,
+  ui/                caption.gd, character_bar.gd, verb_coin.gd, intro_screen.gd,
                      inventory_panel.gd, dialogue_panel.gd, menu_panel.gd,
                      settings_panel.gd, title_screen.gd, fade.gd
 resources/           Risorse di dati (.tres), niente scene e niente codice
@@ -126,7 +129,14 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
   dialogues/         Un file per conversazione
   sequences/         Un file per scena scriptata
   text/              it.tres e en.tres — tutte le frasi del gioco
+docs/                Documenti di progetto, niente codice
+  storia.md          La storia completa: catena causale, personaggi, capitoli,
+                     enigmi, e i sei paletti da cui dipende il vincolo IP
 tools/               Script che producono asset, da eseguire dalla radice
+  make_intro_form.py        La carta e il timbro dell'introduzione
+  make_street_background.py Lo sfondo della via, 640x180
+  make_street_props.py      Portone, avviso, bidoni, furgone, sbarra
+  check_texts.py            Le due lingue hanno le stesse chiavi?
   make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 320x180
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
   make_tubes_pixel_background.py    Il corridoio, disegnato a 640x180
@@ -2264,6 +2274,162 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     disegnato a listoni, e pietra nel corridoio e nella postazione, che sono
     lastre. La superficie la dice il disegno, non la scena.
 
+- **La storia completa: lo sgombero.** Chiude il punto 6. La trama sta per
+  intero in `docs/storia.md`; qui restano la scelta e ciò che vincola. In una
+  riga: *un pianeta è stato ritirato dai traslocatori perché risultava
+  disabitato, e risultava disabitato perché una capsula si era messa di
+  traverso dentro un tubo.*
+  L'ossatura — sfratto, ufficio, amico alieno, mondo perduto a fine capitolo 1,
+  viaggio a tappe, ensemble che cresce, dubbio finale — **è stata chiesta dallo
+  sviluppatore**, ed è deliberatamente vicina a quella del riferimento. Regge
+  perché sei pezzi portanti sono sostituiti: il mondo è **sgomberato e messo in
+  deposito** invece che distrutto, Lino si salva per un **vizio di forma
+  proprio** invece che per l'intervento di un amico, si viaggia **come merce**
+  invece che con passaggi, si insegue un **numero di spedizione** invece di una
+  domanda ultima, il robot è un **perito attuariale** invece che un malinconico,
+  e la Terra è **riconsegnata** invece che ricostruita. I sei paletti sono
+  scritti in `docs/storia.md`: se cadono, cade il vincolo IP.
+  - **La versione fedele alla traccia iniziale**: era quella richiesta, ed è la
+    più vicina al tono voluto. Scartata perché era il romanzo battuta per
+    battuta, cioè esattamente ciò che `CLAUDE.md` vieta in maiuscolo e che la
+    skill `vincolo-ip` elenca voce per voce.
+  - **Tre direzioni originali proposte prima** (il debito dei collaudi nulli; il
+    doppio registro fra archivio e mondo; la ditta che scopre di essere un muro
+    portante): tutte più lontane dall'attrattore e una — il doppio registro —
+    con la meccanica di enigmi migliore delle tre. Scartate dallo sviluppatore,
+    che voleva il road movie. Restano in cronologia se un giorno servisse un
+    secondo gioco.
+  - **Il prototipo verticale diventa il capitolo 1, e non per riciclo**: la
+    posta pneumatica ostruita è **la causa dell'intera storia**. Il pianeta
+    viene ritirato perché l'organismo che certifica l'occupazione non spedisce
+    da tre anni, e non spedisce perché c'è una capsula di traverso alla sezione
+    4. Ne segue che le tre stanze, Cesare, e la meccanica del reclamo che deve
+    venire dal pubblico sono **canoniche**: cambiano i testi, non le scene.
+  - **Ogni evento ha una causa e non una comodità**: la catena da "il tubo si
+    ostruisce" a "Lino è l'unico avente diritto" è scritta anello per anello
+    nel documento, e la rima fra lo sfratto piccolo e lo sgombero grande **non
+    è una rima**: il trasloco del palazzo è una riga dentro l'ordine di
+    sgombero del pianeta. Era il difetto principale della prima stesura, dove
+    i due eventi si somigliavano senza toccarsi.
+  - **L'antagonista non ruba**: se i risarcimenti partono, la compagnia salta e
+    vanno all'asta migliaia di giacenze, cioè altre case e altre persone. Dice
+    il vero. Scartato il ladro, che rende il finale una formalità.
+  - Nota: da rivedere se in scrittura si scoprisse che quattro capitoli sono
+    troppi o troppo pochi. La catena causale regge anche accorciata — l'unica
+    cosa che non si può togliere è il capitolo 1, perché è la causa.
+
+- **Tre personaggi giocabili, con roster che cresce**: Lino dall'inizio, Duilio
+  dal capitolo 2, Sinistro dal capitolo 3; Cesare giocabile nel solo capitolo 1,
+  Ester come PNG. Ogni personaggio porta un'abilità esclusiva e un divieto
+  complementare — chi può firmare non può entrare, chi entra non può
+  testimoniare — così il cambio personaggio resta un enigma e non un tragitto.
+  - **Quattro giocabili, con Ester**: sarebbe la più espressiva, e il finale la
+    vorrebbe. Scartata per il costo: un foglio di sprite, un inventario e una
+    voce nella barra in più per un solo capitolo.
+  - **Due soli, Lino e Duilio**: il minimo che il progetto richiede, e il più
+    economico. Scartata perché nel capitolo 3 servono tre vincoli
+    complementari — l'oggetto entra dove le persone non entrano, la persona
+    parla con chi non parla con gli oggetti, la macchina legge le polizze — e
+    con due il terzo lo dovrebbe fare un PNG, cioè un pulsante.
+  - Conseguenza sui sistemi, ed è nuova: oggi i personaggi si registrano da
+    soli in `_ready()` e vivono tutti in `Main.tscn` per l'intera partita. Un
+    roster che **cresce a metà gioco** vuole che un personaggio possa entrare in
+    scena quando un flag si alza, e che il salvataggio sappia chi è già entrato.
+  - Conseguenza di scrittura: **il vincolo di Lino invecchia**. Non avere
+    indirizzo è la sua rovina per due capitoli e il suo unico titolo valido
+    negli ultimi due. È la regola che il progetto si è dato — un vincolo che non
+    cambia mai smette di produrre enigmi e comincia a produrre faccende.
+  - **Ester resta PNG**, deciso: la vorrebbe la scena del capitolo 4, non la
+    produzione. Chiude il punto.
+
+- **Un gioco lungo: dieci ore, quarantaquattro stanze.** Chiude il punto sulla
+  durata. Una decina di stanze per capitolo, quattro capitoli più epilogo,
+  cinquanta enigmi circa. È una scelta dello sviluppatore, e il costo vero è
+  quaranta sfondi in pixel art su una macchina che è un telefono — l'atrio, da
+  solo, ne è costato quattro tentativi.
+  Tre regole di produzione senza le quali il numero non si raggiunge, e sono
+  parte della decisione, non un commento a margine:
+  - **Una tavolozza e un kit per capitolo.** Le stanze di uno stesso capitolo
+    condividono colori, materiali e pezzi ricorrenti. Il secondo sfondo di un
+    capitolo costa una frazione del primo; il primo di un capitolo nuovo no.
+  - **Tre o quattro stanze per capitolo sono varianti di stato**, non sfondi
+    nuovi: la stessa stanza prima e dopo, che il gioco già sa fare con
+    `present_if`, le varianti degli hotspot e `StateVisual`. Contano come
+    stanze per il giocatore e non per chi disegna.
+  - **L'epilogo riusa la prima stanza del gioco**, cambiata.
+  - **Gioco corto e dosato** (tre ore, venti stanze): meno rischio di stanze
+    riempitive, e una produzione che finisce. Vantaggio reale, ed è quello che
+    avrei consigliato. Scartato dallo sviluppatore, che vuole un'avventura
+    lunga come quelle a cui il progetto si ispira.
+  - **Formato episodico** (capitoli rilasciati separatamente): riduce il
+    rischio senza ridurre l'ambizione. Non scelto, ma resta disponibile e non
+    costa niente tenerlo aperto: i capitoli sono già unità chiuse.
+  - Conseguenza immediata, ed è la più importante: **il formato di scrittura di
+    dialoghi e sequenze smette di essere una decisione rimandabile**. Con dieci
+    ore di gioco le conversazioni si contano a centinaia, e scrivere a mano
+    altrettanti `.tres` diventa il collo di bottiglia della produzione. Resta
+    fra le decisioni aperte, ma con una scadenza: si decide al primo capitolo
+    scritto per intero.
+
+- **Una sola fine, e il gioco non si chiude su un dubbio** (revoca del finale
+  aperto proposto). Lino **firma pulito** la bolla di consegna: accetta un
+  mondo storto e rinuncia ai danni, perché i danni sono la liquidazione, la
+  liquidazione affonda la compagnia e con lei vanno all'asta migliaia di
+  giacenze — altre case, altre persone. E firmando si riprende la residenza che
+  aveva perso al decimo minuto di gioco.
+  - **Due finali, firmare o non firmare**: è quello che avevo proposto, e
+    l'ambiguità era il beat richiesto all'inizio. Scartato perché due finali su
+    un gioco da dieci ore raddoppiano l'ultimo capitolo e dimezzano il peso di
+    entrambi — e perché la scelta interessante qui non è *cosa sceglie il
+    giocatore*, è **cosa costa la scelta giusta**.
+  - **Finale aperto senza firma**: il dubbio come immagine finale. Scartato per
+    la stessa ragione, più una tecnica: senza un esito il gioco non sa quando
+    è finito, e non esiste nessun sistema di fine partita da cui prendere in
+    prestito la risposta.
+  - Il prezzo del finale è scritto: la partenza di Duilio era irregolare finché
+    Lino risultava irreperibile. Firmando, Lino risulta — quindi Duilio è
+    libero, quindi Duilio parte. **Il protagonista salva il mondo compilando
+    bene un modulo e ci perde l'unica persona che aveva.**
+  - Conseguenza tecnica: serve un sistema di fine partita, che oggi non esiste.
+    È molto più piccolo di come era posto — un esito, non due.
+
+- **L'introduzione è un ordine di ritiro che si compila da solo**, e poi una
+  scena in stanza. Due movimenti: un `Control` a schermo pieno che mostra la
+  carta e ci fa comparire una riga alla volta, il timbro che scende, e subito
+  dopo Lino che arriva sotto casa — quest'ultima con il sistema delle sequenze
+  che esiste già.
+  Il motivo è che quell'ordine **è la catena causale del gioco**, e mostrarlo
+  al minuto zero è ironia drammatica: il giocatore legge l'ultima riga —
+  *settore 9, distretto 41, corpo 3, superficie abitata, via dei Tessitori 14* —
+  come il proprio indirizzo con davanti del rumore burocratico. Alla fine del
+  capitolo scoprirà che il rumore era l'elenco, e che il suo indirizzo ne era
+  l'ultima voce. Non è un trucco: è tutto in chiaro dall'inizio.
+  - **Un filmato**: fuori discussione. Non c'è modo di produrlo da qui, e
+    sarebbe l'unico asset del progetto che nessuno sa rifare.
+  - **Una scena interamente in stanza** (il furgone che arriva, i traslocatori
+    che scaricano): più viva, e la più simile a un'apertura LucasArts.
+    Scartata perché vorrebbe movimenti di telecamera e animazioni di comparse
+    che il sistema delle sequenze non ha — sono nove tipi di passo chiusi — e
+    perché direbbe molto meno: si vedrebbe *che* qualcuno trasloca, non
+    *perché*.
+  - **Testo su nero**: costa zero. Scartata perché l'identità di questo gioco
+    sono i documenti, e la prima cosa che il giocatore vede deve essere quella.
+  - **Nessuna parola è dentro l'immagine.** La carta è carta, righe e riquadri;
+    ogni parola è un `Label` con una chiave, quindi l'ordine è scritto in
+    `it.tres` e `en.tres` come tutto il resto.
+  - **Niente righe di guida stampate sulla carta.** Ce n'erano, spaziate come il
+    `VBoxContainer`, e non possono sopravvivere al contatto col testo: una riga
+    va a capo in una lingua e non nell'altra, quindi qualunque spaziatura
+    disegnata è sbagliata in almeno una delle due.
+  - **Si scandisce a tocco oppure a tempo**, non a tocco soltanto: un tocco fa
+    arrivare la riga successiva subito, invece di saltare tutto. Chi legge più
+    in fretta del default va avanti, chi non tocca niente vede lo stesso
+    filmato.
+  - **Guardata da un flag (`intro_seen`) e non da una `static var`** come fa il
+    titolo con `skip_once`: questa è parte dello stato di una partita, quindi
+    un salvataggio scritto dopo non deve rigiocarla e uno scritto prima sì. Il
+    flag lo alza l'ultimo passo della sequenza.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -2306,12 +2472,14 @@ assets/              sprites/ backgrounds/ audio/ fonts/
 - **Più slot di salvataggio**: oggi sono due, uno manuale e uno automatico. Se
   servano slot numerati si saprà quando il gioco sarà lungo abbastanza da voler
   tornare indietro di un capitolo e non di una stanza
-- Durata finale del gioco (valutare dopo il prototipo)
-- **Storia completa** (punto 6): premessa, personaggi, ambientazione e capitoli
-  oltre il prototipo. Il prototipo ha fissato *un* incastro che funziona — la
-  separazione per autorizzazione — ma non la storia: nomi, luogo e trama sono
-  ancora tutti da decidere, e ora si puo' farlo sapendo quali vincoli di design
-  la trama deve rispettare
+- **Come finisce una partita**: il gioco non ha nessun sistema di fine. Serve
+  una schermata di chiusura e un modo di dire al titolo che la partita è
+  finita. Da quando la fine è una sola il problema è molto più piccolo di come
+  era posto — non servono due esiti, serve un finale
+- **I nomi**: Lino, Duilio, Sinistro, Ester, Bardi, Cesare sono tutti
+  provvisori **per scelta**. Costano due righe cambiarli finché restano chiavi
+  in `it.tres` e `en.tres`, e finché nessuno finisce in un nome di file o di
+  nodo — regola da rispettare mentre si costruisce il capitolo 1
 - Nome del progetto
 
 ## Comportamento di Claude Code su questo progetto
@@ -2380,6 +2548,16 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   `.gd` passa da `gdparse`: `python .claude/skills/pixel-adventure-assets/
   scripts/qa_check.py <file> --profile sheet|sprite|shadow|background
   [--palette-from <sfondo>]`. Esce con 1 se qualcosa fallisce
+- **Ogni testo aggiunto passa da `tools/check_texts.py`**, che confronta le
+  chiavi di `it.tres` ed `en.tres` e verifica che ogni chiave nominata in una
+  scena, in una risorsa o in uno script esista in entrambe. Prima era uno
+  script ad hoc riscritto ogni volta; è diventato un file del repository quando
+  il capitolo 1 ha cominciato ad aggiungere quaranta chiavi per volta. Esce
+  con 1 se qualcosa non torna
+- **Python può non essere nel PATH** anche quando è installato: sulla macchina
+  Windows sta in `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`, mentre
+  `python` risolve allo stub del Microsoft Store che stampa un errore. Se
+  `python -V` fallisce, cercarlo lì prima di concludere che manca
 - **Godot non è installato nell'ambiente remoto, ma un parser GDScript sì**:
   `pip install gdtoolkit` mette a disposizione `gdparse`, che legge la
   sintassi di un `.gd` senza bisogno dell'engine. Installalo e passaci ogni

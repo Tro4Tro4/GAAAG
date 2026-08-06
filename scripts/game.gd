@@ -32,6 +32,11 @@ const LOADED: String = "UI_LOADED"
 const LOAD_FAILED: String = "UI_LOAD_FAILED"
 const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 
+## Raised by the last step of the opening scene. Its one job is to stop the
+## opening playing twice, which it does through a loaded save as well,
+## because flags are part of a saved game.
+const INTRO_FLAG: StringName = &"intro_seen"
+
 ## Every recipe in the game. An @export filled in from Main.tscn rather than a
 ## preload: a mistyped path then costs a combination that refuses, instead of a
 ## game that will not start.
@@ -43,6 +48,11 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 ## The noise a choice makes. One sound for the whole interface: a menu that
 ## clicks differently from a verb would be saying something it does not mean.
 @export var ui_click: AudioStream = null
+
+## The scene that plays once, after the removal order and before the player
+## is given the controls. Left as an export so it can be emptied for testing
+## without touching a line of this file.
+@export var intro_sequence: Sequence = null
 
 @onready var _room_container: Node2D = $RoomContainer
 @onready var _caption: Caption = $UI/Caption
@@ -58,6 +68,7 @@ const NOTHING_TO_LOAD: String = "UI_NOTHING_TO_LOAD"
 @onready var _menu_panel: MenuPanel = $UI/MenuPanel
 @onready var _settings_panel: SettingsPanel = $UI/SettingsPanel
 @onready var _title_screen: TitleScreen = $UI/TitleScreen
+@onready var _intro_screen: IntroScreen = $UI/IntroScreen
 @onready var _fade: Fade = $UI/Fade
 @onready var _camera: GameCamera = $Camera
 @onready var _audio: AudioDirector = $Audio
@@ -110,6 +121,10 @@ func _ready() -> void:
 	_menu_panel.action_chosen.connect(_on_menu_action)
 	_title_screen.action_chosen.connect(_on_title_action)
 
+	# The opening makes its own noises for the same reason a scene does:
+	# whoever plays sounds is not the business of whoever asks for them.
+	_intro_screen.wants_to_play.connect(_audio.play_sound)
+
 	# The bag button is written from here, so unlike the labels sitting in
 	# Main.tscn it does not retranslate itself when the language changes.
 	Settings.locale_changed.connect(_refresh_inventory_button)
@@ -131,6 +146,11 @@ func _ready() -> void:
 	if TitleScreen.should_ask():
 		_set_ordinary_ui_visible(false)
 		_title_screen.open()
+		return
+
+	# No title to wait for — either this is a game that has just chosen "new
+	# game" from the pause menu, or the title was told not to ask.
+	_play_opening()
 
 
 func _on_active_character_changed(character: PlayerCharacter) -> void:
@@ -439,6 +459,7 @@ func _on_title_action(action: StringName) -> void:
 			# Nothing to reset: the title is only ever up over a game that has
 			# just been built from its scenes, which is what a new game is.
 			_leave_title()
+			_play_opening()
 		TitleScreen.SETTINGS:
 			# The title stays underneath. Settings is drawn last of everything
 			# in the interface, so it covers the title as it covers the room.
@@ -450,6 +471,38 @@ func _on_title_action(action: StringName) -> void:
 func _leave_title() -> void:
 	_title_screen.close()
 	_set_ordinary_ui_visible(true)
+
+
+## The opening, in two movements: the removal order, then Lino coming home to
+## it. Plays once per game and never again.
+##
+## Guarded by a flag rather than by a static var, unlike the title's skip_once:
+## this is part of the state of a game and not an instruction from one scene to
+## the next, so a save written after it must not replay it and a save written
+## before it must. The flag is raised by the last step of the scene.
+func _play_opening() -> void:
+	if GameState.is_raised(INTRO_FLAG):
+		return
+
+	if _room == null:
+		# Nothing to walk about in. Not a state that should happen, but the
+		# opening is not worth a crash on the first frame of the game.
+		GameState.raise_flag(INTRO_FLAG)
+		return
+
+	_set_ordinary_ui_visible(false)
+	await _intro_screen.play()
+
+	if intro_sequence == null:
+		GameState.raise_flag(INTRO_FLAG)
+		_set_ordinary_ui_visible(true)
+		return
+
+	# Straight into the scene, with no gap: the paper going away *is* the cut.
+	# _on_wants_to_run puts the rest of the interface away and blocks the screen,
+	# which is exactly what is wanted here too, so the opening goes through the
+	# same door every other scene does.
+	_on_wants_to_run(intro_sequence, GameState.active_character)
 
 
 func _load_from(slot: StringName) -> void:

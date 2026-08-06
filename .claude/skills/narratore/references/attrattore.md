@@ -78,6 +78,52 @@ chiunque.** Va bene tenerli, ma come esito di una scelta tra alternative, non
 come punto di partenza mai messo in discussione. E se li tieni tutti e nove
 insieme, non stai scrivendo la tua storia: stai scrivendo quella prevista.
 
+## L'attrattore locale: il prototipo verticale
+
+Il documento sopra misura l'attrattore *generico*, quello che nasce dal brief.
+Da quando esiste il prototipo verticale ce n'è un secondo, più forte, che
+nasce dal materiale già scritto: **la storia completa tende a diventare il
+capitolo 2 del prototipo.**
+
+È più insidioso del primo, perché estendere ciò che funziona *sembra*
+disciplina progettuale invece che pigrizia. Le forme in cui si presenta:
+
+**a. L'ultimo beat diventa il motore.** Il prototipo finisce con il rinnovo
+dell'accreditamento trovato dentro il tubo. La prima idea che verrà — a
+chiunque, sempre — è che tre anni di certificati non validi siano la trama.
+Può anche esserlo, ma è la risposta media: va tenuta solo dopo aver battuto
+delle rivali.
+
+**b. La separazione per autorizzazione applicata ovunque.** Era originale una
+volta, contro l'attrattore generico. Ripetuta in ogni capitolo diventa il
+nuovo default, e il cambio personaggio torna a essere un'interfaccia. Un
+vincolo che non cambia mai smette di produrre enigmi e comincia a produrre
+faccende.
+
+**c. Il canale rotto.** Il meccanismo di trasferimento *come soggetto*
+dell'enigma — la posta pneumatica ostruita — è già stato usato, ed era la
+trovata migliore del prototipo. Riproporlo con un'altra tubatura è ripetere
+il colpo, non estenderlo.
+
+**d. La ricompensa è sempre un documento.** Ogni enigma del prototipo termina
+con un foglio dal nome burocratico. Funziona una volta; come regola diventa un
+gioco in cui si vincono moduli.
+
+**e. La voce del terminale.** La console che risponde in maiuscolo, sarcastica
+e non collaborativa, è un registro riuscito e per questo tenderà a colonizzare
+ogni macchina, ogni cartello e ogni impiegato del gioco. Se tutto parla così,
+non parla più nessuno.
+
+**f. Il comma come unica fonte di vincolo.** "REGOLAMENTO, COMMA 6" è il modo
+in cui il prototipo dichiara ogni sua regola. Un ostacolo può anche venire da
+una consuetudine, da un guasto, da un malinteso o da qualcuno che ha semplice-
+mente deciso così, senza che esista un comma da citare.
+
+Nessuna di queste è vietata: il prototipo è materiale buono e verificato, e
+buttarlo via sarebbe stupido. La regola è la stessa dell'attrattore generico —
+**tenerle una per volta e come scelta, mai tutte e sei insieme e mai per
+inerzia**.
+
 ## Aggiornare questo file
 
 Quando emergono nuove convergenze — idee che ricompaiono da sole in sessioni

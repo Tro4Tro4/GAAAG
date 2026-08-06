@@ -66,6 +66,18 @@ enum State { IDLE, WALKING, TALKING }
 ## because the character node itself is never unloaded.
 @export_file("*.tscn") var current_room: String = ""
 
+## What has to be true before the player can switch to this character at all.
+##
+## Empty means always, which is what the first character is. Anyone who joins
+## partway through the game is somebody whose button appears when a flag goes
+## up — and that is the whole of what "the roster grows" has to mean, so it
+## costs a field here rather than a system somewhere.
+##
+## Deliberately not the same thing as being in the roster: they are always
+## registered, always alive, and always where they were left. This only governs
+## whether the switch bar offers them.
+@export var available_if: PackedStringArray = PackedStringArray()
+
 ## Which way the character is turned. Kept when they stop: somebody who walked
 ## off to the left is still facing left while standing there.
 var facing: int = Facing.DOWN
@@ -400,3 +412,11 @@ func _cancel_walk() -> void:
 
 	if state == State.WALKING:
 		set_state(State.IDLE)
+
+
+## Whether the switch bar should offer this character yet.
+func is_available() -> bool:
+	# Conditions are asked about somebody, because "has:" needs pockets to look
+	# in. The somebody here is this character: "available while Cesare is
+	# carrying the badge" reads about Cesare, which is the useful reading.
+	return Conditions.all_hold(available_if, self)

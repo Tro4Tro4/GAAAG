@@ -112,7 +112,54 @@ finestra) è il modo più ovvio di separare due personaggi ed è nell'attrattore
 Separazioni più interessanti: separazione **temporale** (uno agisce in un
 momento diverso), **di autorizzazione** (uno può entrare ovunque ma non toccare
 niente), **di percezione** (uno vede cose che l'altro non vede), **di scala**
-(uno è troppo grande o troppo piccolo per quel luogo).
+(uno è troppo grande o troppo piccolo per quel luogo), **di osservazione**
+(uno è guardato in ogni momento, l'altro non risulta a nessuno).
+
+### Altre tre prove, quando l'idea deve reggere un gioco intero
+
+Le tre di sopra bastano a giudicare una scena o un capitolo. Una premessa che
+deve reggere *tutto* il gioco ne richiede altre tre, e sono quelle che una
+buona idea corta fallisce più spesso.
+
+**La prova del motore.** La premessa genera ostacoli nuovi da sola, o ne serve
+uno inventato a mano per ogni capitolo? Un motore vero è una condizione che
+peggiora se non la si affronta e che produce la prossima difficoltà come
+conseguenza della precedente. Se ogni capitolo comincia con "e poi capita
+che...", non c'è un motore: c'è un elenco.
+
+**La prova del vincolo che invecchia.** Il limite di ogni personaggio
+giocabile deve poter *cambiare* nel corso del gioco — allentarsi, spostarsi,
+invertirsi. Un vincolo identico dalla prima all'ultima stanza smette di
+generare enigmi dopo due o tre e comincia a generare tragitti. Chiediti per
+ciascun personaggio: *cosa gli succede al vincolo a metà gioco?*
+
+**La prova della seconda stanza.** Il secondo personaggio ha ancora qualcosa
+da fare quando il primo non gli sta chiedendo niente? Se esiste solo per
+ricevere e rispedire, non è un personaggio giocabile: è un meccanismo con una
+faccia, e il giocatore lo scoprirà alla terza volta che lo va a trovare.
+
+## Costruire una storia lunga, non una proposta
+
+Una premessa si consegna in un colpo; una storia si costruisce a strati, e
+l'ordine conta perché ogni strato vincola il successivo. Quando il lavoro dura
+più di uno scambio, tieni questa scala e **non scendere di uno strato finché
+quello sopra non è confermato**:
+
+1. **La tesi** — di cosa parla il gioco in una riga. Non la trama: quello che
+   il gioco sostiene. È l'unica cosa che rende scartabile un'idea carina.
+2. **Il motore e la scala** — cosa peggiora, in quanto tempo, e quanto è
+   grande il mondo intorno.
+3. **I personaggi come abilità** — chi può fare cosa che nessun altro può, e
+   cosa succede a quel potere a metà strada.
+4. **La forma del gioco** — quanti capitoli, quante stanze, se il mondo è un
+   posto solo o un itinerario. Qui cadono i vincoli di produzione.
+5. **I capitoli** — uno per volta, ciascuno con il suo enigma cooperativo.
+6. **Le scene e le battute** — per ultime, e solo dove i sistemi esistono già.
+
+Gli strati 1-4 si possono fissare adesso e non costano niente se cambiano. Il
+5 va scritto sapendo quali stanze esistono. Il 6 riscritto prima del tempo è
+lavoro buttato: `CLAUDE.md` lo dice già per i puzzle, e vale identico per i
+dialoghi.
 
 ## Processo
 

@@ -1,0 +1,230 @@
+[gd_scene load_steps=24 format=3 uid="uid://baggastreet01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="3_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="4_thud"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_street.png" id="5_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_street_door.png" id="6_door"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_notice_eviction.png" id="7_notice"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_bins.png" id="8_bins"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_van.png" id="9_van"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_barrier.png" id="10_barrier"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="11_step1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="12_step2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="13_step3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_04.wav" id="14_step4"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_pavement"]
+vertices = PackedVector2Array(8, 122, 556, 122, 556, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 122, 556, 122, 556, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(30, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
+size = Vector2(14, 18)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bins"]
+size = Vector2(28, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_van"]
+size = Vector2(158, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_barrier"]
+size = Vector2(76, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_alley"]
+size = Vector2(24, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bells"]
+size = Vector2(12, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_drain"]
+size = Vector2(18, 8)
+
+[node name="Street" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("3_hum")
+footsteps = Array[AudioStream]([ExtResource("11_step1"), ExtResource("12_step2"), ExtResource("13_step3"), ExtResource("14_step4")])
+room_size = Vector2(640, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(0, 0)
+centered = false
+texture = ExtResource("5_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_pavement")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(127, 164)
+
+[node name="FromIntro" type="Marker2D" parent="EntryPoints"]
+position = Vector2(14, 168)
+
+[node name="AtDoor" type="Marker2D" parent="EntryPoints"]
+position = Vector2(127, 160)
+
+[node name="AtVan" type="Marker2D" parent="EntryPoints"]
+position = Vector2(436, 168)
+
+[node name="AtBarrier" type="Marker2D" parent="EntryPoints"]
+position = Vector2(540, 164)
+
+[node name="BellsHotspot" type="Area2D" parent="."]
+position = Vector2(100, 90)
+script = ExtResource("2_hotspot")
+display_name = "STREET_BELLS"
+act_verb = 3
+look_text = "STREET_BELLS_LOOK"
+act_text = "STREET_BELLS_ACT"
+sound = ExtResource("4_thud")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BellsHotspot"]
+shape = SubResource("RectangleShape2D_bells")
+
+[node name="ApproachPoint" type="Marker2D" parent="BellsHotspot"]
+position = Vector2(0, 74)
+
+[node name="AlleyHotspot" type="Area2D" parent="."]
+position = Vector2(298, 90)
+script = ExtResource("2_hotspot")
+display_name = "STREET_ALLEY"
+reach_verb = 7
+look_text = "STREET_ALLEY_LOOK"
+reach_text = "STREET_ALLEY_REACH"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AlleyHotspot"]
+shape = SubResource("RectangleShape2D_alley")
+
+[node name="ApproachPoint" type="Marker2D" parent="AlleyHotspot"]
+position = Vector2(0, 74)
+
+[node name="DrainHotspot" type="Area2D" parent="."]
+position = Vector2(88, 165)
+script = ExtResource("2_hotspot")
+display_name = "STREET_DRAIN"
+hand_verb = 2
+look_text = "STREET_DRAIN_LOOK"
+hand_text = "STREET_DRAIN_HAND"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DrainHotspot"]
+position = Vector2(0, -3)
+shape = SubResource("RectangleShape2D_drain")
+
+[node name="ApproachPoint" type="Marker2D" parent="DrainHotspot"]
+position = Vector2(0, 5)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(127, 117)
+script = ExtResource("2_hotspot")
+display_name = "STREET_DOOR"
+act_verb = 4
+reach_verb = 7
+default_verb = 7
+look_text = "STREET_DOOR_LOOK"
+act_text = "STREET_DOOR_ACT"
+reach_text = "STREET_DOOR_REACH"
+
+[node name="Picture" type="Sprite2D" parent="DoorHotspot"]
+position = Vector2(-15, -48)
+centered = false
+texture = ExtResource("6_door")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+position = Vector2(0, -24)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 43)
+
+[node name="NoticeHotspot" type="Area2D" parent="."]
+position = Vector2(127, 119)
+script = ExtResource("2_hotspot")
+display_name = "STREET_NOTICE"
+hand_verb = 2
+look_text = "STREET_NOTICE_LOOK"
+hand_text = "STREET_NOTICE_HAND"
+
+[node name="Picture" type="Sprite2D" parent="NoticeHotspot"]
+position = Vector2(-6, -35)
+centered = false
+texture = ExtResource("7_notice")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NoticeHotspot"]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_notice")
+
+[node name="ApproachPoint" type="Marker2D" parent="NoticeHotspot"]
+position = Vector2(4, 41)
+
+[node name="BinsHotspot" type="Area2D" parent="."]
+position = Vector2(172, 118)
+script = ExtResource("2_hotspot")
+display_name = "STREET_BINS"
+act_verb = 4
+look_text = "STREET_BINS_LOOK"
+act_text = "STREET_BINS_ACT"
+sound = ExtResource("4_thud")
+
+[node name="Picture" type="Sprite2D" parent="BinsHotspot"]
+position = Vector2(-14, -24)
+centered = false
+texture = ExtResource("8_bins")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BinsHotspot"]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_bins")
+
+[node name="ApproachPoint" type="Marker2D" parent="BinsHotspot"]
+position = Vector2(0, 42)
+
+[node name="VanHotspot" type="Area2D" parent="."]
+position = Vector2(450, 120)
+script = ExtResource("2_hotspot")
+display_name = "STREET_VAN"
+act_verb = 3
+reach_verb = 6
+look_text = "STREET_VAN_LOOK"
+act_text = "STREET_VAN_ACT"
+reach_text = "STREET_VAN_REACH"
+
+[node name="Picture" type="Sprite2D" parent="VanHotspot"]
+position = Vector2(-79, -64)
+centered = false
+texture = ExtResource("9_van")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VanHotspot"]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_van")
+
+[node name="ApproachPoint" type="Marker2D" parent="VanHotspot"]
+position = Vector2(-14, 48)
+
+[node name="BarrierHotspot" type="Area2D" parent="."]
+position = Vector2(600, 122)
+script = ExtResource("2_hotspot")
+display_name = "STREET_BARRIER"
+act_verb = 3
+reach_verb = 7
+look_text = "STREET_BARRIER_LOOK"
+act_text = "STREET_BARRIER_ACT"
+reach_text = "STREET_BARRIER_REACH"
+
+[node name="Picture" type="Sprite2D" parent="BarrierHotspot"]
+position = Vector2(-38, -36)
+centered = false
+texture = ExtResource("10_barrier")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BarrierHotspot"]
+position = Vector2(0, -18)
+shape = SubResource("RectangleShape2D_barrier")
+
+[node name="ApproachPoint" type="Marker2D" parent="BarrierHotspot"]
+position = Vector2(-62, 42)
