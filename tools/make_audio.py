@@ -130,8 +130,8 @@ SURFACES = {
     # The bands stop far lower than a first version had them -- 1400 and 1600
     # instead of 2200 and 2600 -- because reported from the device the steps came
     # out too loud and too sharp. See _soft() for the whole of what that meant.
-    "wood":  dict(band=(120, 1400), tau=0.075, thump=104, ring=210),
-    "stone": dict(band=(140, 1600), tau=0.050, thump=92, ring=None),
+    "wood":  dict(band=(120, 1350), tau=0.075, thump=104, ring=210),
+    "stone": dict(band=(140, 1500), tau=0.050, thump=92, ring=None),
 }
 
 # What "softer" turned out to be, and it was four separate things, not a volume
@@ -172,7 +172,7 @@ SURFACES = {
 # less noise left to tell the variants apart on its own.
 STEP_PITCH = (0.91, 0.97, 1.03, 1.09)          # +/- 9% on band and thump
 STEP_LENGTH = (1.00, 1.16, 0.92, 1.08)         # how long each one takes to die
-STEP_PEAK = (-17.8, -16.6, -17.3, -16.9)       # +/- 0.6 dB, which normalising keeps
+STEP_PEAK = (-22.8, -21.6, -22.3, -21.9)       # +/- 0.6 dB, which normalising keeps
 
 
 def footstep(surface, variant):
@@ -190,13 +190,22 @@ def footstep(surface, variant):
     # amplitude on its first sample, and that vertical step is heard as a click on
     # top of the sound. The release is long relative to the decay so the step
     # tails off instead of stopping.
-    s *= ra.adsr(dur, a=0.009, d=tau, s=0.18, r=tau * 1.6)
+    s *= ra.adsr(dur, a=0.012, d=tau, s=0.18, r=tau * 1.6)
 
     if p["thump"]:
         # Louder relative to the scuff than it was: in a soft footfall the mass
         # of the person is the body of the sound and the scuff is only its edge.
-        s = ra.mix(s, ra.sine((p["thump"] * jitter, p["thump"] * 0.6), 0.12)
-                   * ra.decay(0.12, 0.03), gains=[1.0, 0.80])
+        #
+        # And the thump gets an attack of its own, which it did not have at first
+        # and which was the whole of the impact that survived softening the scuff:
+        # a decay envelope is at full amplitude on its first sample, so once the
+        # thump had been made the loudest layer, *its* onset was the sharpest edge
+        # in the sound. Fourteen milliseconds of rise takes the crest factor from
+        # 15.7 to 14.2 dB and the centroid from 331 to 219 Hz at the same level --
+        # which is to say it is the punch, not the volume.
+        thump = ra.sine((p["thump"] * jitter, p["thump"] * 0.6), 0.14)
+        thump *= ra.adsr(0.14, a=0.014, d=0.05, s=0.25, r=0.07)
+        s = ra.mix(s, thump, gains=[1.0, 0.78])
     if p["ring"]:
         # Lower Q and less of it: at q=16 the board answered with a note, which
         # is charming once and a bell after four seconds of walking.
@@ -225,7 +234,7 @@ if __name__ == "__main__":
           note="the capsule arriving at the far end, heard through a wall",
           cutoff=6000, bits=11, drive=1.3, peak_db=-8.0)
 
-    # Seventeen decibels under the clack, and forced there. The category targets
+    # Twenty-odd decibels under the clack, and forced there. The category targets
     # -3 like any effect, which is right for something that happens once and wrong
     # for the sound the game makes most: at the same peak, walking across the
     # lobby is louder than solving the puzzle. A footstep is the most frequent and
@@ -238,7 +247,7 @@ if __name__ == "__main__":
         for variant in range(1, 5):
             b.add("step", f"{surface}_{variant:02d}", footstep(surface, variant),
                   note=f"soft footfall on {surface}, variant {variant} of 4",
-                  cutoff=5200, bits=11, drive=1.10,
+                  cutoff=5000, bits=11, drive=1.00,
                   peak_db=STEP_PEAK[variant - 1])
 
     b.finish()

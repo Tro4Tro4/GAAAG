@@ -37,7 +37,12 @@ OUT = (38, 30, 46, 255)          # never pure black: a very dark violet reads wa
 # Animations, in the order the rows are written. "side" is drawn facing right.
 ANIMATIONS = [
     ("idle_down", 1, 5.0), ("idle_side", 1, 5.0), ("idle_up", 1, 5.0),
-    ("walk_down", 4, 9.0), ("walk_side", 4, 9.0), ("walk_up", 4, 9.0),
+    # 7 fps and not 9: four frames at 9 gave two footfalls every 0.44 s, which is
+    # four and a half a second and reads as scurrying rather than walking. At 7 it
+    # is three and a half. The stride covers more ground per cycle as a result --
+    # 16 units instead of 12 at 55 px/s -- and at this size that is invisible,
+    # because a four-frame cycle has no real foot plant to slide against.
+    ("walk_down", 4, 7.0), ("walk_side", 4, 7.0), ("walk_up", 4, 7.0),
     ("talk_down", 2, 6.0), ("talk_side", 2, 6.0), ("talk_up", 2, 6.0),
 ]
 

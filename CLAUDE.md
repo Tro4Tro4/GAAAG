@@ -2203,9 +2203,13 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     quindi gli appoggi sono i fotogrammi 0 e 2: appendere il suono a quelli lo fa
     cadere esattamente quando cade il piede, e lo fa seguire da sé qualunque
     velocità venga data al foglio. Un timer avrebbe richiesto di tenere allineati
-    due numeri che non hanno ragione di sapere l'uno dell'altro. A 9 fps sono
-    circa quattro appoggi e mezzo al secondo, che è coerente con i 55 pixel al
-    secondo di camminata.
+    due numeri che non hanno ragione di sapere l'uno dell'altro. E ne segue che
+    **la cadenza dei passi si regola cambiando i fps dell'animazione**: la
+    camminata è passata da 9 a 7 fps, cioè da quattro appoggi e mezzo al secondo a
+    tre e mezzo, perché a 9 si leggeva come uno che trotta. Il passo copre più
+    terreno per ciclo — sedici unità invece di dodici a 55 pixel al secondo — e a
+    questa dimensione non si vede, perché un ciclo di quattro fotogrammi non ha un
+    vero appoggio contro cui strisciare.
   - **Il suono appartiene al pavimento, non a chi ci cammina**: `Room.footsteps`,
     e il personaggio emette soltanto `stepped`. La stessa persona nell'atrio e nel
     corridoio deve suonare diversa, e niente di questo è una proprietà della
@@ -2232,20 +2236,30 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     l'atrio è più forte che risolvere l'enigma. È il secondo caso in cui il
     bersaglio della categoria va contro l'uso, dopo il tonfo lontano — e sono
     entrambi casi di **distanza o frequenza**, non di gusto.
-  - **"Più morbido" sono quattro cose, non il volume**, e l'ho imparato perché la
-    prima versione è tornata dal dispositivo come "troppo forte e troppo
-    incisiva". Misurato sulla variante di legno, prima e dopo: picco da −12 a −17,
-    energia sopra i 2 kHz dal **14,6% al 2,1%**, centroide spettrale da **925 a
-    335 Hz**, attacco da istantaneo a 9 ms. Il livello era la metà facile; le
-    altre tre sono ciò che "incisivo" significava — il tetto della banda di rumore,
-    dove vive il ticchettio di una suola dura; l'attacco, perché un inviluppo di
-    decadimento è al massimo già al primo campione e quello scalino **è** un clic;
-    e la saturazione della catena lo-fi, che fabbrica proprio le armoniche che si
-    leggono come mordente.
+  - **"Più morbido" sono quattro cose, non il volume**, e ci sono volute tre
+    passate perché il dispositivo le ha restituite una alla volta. Dalla prima
+    versione all'ultima, misurato sulla variante di legno: picco da **−12 a −23 dB**,
+    energia sopra i 2 kHz dal **14,6% all'1,3%**, centroide spettrale da **925 a
+    223 Hz**, attacco da istantaneo a **17 ms**, fattore di cresta da **15,7 a
+    15,0 dB**. Il livello era la metà facile; le altre sono ciò che "incisivo"
+    significava — il tetto della banda di rumore, dove vive il ticchettio di una
+    suola dura; l'attacco, perché un inviluppo di decadimento è al massimo già al
+    primo campione e quello scalino **è** un clic; e la saturazione della catena
+    lo-fi, che fabbrica proprio le armoniche che si leggono come mordente.
+  - **La misura dell'impatto è il fattore di cresta**, picco meno RMS, e non il
+    livello: è quanto il suono sporge sopra il proprio corpo. Ed è così che ho
+    trovato il difetto che resisteva alla seconda passata — avevo messo l'inviluppo
+    morbido sul graffio e **non sulla massa**, e nel frattempo avevo alzato la massa
+    a 0,80, quindi l'attacco più ripido del suono era diventato proprio quello del
+    tonfo. Quattordici millisecondi di salita là dentro portano la cresta da 15,7 a
+    14,2 dB e il centroide da 331 a 219 **a livello invariato**: cioè quello era
+    il colpo, non il volume.
   - **Morbido non è spento**, e la distanza fra i due è circa un'ottava di
     centroide. Portandolo fino in fondo — banda a 900, taglio a 4200 — il centroide
-    scende a 156 Hz e il passo smette di essere un passo: a quattro e mezzo al
-    secondo una serie di tonfi a 150 Hz è un rimbombo, non qualcuno che cammina.
+    scende a 156 Hz e il passo smette di essere un passo: una serie di tonfi a
+    150 Hz è un rimbombo, non qualcuno che cammina. La pietra è ora a 200-223 Hz,
+    cioè al bordo: se risultasse spenta, il numero da alzare è il tetto della
+    banda, non il livello.
   - Due superfici perché il prototipo ha due pavimenti: legno nell'atrio, che è
     disegnato a listoni, e pietra nel corridoio e nella postazione, che sono
     lastre. La superficie la dice il disegno, non la scena.

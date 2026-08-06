@@ -30,8 +30,8 @@
       "loop": false,
       "note": "soft footfall on wood, variant 1 of 4",
       "dur": 0.3,
-      "peak_db": -17.799999999940884,
-      "rms_db": -33.738440472209355,
+      "peak_db": -22.799999999887667,
+      "rms_db": -37.762829586269476,
       "channels": 1
     },
     {
@@ -41,8 +41,8 @@
       "loop": false,
       "note": "soft footfall on wood, variant 2 of 4",
       "dur": 0.34798185941043086,
-      "peak_db": -16.599999999950064,
-      "rms_db": -32.48015593230136,
+      "peak_db": -21.599999999904114,
+      "rms_db": -36.03893884040153,
       "channels": 1
     },
     {
@@ -52,8 +52,8 @@
       "loop": false,
       "note": "soft footfall on wood, variant 3 of 4",
       "dur": 0.27600907029478455,
-      "peak_db": -17.299999999945477,
-      "rms_db": -31.763257540000005,
+      "peak_db": -22.299999999895253,
+      "rms_db": -35.83977568844327,
       "channels": 1
     },
     {
@@ -63,8 +63,8 @@
       "loop": false,
       "note": "soft footfall on wood, variant 4 of 4",
       "dur": 0.3239909297052154,
-      "peak_db": -16.899999999947067,
-      "rms_db": -33.404752558875,
+      "peak_db": -21.89999999990026,
+      "rms_db": -36.10876030740278,
       "channels": 1
     },
     {
@@ -74,8 +74,8 @@
       "loop": false,
       "note": "soft footfall on stone, variant 1 of 4",
       "dur": 0.2,
-      "peak_db": -17.799999999941456,
-      "rms_db": -31.476030756503658,
+      "peak_db": -22.799999999888428,
+      "rms_db": -35.25553644622128,
       "channels": 1
     },
     {
@@ -85,8 +85,8 @@
       "loop": false,
       "note": "soft footfall on stone, variant 2 of 4",
       "dur": 0.23201814058956916,
-      "peak_db": -16.599999999949677,
-      "rms_db": -31.31538159625737,
+      "peak_db": -21.599999999903645,
+      "rms_db": -34.9505361829597,
       "channels": 1
     },
     {
@@ -96,8 +96,8 @@
       "loop": false,
       "note": "soft footfall on stone, variant 3 of 4",
       "dur": 0.1839909297052154,
-      "peak_db": -17.299999999945612,
-      "rms_db": -30.276585233555803,
+      "peak_db": -22.299999999895554,
+      "rms_db": -33.99117445369578,
       "channels": 1
     },
     {
@@ -107,8 +107,8 @@
       "loop": false,
       "note": "soft footfall on stone, variant 4 of 4",
       "dur": 0.21600907029478458,
-      "peak_db": -16.899999999948314,
-      "rms_db": -30.73667777560572,
+      "peak_db": -21.899999999900714,
+      "rms_db": -34.244692847776015,
       "channels": 1
     }
   ]
