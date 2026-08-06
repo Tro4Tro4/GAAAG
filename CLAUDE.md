@@ -1778,6 +1778,55 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     non sarebbe più la dimensione dell'icona ma se quell'oggetto meriti una
     forma propria invece di essere il quinto foglio di carta.
 
+- **Tutto in pixel art: anche gli sfondi** (revoca dello stile ibrido). Gli
+  sfondi tornano a essere pixel art disegnata alle dimensioni della stanza —
+  384×216 per l'atrio, 768×216 per il corridoio — usata a `scale = 1` con il
+  filtro `Nearest`, come ogni altro asset. Cadono il `.webp` a 1920×1080, la
+  scala 0,2 e l'override a `Linear` sul nodo.
+  Il motivo è quello che la voce sullo stile ibrido aveva messo per iscritto
+  come proprio costo: *"uno sprite netto appoggiato su uno sfondo morbido
+  galleggia"*. La contromisura registrata allora era l'ombra di contatto, e non
+  è bastata: con lo sfondo dipinto davanti agli occhi lo stacco fra i due
+  materiali resta il primo elemento che si nota. È una decisione estetica dello
+  sviluppatore, ed è il criterio giusto per prenderla — la stessa ragione per
+  cui lo stile ibrido era stato adottato.
+  - **Restare sull'ibrido**: gli sfondi generati hanno una ricchezza che il
+    codice non raggiunge — intonaco scrostato, aloni di umido, venature del
+    legno — e quel giudizio, misurato a suo tempo mettendo le due versioni
+    affiancate, resta vero. Scartato perché il confronto di allora era fra due
+    *sfondi*, e la domanda giusta è come sta lo sfondo **accanto al
+    personaggio**.
+  - **Pixel art solo dove il personaggio passa**, tenendo dipinto il resto:
+    non regge, perché il personaggio attraversa tutta la stanza.
+  - Ricadute tecniche, tutte in direzione della semplificazione: un pixel di
+    texture è di nuovo un'unità di gioco **ovunque**, `Nearest` non ha più
+    eccezioni fuori dalle icone dei verbi, e l'atrio passa da 96 kB a **9 kB**.
+    Il vincolo sul peso del repository che aveva imposto il `.webp` sparisce.
+  - **Il costo vero si sposta sul tempo di disegno**, e va saputo: l'atrio ha
+    richiesto quattro giri, e i primi tre sono finiti nel cestino per motivi
+    che vale la pena non ripetere.
+  - **Il dithering va ai bordi delle bande, mai su tutta la superficie.** Un
+    gradiente dithered per intero, a questa risoluzione, si legge come una
+    zanzariera. La forma giusta è quantizzare in fasce piatte e mescolare solo
+    la striscia dove due fasce si toccano — è il parametro `width` di
+    `banded()`.
+  - **Non aggiungere rumore casuale a un campo prima di quantizzarlo.** Vicino
+    a un confine di fascia il rumore sparge pixel isolati per tutta la sua
+    ampiezza, e quello si legge come sporco, non come grana. Se una superficie
+    deve avere grana, gliela si dà **in forme** — scrostature, macchie, crepe.
+  - **Un pavimento visto di fronte non ha un punto di fuga laterale.** Il primo
+    tentativo faceva passare ogni fuga per un punto di fuga e ne usciva una
+    raggiera: quella costruzione vale per un pavimento visto d'angolo. Qui le
+    fughe sono orizzontali e si infittiscono verso il fondo, e basta.
+  - **Le macchie di umidità sono più chiare del muro, non più scure.** Disegnate
+    scure diventano crateri; una macchia su intonaco dipinto slava il colore.
+  - Conseguenza da ricordare per chi disegna: **quello che sta nello sfondo non
+    vede gli sprite che gli finiranno davanti**. Il quadro elettrico dell'atrio
+    è nato sotto la bacheca e ha dovuto traslocare — le zone occupate dagli
+    hotspot vanno tenute libere e annotate nello script.
+  - Nota: da rivedere solo se lo sviluppatore cambiasse di nuovo gusto. Non c'è
+    una premessa tecnica che possa cadere, perché non è una decisione tecnica.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
