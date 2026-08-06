@@ -73,6 +73,12 @@ const DEFAULT_ENTRY: StringName = &"Default"
 @export var depth_top_scale: float = 1.0
 @export var depth_bottom_scale: float = 1.0
 
+# How far off the navigation mesh somebody may stand and still count as being
+# on it. A character stops within their agent's target_desired_distance of where
+# they were sent and the mesh is snapped to whole pixels, so a few units of slack
+# are normal; more than this means they are somewhere the floor does not reach.
+const OFF_MESH_TOLERANCE: float = 8.0
+
 # How many overlapping shapes a single point query may report. Hotspots are
 # not meant to overlap; the allowance is there so that a mistake in a room
 # degrades into "the first one wins" instead of silently finding nothing.
@@ -232,6 +238,38 @@ func _walk_to(destination: Vector2) -> void:
 	# front of the wall instead of doing nothing — the behaviour every
 	# adventure game of the era had.
 	var navigation_map: RID = get_world_2d().navigation_map
+
+	# An empty map does not refuse a query, it answers the origin. So a room
+	# whose navigation region never reached the tree — a scene that failed to
+	# load a dependency, a region left disabled — would quietly send everybody
+	# towards the top-left corner, where there is no path either, so the walk
+	# ends where it started. On screen that is indistinguishable from a tap that
+	# never registered, which is the one thing worth saying out loud.
+	if NavigationServer2D.map_get_regions(navigation_map).is_empty():
+		push_warning("Room %s: no navigation region on the map, so nobody can walk." % name)
+
+		# Nothing can arrive, so nothing may stay pending: an errand that cannot
+		# be walked is an errand that is off.
+		_pending_hotspot = null
+		_pending_item = null
+		return
+
+	# Somebody standing off the mesh gets no path at all, and an agent without a
+	# path reports its own position as the next corner — so the character stands
+	# still for ever instead of walking, and every further tap does nothing. It
+	# is what happens to anybody restored by a save written before this room's
+	# floor was moved, and it is a soft lock, so they are put back on the floor
+	# instead of being left where they cannot walk.
+	var under_feet: Vector2 = NavigationServer2D.map_get_closest_point(
+		navigation_map, _character.global_position
+	)
+
+	if under_feet.distance_to(_character.global_position) > OFF_MESH_TOLERANCE:
+		push_warning("Room %s: %s stood off the floor at %s, put back on it at %s." % [
+			name, _character.name, _character.global_position, under_feet
+		])
+		_character.place_at(under_feet)
+
 	_character.walk_to(NavigationServer2D.map_get_closest_point(navigation_map, destination))
 
 

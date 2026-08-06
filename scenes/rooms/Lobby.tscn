@@ -17,7 +17,7 @@
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 140, 376, 140, 376, 210, 8, 210)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 150, 376, 150, 376, 210, 8, 210)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 140, 376, 140, 376, 210, 8, 210)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]

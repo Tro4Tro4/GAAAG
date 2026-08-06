@@ -91,6 +91,12 @@ var _is_walking: bool = false
 # Empty for anyone who did not just come through a door.
 var _pending_entry: StringName = &""
 
+# Where the current walk set out from and where it was aimed. Kept only so that
+# a walk that ends having covered no ground can be reported, since on screen it
+# looks exactly like a tap that was never received.
+var _walk_from: Vector2 = Vector2.ZERO
+var _walk_target: Vector2 = Vector2.ZERO
+
 
 func _ready() -> void:
 	_sprite.sprite_frames = frames
@@ -109,6 +115,12 @@ func _exit_tree() -> void:
 func walk_to(global_target: Vector2) -> void:
 	# target_position is in global coordinates, not local to this node.
 	_agent.target_position = global_target
+
+	# Remembered so that a walk which ends without anybody having moved can be
+	# told apart from one that arrived. See _stop_walking().
+	_walk_from = global_position
+	_walk_target = global_target
+
 	_is_walking = true
 	set_state(State.WALKING)
 
@@ -270,6 +282,22 @@ func _physics_process(delta: float) -> void:
 
 
 func _stop_walking() -> void:
+	# Sent somewhere and still standing where we set out means the agent found
+	# no path: with none, it reports this character's own position as the next
+	# corner, so the walk is over on its first frame. It happens when the
+	# navigation mesh does not reach either end of the trip — and since nothing
+	# on screen tells that apart from an input that never arrived, it is the one
+	# case worth saying out loud.
+	#
+	# Tapping the floor under your own feet is not it: that walk is short by
+	# design, so the target has to have been further off than the distance the
+	# agent counts as arrival.
+	if global_position.distance_to(_walk_from) < 1.0 \
+			and _walk_from.distance_to(_walk_target) > _agent.target_desired_distance:
+		push_warning("%s was sent from %s to %s and found no path." % [
+			name, _walk_from, _walk_target
+		])
+
 	_cancel_walk()
 	destination_reached.emit()
 
