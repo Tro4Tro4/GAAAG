@@ -12,15 +12,17 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="9_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_wall.webp" id="13_wall"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_pipes.webp" id="14_pipes"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)
+vertices = PackedVector2Array(8, 138, 760, 138, 760, 208, 8, 208)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 138, 760, 138, 760, 208, 8, 208)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(40, 100)
+size = Vector2(26, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_porthole"]
 size = Vector2(28, 28)
@@ -35,7 +37,7 @@ size = Vector2(24, 32)
 size = Vector2(20, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pipe"]
-size = Vector2(700, 14)
+size = Vector2(700, 64)
 
 [sub_resource type="Resource" id="Resource_tubes_door_open"]
 script = ExtResource("6_variant")
@@ -52,26 +54,27 @@ y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("9_hum")
 room_size = Vector2(768, 216)
-depth_top_y = 110.0
+depth_top_y = 138.0
 depth_bottom_y = 208.0
 depth_top_scale = 0.78
 depth_bottom_scale = 1.1
 
-[node name="Wall" type="Polygon2D" parent="."]
-color = Color(0.14, 0.17, 0.19, 1)
-polygon = PackedVector2Array(0, 0, 768, 0, 768, 110, 0, 110)
+[node name="BackWall" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.85, 1)
 
-[node name="Floor" type="Polygon2D" parent="."]
-color = Color(0.23, 0.25, 0.26, 1)
-polygon = PackedVector2Array(0, 110, 768, 110, 768, 216, 0, 216)
+[node name="Sprite" type="Sprite2D" parent="BackWall"]
+texture_filter = 2
+position = Vector2(0, 0)
+scale = Vector2(0.2, 0.2)
+centered = false
+texture = ExtResource("13_wall")
 
-[node name="FloorEdge" type="Polygon2D" parent="."]
-color = Color(0.3, 0.32, 0.33, 1)
-polygon = PackedVector2Array(8, 110, 760, 110, 760, 208, 8, 208)
-
-[node name="Skirting" type="Polygon2D" parent="."]
-color = Color(0.19, 0.22, 0.24, 1)
-polygon = PackedVector2Array(0, 102, 768, 102, 768, 110, 0, 110)
+[node name="Pipes" type="Sprite2D" parent="."]
+texture_filter = 2
+position = Vector2(0, 0)
+scale = Vector2(0.2, 0.2)
+centered = false
+texture = ExtResource("14_pipes")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -85,25 +88,21 @@ position = Vector2(120, 160)
 position = Vector2(100, 150)
 
 [node name="PipeHotspot" type="Area2D" parent="."]
-position = Vector2(384, 76)
+position = Vector2(384, 62)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_TUBES_PIPE"
 act_verb = 3
 look_text = "PROTO_TUBES_PIPE_LOOK"
 act_text = "PROTO_TUBES_PIPE_ACT"
 
-[node name="Picture" type="Polygon2D" parent="PipeHotspot"]
-color = Color(0.62, 0.56, 0.36, 1)
-polygon = PackedVector2Array(-350, -7, 350, -7, 350, 7, -350, 7)
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PipeHotspot"]
 shape = SubResource("RectangleShape2D_pipe")
 
 [node name="ApproachPoint" type="Marker2D" parent="PipeHotspot"]
-position = Vector2(0, 66)
+position = Vector2(0, 88)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(60, 60)
+position = Vector2(60, 124)
 script = ExtResource("3_door")
 display_name = "PROTO_TUBES_DOOR"
 sound = ExtResource("10_thud")
@@ -118,7 +117,7 @@ variants = Array[ExtResource("6_variant")]([SubResource("Resource_tubes_door_ope
 
 [node name="Frame" type="Polygon2D" parent="DoorHotspot"]
 color = Color(0.24, 0.18, 0.14, 1)
-polygon = PackedVector2Array(-23, -53, 23, -53, 23, 50, -23, 50)
+polygon = PackedVector2Array(-15, -23, 15, -23, 15, 22, -15, 22)
 
 [node name="Shut" type="Node2D" parent="DoorHotspot"]
 script = ExtResource("12_state")
@@ -126,11 +125,11 @@ visible_if = PackedStringArray("!on:lobby_door")
 
 [node name="Leaf" type="Polygon2D" parent="DoorHotspot/Shut"]
 color = Color(0.35, 0.26, 0.2, 1)
-polygon = PackedVector2Array(-20, -50, 20, -50, 20, 50, -20, 50)
+polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
 
 [node name="Handle" type="Polygon2D" parent="DoorHotspot/Shut"]
 color = Color(0.72, 0.64, 0.38, 1)
-polygon = PackedVector2Array(10, -6, 16, -6, 16, 2, 10, 2)
+polygon = PackedVector2Array(7, -3, 11, -3, 11, 2, 7, 2)
 
 [node name="Open" type="Node2D" parent="DoorHotspot"]
 script = ExtResource("12_state")
@@ -138,21 +137,21 @@ visible_if = PackedStringArray("on:lobby_door")
 
 [node name="Dark" type="Polygon2D" parent="DoorHotspot/Open"]
 color = Color(0.07, 0.07, 0.09, 1)
-polygon = PackedVector2Array(-20, -50, 20, -50, 20, 50, -20, 50)
+polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
 
 [node name="FloorBeyond" type="Polygon2D" parent="DoorHotspot/Open"]
 color = Color(0.31, 0.29, 0.3, 1)
-polygon = PackedVector2Array(-20, 34, 20, 34, 20, 50, -20, 50)
+polygon = PackedVector2Array(-13, 14, 13, 14, 13, 21, -13, 21)
 
 [node name="Leaf" type="Polygon2D" parent="DoorHotspot/Open"]
 color = Color(0.29, 0.21, 0.16, 1)
-polygon = PackedVector2Array(-20, -50, -12, -50, -12, 50, -20, 50)
+polygon = PackedVector2Array(-13, -21, -8, -21, -8, 21, -13, 21)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 34)
 
 [node name="PortholeHotspot" type="Area2D" parent="."]
 position = Vector2(300, 76)
