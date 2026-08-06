@@ -15,22 +15,22 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_chairs.png" id="13_chairs"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
-vertices = PackedVector2Array(8, 150, 376, 150, 376, 210, 8, 210)
+vertices = PackedVector2Array(8, 140, 376, 140, 376, 210, 8, 210)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(8, 150, 376, 150, 376, 210, 8, 210)])
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(36, 58)
+size = Vector2(26, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
-size = Vector2(44, 32)
+size = Vector2(32, 24)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rack"]
-size = Vector2(28, 44)
+size = Vector2(20, 28)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_chairs"]
-size = Vector2(68, 22)
+size = Vector2(48, 20)
 
 [sub_resource type="Resource" id="Resource_lobby_door_open"]
 script = ExtResource("9_variant")
@@ -41,7 +41,7 @@ look_text = "PROTO_LOBBY_DOOR_LOOK_OPEN"
 y_sort_enabled = true
 script = ExtResource("1_room")
 music = ExtResource("6_hum")
-depth_top_y = 150.0
+depth_top_y = 140.0
 depth_bottom_y = 210.0
 depth_top_scale = 0.85
 depth_bottom_scale = 1.05
@@ -60,11 +60,11 @@ visible_if = PackedStringArray("on:lobby_door")
 
 [node name="Spill" type="Polygon2D" parent="DoorLight"]
 color = Color(1, 0.95, 0.76, 0.17)
-polygon = PackedVector2Array(-17, 0, 17, 0, 39, 46, -39, 46)
+polygon = PackedVector2Array(-13, 0, 13, 0, 32, 42, -32, 42)
 
 [node name="Core" type="Polygon2D" parent="DoorLight"]
 color = Color(1, 0.97, 0.84, 0.13)
-polygon = PackedVector2Array(-14, 0, 14, 0, 24, 26, -24, 26)
+polygon = PackedVector2Array(-11, 0, 11, 0, 20, 24, -20, 24)
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -78,7 +78,7 @@ position = Vector2(140, 190)
 position = Vector2(300, 172)
 
 [node name="NoticeHotspot" type="Area2D" parent="."]
-position = Vector2(80, 110)
+position = Vector2(80, 106)
 script = ExtResource("2_hotspot")
 display_name = "PROTO_LOBBY_NOTICE"
 look_text = "PROTO_LOBBY_NOTICE_LOOK"
@@ -90,10 +90,10 @@ texture = ExtResource("11_notice")
 shape = SubResource("RectangleShape2D_notice")
 
 [node name="ApproachPoint" type="Marker2D" parent="NoticeHotspot"]
-position = Vector2(0, 62)
+position = Vector2(0, 66)
 
 [node name="FormRackHotspot" type="Area2D" parent="."]
-position = Vector2(170, 119)
+position = Vector2(170, 104)
 script = ExtResource("4_pickup")
 display_name = "PROTO_LOBBY_FORMS"
 sound = ExtResource("7_thud")
@@ -111,7 +111,7 @@ texture = ExtResource("12_rack")
 shape = SubResource("RectangleShape2D_rack")
 
 [node name="ApproachPoint" type="Marker2D" parent="FormRackHotspot"]
-position = Vector2(0, 55)
+position = Vector2(0, 70)
 
 [node name="ChairsHotspot" type="Area2D" parent="."]
 position = Vector2(110, 192)
@@ -120,19 +120,19 @@ display_name = "PROTO_LOBBY_CHAIRS"
 look_text = "PROTO_LOBBY_CHAIRS_LOOK"
 
 [node name="Picture" type="Sprite2D" parent="ChairsHotspot"]
-position = Vector2(-34, -22)
+position = Vector2(-24, -20)
 centered = false
 texture = ExtResource("13_chairs")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ChairsHotspot"]
-position = Vector2(0, -11)
+position = Vector2(0, -10)
 shape = SubResource("RectangleShape2D_chairs")
 
 [node name="ApproachPoint" type="Marker2D" parent="ChairsHotspot"]
 position = Vector2(0, 12)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
-position = Vector2(313, 117)
+position = Vector2(313, 124)
 script = ExtResource("3_door")
 display_name = "PROTO_LOBBY_DOOR"
 sound = ExtResource("7_thud")
@@ -149,4 +149,4 @@ variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_ope
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 42)
+position = Vector2(0, 34)

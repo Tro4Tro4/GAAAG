@@ -19,7 +19,16 @@ What this does, and why each step is here rather than done by hand:
 
 The measurements the room's scene depends on, taken from this image and written
 here so that a new image can be checked against them: the wall/floor line is at
-y = 146 of 216, and the door is 36 wide by 58 tall centred at x = 313.
+y = 136 of 216, and the door is 26 wide by 44 tall centred at x = 313, its base
+at y = 146 and its handle at y = 129.
+
+Those numbers replaced an earlier set — floor line 146, door 36 by 58 — after
+the door was measured against the character instead of against the wall. At 58
+the door stood 1.65 times Lino's height and its handle reached his head: the
+image had been drawn for a 56-unit character, and this project's characters are
+40. The rule that follows, and it is the one worth keeping: a background is
+checked by composing the character into it, and the measurement that gives it
+away in one look is the height of the door handle.
 """
 import random
 import sys

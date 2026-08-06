@@ -15,3 +15,7 @@ Thumbs.db
 # Cache di Python, dalle librerie delle skill
 __pycache__/
 *.pyc
+
+# Cartella di scambio per le immagini sorgente: non entrano in git,
+# come i riferimenti delle icone dei verbi.
+/TempImages/
