@@ -92,7 +92,7 @@ act_text = "PROTO_TUBES_PIPE_ACT"
 shape = SubResource("RectangleShape2D_pipe")
 
 [node name="ApproachPoint" type="Marker2D" parent="PipeHotspot"]
-position = Vector2(0, 74)
+position = Vector2(0, 66)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(50, 90)
@@ -126,7 +126,7 @@ texture = ExtResource("20_open")
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 38)
 
 [node name="PortholeHotspot" type="Area2D" parent="."]
 position = Vector2(250, 63)
@@ -144,7 +144,7 @@ texture = ExtResource("15_porthole")
 shape = SubResource("RectangleShape2D_porthole")
 
 [node name="ApproachPoint" type="Marker2D" parent="PortholeHotspot"]
-position = Vector2(0, 63)
+position = Vector2(0, 55)
 
 [node name="PlateHotspot" type="Area2D" parent="."]
 position = Vector2(250, 83)
@@ -163,7 +163,7 @@ texture = ExtResource("16_plate")
 shape = SubResource("RectangleShape2D_plate")
 
 [node name="ApproachPoint" type="Marker2D" parent="PlateHotspot"]
-position = Vector2(0, 43)
+position = Vector2(0, 35)
 
 [node name="PublicPointHotspot" type="Area2D" parent="."]
 position = Vector2(467, 65)
@@ -184,7 +184,7 @@ texture = ExtResource("17_point")
 shape = SubResource("RectangleShape2D_point")
 
 [node name="ApproachPoint" type="Marker2D" parent="PublicPointHotspot"]
-position = Vector2(0, 61)
+position = Vector2(0, 53)
 
 [node name="CapsuleHotspot" type="Area2D" parent="."]
 position = Vector2(467, 162)
@@ -206,4 +206,4 @@ position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_capsule")
 
 [node name="ApproachPoint" type="Marker2D" parent="CapsuleHotspot"]
-position = Vector2(0, 8)
+position = Vector2(0, 6)

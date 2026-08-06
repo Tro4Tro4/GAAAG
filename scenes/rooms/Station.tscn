@@ -79,7 +79,7 @@ texture = ExtResource("23_point")
 shape = SubResource("RectangleShape2D_point")
 
 [node name="ApproachPoint" type="Marker2D" parent="ServicePointHotspot"]
-position = Vector2(0, 64)
+position = Vector2(0, 38)
 
 [node name="ConsoleHotspot" type="Area2D" parent="."]
 position = Vector2(117, 60)
@@ -97,7 +97,7 @@ texture = ExtResource("21_console")
 shape = SubResource("RectangleShape2D_console")
 
 [node name="ApproachPoint" type="Marker2D" parent="ConsoleHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 50)
 
 [node name="LeverHotspot" type="Area2D" parent="."]
 position = Vector2(183, 60)
@@ -120,7 +120,7 @@ position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_lever")
 
 [node name="ApproachPoint" type="Marker2D" parent="LeverHotspot"]
-position = Vector2(0, 80)
+position = Vector2(0, 46)
 
 [node name="LogHotspot" type="Area2D" parent="."]
 position = Vector2(252, 86)
@@ -144,4 +144,4 @@ position = Vector2(0, -3)
 shape = SubResource("RectangleShape2D_log")
 
 [node name="ApproachPoint" type="Marker2D" parent="LogHotspot"]
-position = Vector2(0, 50)
+position = Vector2(0, 26)

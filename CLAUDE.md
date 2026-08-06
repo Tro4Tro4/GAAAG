@@ -1332,6 +1332,27 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     arriva in un posto noto, rivolti in un verso noto, perché l'animazione
     torni. Un gruppo `ApproachPoints` con più marker è per le cose raggiungibili
     da ogni lato, e **vince il più vicino a chi cammina**.
+  - **Dove sta, si ricava da una regola e non a occhio**, e la regola è nata dopo
+    averli trovati tutti sbagliati insieme: le distanze erano ereditate dal
+    layout di prima del cambio di risoluzione, e otto punti su quattordici
+    lasciavano il personaggio 17-32 unità troppo indietro — la leva della
+    postazione arrivava a 46, cioè più di una figura di distanza da una cosa che
+    si deve afferrare. La regola, misurata sulle mani (che stanno una ventina di
+    unità sopra i piedi):
+    - **cosa appesa al muro** → i piedi il più vicino al muro che la navmesh
+      consenta, il suo limite superiore più due. Le mani cadono così al bordo
+      basso dell'oggetto;
+    - **cosa appoggiata al pavimento** → i piedi sei o otto unità davanti al suo
+      bordo vicino;
+    - **porta** → una quindicina di unità davanti alla soglia: ci si sta davanti,
+      non ci si schiaccia contro.
+    Il controllo che la verifica in un colpo solo è la distanza fra le mani e il
+    bordo basso dell'oggetto: dentro ±10 va bene, oltre significa che il
+    personaggio parla a un oggetto che non tocca.
+  - **Il personaggio che copre in parte quello che usa non è un difetto**, ed è
+    la ragione per cui la regola non scappa di lato: nei LucasArts ci si mette
+    davanti alle cose, l'informazione sta nella caption, e uno spostamento
+    laterale per non coprire l'oggetto si legge come rivolgersi altrove.
   - Scartate le altre due opzioni che erano in elenco: il punto calpestabile più
     vicino all'oggetto (niente controllo su dove ci si ferma, e la navmesh non
     sa cosa sia "davanti") e il raggio entro cui non si cammina affatto (rende

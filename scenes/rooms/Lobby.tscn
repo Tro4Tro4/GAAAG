@@ -88,7 +88,7 @@ texture = ExtResource("11_notice")
 shape = SubResource("RectangleShape2D_notice")
 
 [node name="ApproachPoint" type="Marker2D" parent="NoticeHotspot"]
-position = Vector2(0, 62)
+position = Vector2(0, 36)
 
 [node name="FormRackHotspot" type="Area2D" parent="."]
 position = Vector2(142, 76)
@@ -109,7 +109,7 @@ texture = ExtResource("12_rack")
 shape = SubResource("RectangleShape2D_rack")
 
 [node name="ApproachPoint" type="Marker2D" parent="FormRackHotspot"]
-position = Vector2(0, 66)
+position = Vector2(0, 38)
 
 [node name="ChairsHotspot" type="Area2D" parent="."]
 position = Vector2(92, 158)
@@ -127,7 +127,7 @@ position = Vector2(0, -10)
 shape = SubResource("RectangleShape2D_chairs")
 
 [node name="ApproachPoint" type="Marker2D" parent="ChairsHotspot"]
-position = Vector2(0, 12)
+position = Vector2(0, 8)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(260, 86)
@@ -147,4 +147,4 @@ variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_ope
 shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
-position = Vector2(0, 44)
+position = Vector2(0, 38)

@@ -193,6 +193,12 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   copre decine di unità e si legge come sporco invece che come transizione.
   Misurabile: contando i pixel diversi da entrambi i vicini orizzontali, un
   fondale sano sta sotto il 10%.
+- **Quello che si deve toccare va disegnato dove una mano arriva.** Le mani di un
+  personaggio alto 40 stanno una ventina di unità sopra i suoi piedi, e i piedi
+  non possono salire sopra il limite della navmesh: quindi un oggetto con cui si
+  interagisce non può stare più di una decina di unità sopra `linea_pavimento − 20`.
+  Più in alto è scenografia, e va bene solo se il verbo è Guarda. È la stessa
+  verifica dell'altezza della maniglia, applicata a fessure, sportelli e leve.
 - **Le zone che un fondale lascia libere per uno sprite tengono fuori i
   *dispositivi*, non la superficie.** La regola "un elemento dipinto dietro uno
   sprite è una collisione che il fondale non vede arrivare" vale per una cosa
