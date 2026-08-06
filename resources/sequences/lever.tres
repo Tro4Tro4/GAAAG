@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
 [ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
-[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="3_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx_lever_throw.wav" id="3_clack"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="4_rumble"]
 
 [sub_resource type="Resource" id="Step_pull"]
@@ -10,10 +10,10 @@ script = ExtResource("2_step")
 kind = 0
 text = "SEQ_LEVER_PULL"
 
-[sub_resource type="Resource" id="Step_thud"]
+[sub_resource type="Resource" id="Step_clack"]
 script = ExtResource("2_step")
 kind = 4
-sound = ExtResource("3_thud")
+sound = ExtResource("3_clack")
 
 [sub_resource type="Resource" id="Step_rumble_say"]
 script = ExtResource("2_step")
@@ -42,4 +42,4 @@ name = &"line_reversed"
 
 [resource]
 script = ExtResource("1_sequence")
-steps = Array[ExtResource("2_step")]([SubResource("Step_pull"), SubResource("Step_thud"), SubResource("Step_rumble_sound"), SubResource("Step_rumble_say"), SubResource("Step_wait"), SubResource("Step_end_say"), SubResource("Step_flag")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_pull"), SubResource("Step_clack"), SubResource("Step_flag"), SubResource("Step_rumble_sound"), SubResource("Step_rumble_say"), SubResource("Step_wait"), SubResource("Step_end_say")])

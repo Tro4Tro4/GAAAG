@@ -6,7 +6,7 @@ verified hotspot geometry and only the picture changes:
 
     prop_service_point   24x32, at the node
     prop_console         80x80, at the node
-    prop_lever           20x44, offset (0, -8)
+    prop_lever_up/down   20x44, offset (0, -8), two states
     prop_log             36x14, offset (0, -3)
 
 Palette: the corridor's steel and brass, because it is the same facility, plus
@@ -110,13 +110,20 @@ def console() -> PixelCanvas:
 
 
 # -------------------------------------------------------------------- lever ---
-def lever() -> PixelCanvas:
-    # 20x44 and not the 16x40 of the polygon it replaces: it fills its collision
-    # shape instead of sitting inside it. Drawn narrower it read as a scratch on
-    # the wall -- a lever needs its quadrant plate to be legible at all.
-    k = PixelCanvas(20, 44)
-    # A quadrant plate bolted to the wall, with the lever standing in it. The
-    # plate is what makes the lever legible: a bare stick reads as a scratch.
+# Two states, because the lever moves and a StateVisual has to be able to swap
+# it: up before the line is reversed, down after. They share the plate, and only
+# the shaft and the knob change -- which is the whole point of drawing them from
+# one helper instead of twice by hand.
+LEVER_W, LEVER_H = 20, 44
+
+
+def _lever_plate(k: PixelCanvas) -> None:
+    """The quadrant plate bolted to the wall, identical in both states.
+
+    20x44 and not the 16x40 of the polygon it replaces: it fills its collision
+    shape instead of sitting inside it. Drawn narrower it read as a scratch on
+    the wall -- a lever needs its plate to be legible at all.
+    """
     boxed(k, 2, 8, 17, 43, STEEL_S, STEEL_L, STEEL_D)
     k.rect(7, 12, 12, 40, STEEL_D)                         # the slot
     k.rect(7, 12, 12, 12, INK)
@@ -125,18 +132,54 @@ def lever() -> PixelCanvas:
         k.set(3, y, INK)
         k.set(16, y, INK)
         k.rect(4, y + 1, 15, y + 1, STEEL_D)
-
-    # The shaft, up in the "not yet pulled" position, and the knob on top.
-    k.rect(8, 2, 11, 22, INK)
-    k.rect(9, 3, 10, 21, BRASS)
-    k.rect(9, 3, 9, 21, BRASS_L)
-    boxed(k, 5, 0, 14, 7, BRASS, BRASS_H, BRASS_D)
-    k.rect(7, 2, 12, 4, BRASS_L)
-    k.rect(7, 2, 9, 2, BRASS_H)
-
-    k.rect(4, 41, 6, 42, AMBER_D)                          # the ready light
-    k.set(5, 41, AMBER_L)
     k.set(15, 15, RUST)
+
+
+def _lever_shaft(k: PixelCanvas, y0: int, y1: int, knob_y: int) -> None:
+    """The brass shaft between two heights, with its knob at knob_y."""
+    k.rect(8, y0, 11, y1, INK)
+    k.rect(9, y0 + 1, 10, y1 - 1, BRASS)
+    k.rect(9, y0 + 1, 9, y1 - 1, BRASS_L)                  # lit on the left
+    boxed(k, 5, knob_y, 14, knob_y + 7, BRASS, BRASS_H, BRASS_D)
+    k.rect(7, knob_y + 2, 12, knob_y + 4, BRASS_L)
+    k.rect(7, knob_y + 2, 9, knob_y + 2, BRASS_H)
+
+
+def _lever_lamp(k: PixelCanvas, lit: bool) -> None:
+    """The running lamp, near the top of the plate and not near the bottom.
+
+    Placed there for one reason, found by composing Cesare into the picture: he
+    stands with his feet at 106 and his head reaches world y 66, so anything in
+    the lowest eight rows of this sprite is behind his head exactly when he is
+    using it. The shaft moving is readable above him; a lamp down by his collar
+    is not.
+    """
+    k.rect(3, 10, 5, 12, AMBER if lit else AMBER_D)
+    k.set(4, 10, AMBER_L if lit else AMBER)
+    k.set(3, 12, BRASS_D)
+
+
+def lever_up() -> PixelCanvas:
+    """Not yet pulled: the shaft stands in the top notch, the lamp is dull."""
+    k = PixelCanvas(LEVER_W, LEVER_H)
+    _lever_plate(k)
+    _lever_shaft(k, 2, 22, knob_y=0)
+    _lever_lamp(k, lit=False)
+    return k
+
+
+def lever_down() -> PixelCanvas:
+    """Pulled: the shaft has swung to the bottom notch and the lamp is lit.
+
+    The lamp is the half of this that does the talking. The shaft moving twenty
+    pixels is easy to miss on a 320-wide screen; a warm pixel coming on where
+    there was a dull one is not, and it says the same thing -- the line is
+    running now.
+    """
+    k = PixelCanvas(LEVER_W, LEVER_H)
+    _lever_plate(k)
+    _lever_shaft(k, 20, 40, knob_y=35)
+    _lever_lamp(k, lit=True)
     return k
 
 
@@ -189,7 +232,8 @@ def log_book() -> PixelCanvas:
     return k
 
 
-PROPS = [("prop_console", console), ("prop_lever", lever),
+PROPS = [("prop_console", console),
+         ("prop_lever_up", lever_up), ("prop_lever_down", lever_down),
          ("prop_service_point", service_point), ("prop_log", log_book)]
 
 

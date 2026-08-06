@@ -1,9 +1,10 @@
-[gd_scene load_steps=21 format=3 uid="uid://baggastation01"]
+[gd_scene load_steps=23 format=3 uid="uid://baggastation01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="3_passage"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="4_variant"]
+[ext_resource type="Script" path="res://scripts/rooms/state_visual.gd" id="26_state"]
 [ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="5_form_filled"]
 [ext_resource type="Resource" uid="uid://baggadlgcons01" path="res://resources/dialogues/console.tres" id="6_console"]
 [ext_resource type="Resource" uid="uid://baggaseqleve01" path="res://resources/sequences/lever.tres" id="7_lever_scene"]
@@ -11,7 +12,8 @@
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="9_click"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_station.png" id="20_bg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_console.png" id="21_console"]
-[ext_resource type="Texture2D" path="res://assets/sprites/prop_lever.png" id="22_lever"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lever_up.png" id="22_lever_up"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lever_down.png" id="25_lever_down"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_service_point.png" id="23_point"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_log.png" id="24_log"]
 
@@ -111,9 +113,21 @@ sequence = ExtResource("7_lever_scene")
 sequence_verb = 3
 sequence_if = PackedStringArray("complaint_logged", "!line_reversed")
 
-[node name="Picture" type="Sprite2D" parent="LeverHotspot"]
+[node name="Up" type="Node2D" parent="LeverHotspot"]
+script = ExtResource("26_state")
+visible_if = PackedStringArray("!line_reversed")
+
+[node name="Picture" type="Sprite2D" parent="LeverHotspot/Up"]
 position = Vector2(0, -8)
-texture = ExtResource("22_lever")
+texture = ExtResource("22_lever_up")
+
+[node name="Down" type="Node2D" parent="LeverHotspot"]
+script = ExtResource("26_state")
+visible_if = PackedStringArray("line_reversed")
+
+[node name="Picture" type="Sprite2D" parent="LeverHotspot/Down"]
+position = Vector2(0, -8)
+texture = ExtResource("25_lever_down")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LeverHotspot"]
 position = Vector2(0, -8)

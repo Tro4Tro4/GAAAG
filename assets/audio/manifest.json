@@ -1,0 +1,16 @@
+{
+  "sample_rate": 22050,
+  "assets": [
+    {
+      "file": "sfx_lever_throw.wav",
+      "category": "sfx",
+      "name": "lever_throw",
+      "loop": false,
+      "note": "industrial lever thrown into its notch: scrape, seat, spring",
+      "dur": 0.4,
+      "peak_db": -3.000000000003112,
+      "rms_db": -26.127930550721608,
+      "channels": 1
+    }
+  ]
+}

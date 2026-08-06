@@ -126,12 +126,14 @@ tools/               Script che producono asset, da eseguire dalla radice
   make_tubes_props.py       Oblo', targhetta, punto d'imbuco, capsula, battenti
   make_item_icons.py        Le quattro icone d'inventario, 12x12
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
+  make_audio.py             I suoni sintetizzati, e il loro manifest
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
                      stanza, a scala 1 e filtro Nearest: 320x180 l'atrio e la
                      postazione, 640x180 il corridoio
   ui/                Le sette icone dei verbi, in SVG
-  audio/             Cinque suoni segnaposto generati da uno script
+  audio/             sfx_lever_throw.wav sintetizzato da tools/, piu' quattro
+                     segnaposto piu' vecchi: thud, ui_click, hum_low, hum_high
 ```
 
 ## Decisioni prese (e perché)
@@ -2104,6 +2106,47 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     in tre modi che restano — ogni `res://` risolve, le due lingue hanno le stesse
     chiavi e ogni chiave è usata, `gdparse` passa — e sono i tre controlli che
     hanno detto che il taglio era completo e non eccessivo.
+
+- **La leva ha due stati, e cambiano sul clak.** Tirandola, il pomello passa da
+  sopra la piastra a dentro l'ultima tacca e la spia si accende; e le fa da voce
+  `sfx_lever_throw.wav`, il primo suono del gioco sintetizzato per davvero invece
+  che generato alla buona.
+  - **Il flag risale in terza posizione nella sequenza.** `line_reversed` era
+    l'ultimo passo — l'esito della scena — e finché stava lì la leva si abbassava
+    *a scena finita*, dopo il rombo e la battuta di chiusura. Ora sta subito dopo
+    il suono, quindi lo `StateVisual` scatta sul clak. Non cambia la semantica: la
+    linea si inverte quando la leva viene tirata, non quando il narratore ha
+    finito di dirlo. Regge perché `sequence_if` viene controllato **prima** che la
+    scena parta, quindi alzare il flag a metà non annulla niente.
+  - **Il pezzo che cambia va messo dove il personaggio non arriva**, e l'ho
+    scoperto componendo Cesare dentro l'immagine, non ragionandoci: sta con i
+    piedi a 106 e la testa arriva a 66, quindi le ultime otto righe dello sprite
+    sono dietro la sua testa **esattamente mentre lo usa**. La spia era lì, ed è
+    salita in cima alla piastra. È il caso particolare della regola
+    sull'occlusione: non conta quanto dell'oggetto è coperto — il 13% — conta se è
+    coperta la parte che dice lo stato.
+  - **Due sprite interi e non uno stelo separato**: la piastra è identica nei due
+    stati e si sarebbe potuta dipingere nel fondale, tenendo come sprite solo lo
+    stelo. Scartato perché i due stati escono da un helper condiviso, quindi la
+    duplicazione è nel PNG e non nel codice, e perché uno sprite di venti pixel
+    che si muove sopra un fondale è più fragile di due sprite fermi: basta
+    sbagliare un offset e lo stelo esce dalla sua piastra.
+  - **Il suono è tre strati**, che è la regola che separa un suono da un tono di
+    prova: lo strisciare dello stelo nella guida, la battuta secca in tacca — un
+    transiente largo più due risonatori, 235 Hz la piastra e 1180 Hz il perno — e
+    il molleggio che riprende il gioco dietro la tacca. Senza il primo sembra un
+    martello, senza il terzo sembra una porta.
+  - **La coda del riverbero si taglia a mano.** `ra.reverb` accoda una coda della
+    propria lunghezza a prescindere da quanto è corta la sorgente, quindi un clak
+    di 200 ms usciva come un file di 1,14 s — una leva che risuona mentre si legge
+    la battuta successiva è una leva in una cattedrale. Tagliato a 400 ms con
+    dissolvenza, dentro la forbice che la skill dà agli effetti d'interazione.
+  - **I nomi nuovi seguono la convenzione della skill** (`<categoria>_<nome>.wav`)
+    e i quattro vecchi no. Rinominarli si può, ma vuol dire toccare le scene nello
+    stesso commit o il gioco resta muto senza dire perché: si fa quando si
+    sostituiscono, non prima.
+  - `tools/make_audio.py` sta nel repository per la stessa ragione dei generatori
+    grafici: un asset che nessuno sa rifare è un asset che non si può correggere.
 
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
