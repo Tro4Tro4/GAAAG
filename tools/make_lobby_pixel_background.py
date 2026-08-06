@@ -262,19 +262,14 @@ def main():
     img[DOOR_TOP - 3:DOOR_BOT - 1, x0 - 3:x0 - 1] = DOOR[3]
     img[DOOR_TOP - 3, x0 - 3:x1 + 3] = DOOR[4]
     img[DOOR_TOP - 3:DOOR_BOT - 1, x1 + 1:x1 + 3] = DOOR[0]
-    img[DOOR_TOP:DOOR_BOT - 2, x0:x1] = DOOR[2]
-    for py0, py1 in ((DOOR_TOP + 3, DOOR_TOP + 18), (DOOR_TOP + 23, DOOR_BOT - 7)):
-        img[py0:py1, x0 + 3:x1 - 3] = DOOR[1]
-        img[py0 + 1:py1 - 1, x0 + 4:x1 - 4] = DOOR[2]
-        img[py0, x0 + 3:x1 - 3] = DOOR[0]
-        img[py0:py1, x0 + 3] = DOOR[0]
-        img[py1 - 1, x0 + 4:x1 - 3] = DOOR[4]
-    hy = DOOR_TOP + 25
-    img[hy:hy + 3, x0 + 2:x0 + 8] = BRASS[1]
-    img[hy, x0 + 2:x0 + 7] = BRASS[4]
-    img[hy + 1, x0 + 2:x0 + 4] = BRASS[3]
-    img[hy + 3, x0 + 3:x0 + 7] = BRASS[0]
-    img[DOOR_BOT - 2:DOOR_BOT, x0:x1] = INK               # the gap underneath
+    # Only the opening, and what little of the jamb shows inside it. The leaf is a
+    # sprite -- two of them, swapped by a StateVisual -- because a door has two
+    # states and this picture has one. It used to be painted shut here, with the
+    # light on the floor as the only sign that it was open: that contradicted
+    # itself the moment somebody opened it.
+    img[DOOR_TOP:DOOR_BOT, x0:x1] = INK
+    img[DOOR_TOP:DOOR_BOT, x0:x0 + 1] = DOOR[0]           # the jamb inside
+    img[DOOR_TOP:DOOR_TOP + 1, x0:x1] = DOOR[0]
 
     for y in range(DOOR_TOP - 4, DOOR_BOT):               # shadow on the wall
         for x in range(x1 + 4, min(W, x1 + 9)):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=22 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -13,6 +13,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_notice.png" id="11_notice"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_rack.png" id="12_rack"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_chairs.png" id="13_chairs"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_shut.png" id="14_shut"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_open.png" id="15_open"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
 vertices = PackedVector2Array(8, 112, 312, 112, 312, 174, 8, 174)
@@ -142,6 +144,20 @@ target_room = "res://scenes/rooms/Tubes.tscn"
 target_entry = &"FromLobby"
 state_id = &"lobby_door"
 variants = Array[ExtResource("9_variant")]([SubResource("Resource_lobby_door_open")])
+
+[node name="Shut" type="Node2D" parent="DoorHotspot"]
+script = ExtResource("8_state")
+visible_if = PackedStringArray("!on:lobby_door")
+
+[node name="Leaf" type="Sprite2D" parent="DoorHotspot/Shut"]
+texture = ExtResource("14_shut")
+
+[node name="Open" type="Node2D" parent="DoorHotspot"]
+script = ExtResource("8_state")
+visible_if = PackedStringArray("on:lobby_door")
+
+[node name="Beyond" type="Sprite2D" parent="DoorHotspot/Open"]
+texture = ExtResource("15_open")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")

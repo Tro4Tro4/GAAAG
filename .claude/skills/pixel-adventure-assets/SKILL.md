@@ -193,6 +193,11 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   copre decine di unità e si legge come sporco invece che come transizione.
   Misurabile: contando i pixel diversi da entrambi i vicini orizzontali, un
   fondale sano sta sotto il 10%.
+- **Un fondale può raccontare una conseguenza, non può stare al posto della cosa
+  che cambia.** La lama di luce sul pavimento davanti a una porta aperta è una
+  conseguenza e sta bene dipinta; il battente è la cosa che cambia e va disegnato
+  come sprite, in due stati. Dipinto chiuso nel fondale, dà una porta chiusa da
+  cui esce la luce.
 - **Quello che si deve toccare va disegnato dove una mano arriva.** Le mani di un
   personaggio alto 40 stanno una ventina di unità sopra i suoi piedi, e i piedi
   non possono salire sopra il limite della navmesh: quindi un oggetto con cui si

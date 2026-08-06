@@ -1,8 +1,10 @@
-"""Draws the Lobby's prop sprites: the notice board, the form rack, the chairs.
+"""Draws the Lobby's prop sprites: notice board, form rack, chairs, door leaf.
 
-These stay pixel art while the background is a painted image, for the three
-reasons recorded in CLAUDE.md: the chairs sort in Y against the characters, and
-the notice and the rack carry writing that an image generator cannot produce.
+These are sprites and not part of the background for the reasons recorded in
+CLAUDE.md: the chairs sort in Y against the characters, the notice and the rack
+carry writing, and the door leaf has two states that a StateVisual has to be able
+to swap. The frame and the recess behind the leaf stay painted -- those never
+change.
 
 The palette is derived from assets/backgrounds/bg_lobby.png rather than invented,
 which is the rule that keeps the two layers from fighting: one mother palette and
@@ -24,6 +26,65 @@ COOL = (54, 44, 66)
 PAPER = (223, 216, 186)
 METAL = (138, 145, 158)
 WOOD = (128, 100, 72)
+
+# The door's own five tones and the brass of its handle, taken from the ramps in
+# make_lobby_pixel_background.py so the leaf belongs to the frame painted around
+# it. The last two are the corridor's floor, seen through the opening.
+DOOR = [(0x28, 0x2A, 0x34, 255), (0x45, 0x49, 0x56, 255), (0x65, 0x6C, 0x77, 255),
+        (0x87, 0x8F, 0x98, 255), (0xAC, 0xB4, 0xBA, 255)]
+BRASS = [(0x5C, 0x4E, 0x2C, 255), (0xA2, 0x90, 0x5B, 255), (0xE8, 0xD6, 0x96, 255)]
+DARK = (0x16, 0x18, 0x1E, 255)
+BEYOND = (0x33, 0x40, 0x46, 255)
+BEYOND_L = (0x4B, 0x5F, 0x51, 255)
+
+# The opening the background paints, and therefore the size of both leaves.
+LEAF_W, LEAF_H = 26, 44
+
+
+def door_shut() -> PixelCanvas:
+    """The leaf closed: two recessed panels and the handle, hinged on the right.
+
+    Drawn here rather than painted into the background because the door has two
+    states. The lobby used to show only the light on the floor and keep a closed
+    door painted in the picture, which contradicted itself the moment the door
+    was open.
+    """
+    k = PixelCanvas(LEAF_W, LEAF_H)
+    k.rect(0, 0, LEAF_W - 1, LEAF_H - 1, DOOR[2])
+    k.rect(0, 0, LEAF_W - 1, 0, DOOR[4])                   # lit along the top
+    k.rect(0, 0, 1, LEAF_H - 1, DOOR[3])                   # and down the left
+    k.rect(LEAF_W - 2, 1, LEAF_W - 1, LEAF_H - 1, DOOR[1])
+    for y0, y1 in ((3, 18), (23, 37)):                     # the two panels
+        k.rect(3, y0, LEAF_W - 4, y1, DOOR[1])
+        k.rect(4, y0 + 1, LEAF_W - 5, y1 - 1, DOOR[2])
+        k.rect(3, y0, LEAF_W - 4, y0, DOOR[0])
+        k.rect(3, y0, 3, y1, DOOR[0])
+        k.rect(4, y1, LEAF_W - 4, y1, DOOR[4])
+    k.rect(2, 25, 7, 27, BRASS[1])                         # the handle
+    k.rect(2, 25, 6, 25, BRASS[2])
+    k.rect(3, 28, 6, 28, BRASS[0])
+    k.rect(0, LEAF_H - 2, LEAF_W - 1, LEAF_H - 1, DARK)    # the gap underneath
+    return k
+
+
+def door_open() -> PixelCanvas:
+    """The leaf swung back: what says "open" is seeing the corridor through it.
+
+    The floor beyond is the corridor's colour and not this room's, which is the
+    one detail that makes the opening read as somewhere else rather than as a
+    black rectangle.
+    """
+    k = PixelCanvas(LEAF_W, LEAF_H)
+    k.rect(0, 0, LEAF_W - 1, LEAF_H - 1, DARK)
+    k.rect(1, LEAF_H - 13, LEAF_W - 2, LEAF_H - 1, BEYOND) # the corridor's floor
+    k.rect(1, LEAF_H - 13, LEAF_W - 2, LEAF_H - 13, BEYOND_L)
+    k.rect(1, LEAF_H - 6, LEAF_W - 2, LEAF_H - 5, BEYOND_L)
+    # The leaf itself, standing open against the far side of the opening.
+    k.rect(LEAF_W - 7, 0, LEAF_W - 1, LEAF_H - 1, DOOR[1])
+    k.rect(LEAF_W - 3, 0, LEAF_W - 1, LEAF_H - 1, DOOR[2])
+    k.rect(LEAF_W - 7, 0, LEAF_W - 7, LEAF_H - 1, DOOR[0])
+    k.rect(LEAF_W - 7, 0, LEAF_W - 1, 0, DOOR[3])
+    return k
 
 
 def lerp(a, b, t):
@@ -100,7 +161,9 @@ def outline(c: PixelCanvas) -> PixelCanvas:
 if __name__ == "__main__":
     for name, canvas in (("prop_notice", notice()),
                          ("prop_rack", rack()),
-                         ("prop_chairs", outline(chairs()))):
+                         ("prop_chairs", outline(chairs())),
+                         ("prop_lobby_door_shut", door_shut()),
+                         ("prop_lobby_door_open", door_open())):
         path = f"{OUT}/{name}.png"
         canvas.save(path)
         print(f"{path}  {canvas.image.size[0]}x{canvas.image.size[1]}")

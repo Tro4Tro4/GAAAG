@@ -1524,11 +1524,20 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - **Niente `call_deferred` qui**, a differenza dell'hotspot: non c'è nessuna
     forma da consegnare al server fisico, solo una visibilità, e quella si può
     cambiare in qualunque momento.
-  - **Le due facce della stessa porta si mostrano in modo diverso**, ed è una
-    scelta di scrittura visiva più che tecnica: dall'atrio si vede la **luce sul
-    pavimento**, dal corridoio si vede **il battente aperto o chiuso**. Una
+  - **Le due facce della stessa porta si mostrano in modo diverso**, ed era una
+    scelta di scrittura visiva più che tecnica: dall'atrio si vedeva **solo la
+    luce sul pavimento**, dal corridoio **il battente aperto o chiuso**. Una
     porta si guarda da due lati e i due lati non hanno le stesse informazioni da
     dare — il lato in ombra racconta la luce dell'altro.
+    **Superata per metà**: la luce resta e funziona, ma non basta da sola.
+    Nell'atrio il battente era dipinto **chiuso nel fondale**, quindi con la porta
+    aperta si vedeva la luce uscire da una porta chiusa: l'immagine contraddiceva
+    lo stato. Adesso anche l'atrio ha i due battenti come sprite, come il
+    corridoio, e il fondale dipinge solo telaio e vano — quelli non cambiano mai.
+    La regola generale che ne resta, e vale per qualunque cosa abbia stati:
+    **un fondale può raccontare una conseguenza, non può stare al posto della
+    cosa che cambia.** La luce sul pavimento era una conseguenza ben scelta e
+    l'ho tenuta; il battente era la cosa che cambia, e quella non si dipinge.
 
 - **Stile ibrido: personaggi in pixel art su sfondi dipinti ad alta risoluzione**
   (revoca della scelta per cui tutta l'arte del progetto è pixel art). Gli sfondi
