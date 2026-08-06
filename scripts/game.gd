@@ -205,6 +205,7 @@ func _swap_room_to(room_path: String) -> void:
 	# tree, ever. It is checked and not assumed because when it breaks nothing
 	# on screen explains it — see _sweep_stray_rooms().
 	_sweep_stray_rooms()
+	_report_foreign_rooms()
 
 	if _room != null:
 		# remove_child() before queue_free(), and not queue_free() alone:
@@ -276,6 +277,54 @@ func _sweep_stray_rooms() -> void:
 
 		_room_container.remove_child(child)
 		child.queue_free()
+
+
+## Finds rooms standing anywhere else in the tree, says exactly where, and takes
+## them out of the way.
+##
+## RoomContainer is not the only place a node can be permanently: an entry in
+## the autoload list puts a scene under /root for the whole run, present in
+## every scene and drawn over the one being played, and a node saved into
+## Main.tscn by hand sits next to the container rather than in it. Neither is
+## reachable by _sweep_stray_rooms(), and both look identical on screen — one
+## room's scenery over every room, with everybody's objects on top of it, and
+## nobody able to walk anywhere because that room's navigation region never
+## leaves the map.
+##
+## The path is the whole point of the warning. /root/Tubes says an autoload;
+## /root/Game/something says a node saved into Main.tscn. Two very different
+## things to go and delete, and the difference is not visible in the game.
+##
+## Not freed: an autoload is held by the engine and pulling one out from under
+## it at startup is not this node's business. Hidden, and its navigation regions
+## switched off — which is what puts the floor back to being one floor — so the
+## game is playable while the warning stands.
+func _report_foreign_rooms() -> void:
+	for room in _rooms_under(get_tree().root):
+		if room == _room or room.get_parent() == _room_container:
+			continue
+
+		push_warning(
+			"There is a room at %s that Game did not put there. It is drawn over every room and its floor merges with theirs, so nobody can walk. Look for it in the autoload list, or saved into Main.tscn. Hidden and its navigation switched off for now." % room.get_path()
+		)
+
+		room.visible = false
+
+		for region in room.find_children("*", "NavigationRegion2D", true, false):
+			(region as NavigationRegion2D).enabled = false
+
+
+func _rooms_under(node: Node) -> Array[Room]:
+	var found: Array[Room] = []
+
+	var room := node as Room
+	if room != null:
+		found.append(room)
+
+	for child in node.get_children():
+		found.append_array(_rooms_under(child))
+
+	return found
 
 
 func _place_characters() -> void:
