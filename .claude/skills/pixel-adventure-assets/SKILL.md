@@ -193,6 +193,18 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   copre decine di unità e si legge come sporco invece che come transizione.
   Misurabile: contando i pixel diversi da entrambi i vicini orizzontali, un
   fondale sano sta sotto il 10%.
+- **Le zone che un fondale lascia libere per uno sprite tengono fuori i
+  *dispositivi*, non la superficie.** La regola "un elemento dipinto dietro uno
+  sprite è una collisione che il fondale non vede arrivare" vale per una cosa
+  appesa al muro che finirebbe nascosta — non per il muro, il tubo o il pavimento
+  su cui lo sprite è montato. Soppressa anche la superficie, attorno a una sagoma
+  rotonda resta un **rettangolo di fondo nudo** che si legge come un bordo
+  incollato addosso. In pratica: la base va disegnata sempre (assegnazione
+  diretta), e solo i dettagli aggiunti passano dal filtro.
+- **Un'ombra di contatto si ricava dall'alpha dello sprite, non dal suo
+  rettangolo.** Disegnata sul rettangolo sporge oltre la sagoma e diventa proprio
+  il bordo che doveva togliere. Se l'alpha non è disponibile, meglio nessuna
+  ombra: il contorno scuro che ogni sprite porta già fa da separazione.
 - **Un layer di parallasse in pixel art striscia.** Si muove a una frazione della
   telecamera, quindi finisce a coordinate frazionarie e con `Nearest` la griglia
   di campionamento slitta. Agganciarlo a unità intere scambia lo strisciamento

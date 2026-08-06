@@ -61,8 +61,13 @@ DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 50, 30, FLOOR_Y - 46, FLOOR_Y
 # the corridor's length gets felt.
 LAMPS = (96, 320, 544)
 
-# The three rectangles a sprite will cover, left plain so nothing painted shows
-# through from behind. x0, y0, x1, y1.
+# The rectangles a sprite will cover. They keep *fixtures* out -- a flange ring
+# behind the porthole would read as a crack across the glass -- but not the tube
+# itself: the porthole and the posting hatch are mounted *on* the tube, so the
+# tube has to run behind them. Suppressing it left a rectangle of bare wall
+# showing around each round sprite, which read as a border stuck on the picture.
+# The rule from CLAUDE.md is about a painted fixture hiding behind a sprite, not
+# about the surface the sprite is bolted to. x0, y0, x1, y1.
 KEEP_CLEAR = ((234, 47, 266, 91), (453, 47, 481, 83))
 
 rng = np.random.default_rng(4711)
@@ -121,7 +126,7 @@ def put(img, y, x, colour):
 
 
 def is_clear(y, x):
-    """True where a sprite will be drawn over, so nothing goes underneath."""
+    """False where a fixture must not be drawn, because a sprite lands there."""
     for x0, y0, x1, y1 in KEEP_CLEAR:
         if x0 <= x < x1 and y0 <= y < y1:
             return False
@@ -186,17 +191,11 @@ def main():
         # Brightest a third of the way down, falling off hard towards the belly.
         v = 1.0 - abs(across - 0.34) * (1.7 if across > 0.34 else 2.4)
         band = int(np.clip(v * 4.4, 0, 4))
-        for x in range(W):
-            if is_clear(y, x):
-                img[y, x] = BRASS[band]
+        img[y, :] = BRASS[band]
 
-    for y in (TUBE_Y - TUBE_R, TUBE_Y + TUBE_R):           # the silhouette
-        for x in range(W):
-            if is_clear(y, x):
-                img[y, x] = INK
-    for x in range(W):                                     # the specular strip
-        if is_clear(TUBE_Y - 8, x):
-            img[TUBE_Y - 8, x] = BRASS[4]
+    img[TUBE_Y - TUBE_R, :] = INK                          # the silhouette
+    img[TUBE_Y + TUBE_R, :] = INK
+    img[TUBE_Y - 8, :] = BRASS[4]                          # the specular strip
 
     # Flange rings, and the brackets that carry the tube back to the wall. Not
     # drawn where a sprite will land: a flange behind the porthole would read as
@@ -224,6 +223,13 @@ def main():
                 put(img, ry + i, rx + wob, RUST[1 if t < 0.6 else 2])
             if t < 0.4 and is_clear(ry + i, rx + 1 + wob):
                 put(img, ry + i, rx + 1 + wob, RUST[3])
+
+    # No contact shadow under the things bolted to the tube, and it was tried:
+    # drawn from the reserved rectangles it stuck out past the round sprites and
+    # became the very edge this was meant to remove. A shadow that would work has
+    # to be derived from each sprite's own alpha, and none is needed -- the dark
+    # outline every sprite already carries does the separating, and the tube
+    # running behind does the sitting.
 
     # ------------------------------------------------------------- doorway ---
     # Only the opening and its frame. The leaf is a sprite, because it has two
