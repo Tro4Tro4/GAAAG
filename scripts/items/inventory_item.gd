@@ -22,6 +22,10 @@ extends Resource
 
 @export_multiline var look_text: String = ""
 
-## Left empty for now. There is no art yet, so the inventory draws names; the
-## slot will show this instead the day the sprites exist.
+## Shown in the inventory slot, to the left of the name. 12x12 px, drawn by
+## tools/make_item_icons.py — the slot is 16 units tall and a Button adds the
+## theme's padding, so anything larger pushes the slot out of shape.
+##
+## May be left null: a slot with no icon shows its name alone, which is how the
+## panel worked before there was any art.
 @export var icon: Texture2D = null

@@ -1741,6 +1741,43 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     di una tavolozza per stanza — allora il controllo di parentela diventerebbe
     aderenza a una lista, che è più semplice e più severo.
 
+- **Le icone d'inventario sono 12×12 e affiancano il nome, non lo sostituiscono.**
+  La misura non è estetica: lo slot è alto 16 unità (`SLOT_MINIMUM_SIZE` in
+  `inventory_panel.gd`) e un `Button` ci aggiunge il padding del tema, quindi
+  qualunque cosa più grande spinge lo slot fuori forma — è la stessa trappola
+  già registrata per la verb-coin, *"`Button` non sta nella dimensione che gli
+  chiedi"*. A dodici pixel un disegno dice "carta" o "metallo" a colpo d'occhio
+  e non dirà mai *quale* modulo: quella parte la fa il nome, ed è il motivo per
+  cui le due cose stanno accanto invece che l'una al posto dell'altra.
+  - **Icone da sole, senza nome**: è come funziona l'inventario di quasi tutti i
+    punta-e-clicca, e libererebbe la larghezza dello slot. Scartata perché qui
+    tre oggetti su otto sono fogli di carta e due sono pulsanti: a dodici pixel
+    la differenza fra il Modulo 12-B e il modulo di reclamo non si disegna, e
+    un inventario in cui due voci sono indistinguibili è peggio di uno testuale.
+  - **Icone più grandi, allargando lo slot**: si vedrebbero meglio. Scartata
+    perché il pannello è già tre colonne su uno schermo alto 216, e crescere in
+    altezza costa righe visibili — cioè costa proprio la cosa che l'inventario
+    deve mostrare.
+  - **`Button.icon` invece di un nodo dedicato**: un `Button` disegna da sé
+    l'icona a sinistra del testo, quindi lo slot non guadagna né un figlio né un
+    secondo layout da tenere allineato. Ed è **retrocompatibile per
+    costruzione**: un oggetto con `icon` nullo mostra il solo nome, esattamente
+    come prima che l'arte esistesse.
+  - **Le coppie si disegnano come "stesso oggetto, dopo"**: il reclamo compilato
+    è il modulo vuoto più lo smalto della targhetta dentro il riquadro, e il
+    pulsante etichettato è il pulsante più la fascia dell'adesivo. Non sono due
+    disegni che si somigliano, è lo stesso disegno in due stati — la stessa
+    regola già usata per Apri e Chiudi fra le icone dei verbi. Se il giocatore
+    non vede che l'enigma è avanzato, l'icona ha fallito anche se è bella.
+  - **L'ocra è l'unica nota calda del gioco** e viene dai capelli di Lino, non
+    da fuori: la tavolozza dell'atrio è tutta fredda, e un giallo preso altrove
+    sarebbe stato respinto dal controllo di parentela. Le tre icone che lo usano
+    sono infatti le più lontane misurate (0,11 contro una soglia di 0,16).
+  - Nota: da rivedere se un oggetto avesse bisogno di essere riconosciuto
+    **senza** leggere, per esempio in una sequenza a tempo. Allora la domanda
+    non sarebbe più la dimensione dell'icona ma se quell'oggetto meriti una
+    forma propria invece di essere il quinto foglio di carta.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere

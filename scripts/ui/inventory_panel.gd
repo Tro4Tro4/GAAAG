@@ -175,6 +175,15 @@ func _make_slot(item: InventoryItem) -> Button:
 	slot.text = tr(item.display_name)
 	slot.custom_minimum_size = SLOT_MINIMUM_SIZE
 	slot.add_theme_font_size_override("font_size", SLOT_FONT_SIZE)
+
+	# A Button draws an icon to the left of its text on its own, so the slot
+	# needs no extra node and no second layout to keep in step. An item with no
+	# art assigned leaves this null and simply shows its name, which is how the
+	# panel worked before any icon existed.
+	#
+	# The icon says "paper" or "metal", never *which* form: at twelve pixels
+	# that is all it can say, and the name beside it does the rest.
+	slot.icon = item.icon
 	slot.focus_mode = Control.FOCUS_NONE
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 

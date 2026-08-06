@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="InventoryItem" load_steps=2 format=3 uid="uid://baggaitembutt1"]
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=3 format=3 uid="uid://baggaitembutt1"]
 
 [ext_resource type="Script" path="res://scripts/items/inventory_item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/sprites/item_button.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_item")
 id = &"button"
 display_name = "ITEM_BUTTON"
 look_text = "ITEM_BUTTON_LOOK"
+icon = ExtResource("2_icon")
