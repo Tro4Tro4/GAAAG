@@ -185,7 +185,18 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
 - **Una porta in un muro visto di fronte incontra il pavimento dove lo incontra
   il muro.** Disegnata con la soglia più in basso, il telaio si chiude sotto il
   battiscopa e copre il pavimento vicino: smette di essere un'apertura e diventa
-  un armadietto appoggiato davanti. Vale per qualunque apertura nel fondale.
+  un armadietto appoggiato davanti. Vale per qualunque apertura nel fondale, ed è
+  stato sbagliato due volte sulle due facce della stessa porta: **si controlla
+  ogni volta**, e la verifica è che la soglia valga esattamente `FLOOR_Y`.
+- **La striscia di dithering fra due fasce va tenuta stretta**: `width=0.18` e non
+  il default. Con una pozza di luce, il cui gradiente è lento, una striscia larga
+  copre decine di unità e si legge come sporco invece che come transizione.
+  Misurabile: contando i pixel diversi da entrambi i vicini orizzontali, un
+  fondale sano sta sotto il 10%.
+- **Un layer di parallasse in pixel art striscia.** Si muove a una frazione della
+  telecamera, quindi finisce a coordinate frazionarie e con `Nearest` la griglia
+  di campionamento slitta. Agganciarlo a unità intere scambia lo strisciamento
+  con uno scatto. Il progetto non ne usa: la profondità la porta il disegno.
 - **Nello sfondo va solo ciò che è fermo, muto e sempre dietro**: muro,
   pavimento, battiscopa, telaio della porta, sporco e usura. Restano sprite
   separati tre categorie — quello che cambia con lo stato del gioco (la luce

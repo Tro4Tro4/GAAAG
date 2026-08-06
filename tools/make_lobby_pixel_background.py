@@ -125,7 +125,7 @@ def main():
     cone = np.clip(1 - np.abs(xx - cx) / (58 + dy * 250), 0, 1)
     lit = 0.30 + cone * 0.62 - dy * 0.22
     lit -= np.clip(1 - np.minimum(xx, W - xx) / 53, 0, 1) * 0.14
-    img[:FLOOR_Y] = banded(lit, WALL)
+    img[:FLOOR_Y] = banded(lit, WALL, width=0.18)
 
     # Damp blooms. Lighter than the wall, not darker: a stain on painted
     # plaster leaches the colour out rather than making a hole, and the first
@@ -213,7 +213,7 @@ def main():
     depth = yy / fh
     pool = np.clip(1 - np.abs(xx - cx) / (45 + depth * 208), 0, 1)
     lit = 0.26 + pool * (0.60 - depth * 0.22) - depth * 0.06
-    img[FLOOR_Y:] = banded(lit, FLOOR)
+    img[FLOOR_Y:] = banded(lit, FLOOR, width=0.18)
 
     # Boards laid across the room, seen head on. They are drawn as horizontal
     # seams that crowd together towards the back, which is the whole of the

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://baggatubes0001"]
+[gd_scene load_steps=29 format=3 uid="uid://baggatubes0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -12,8 +12,9 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="9_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_wall.webp" id="13_wall"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes_pipes.webp" id="14_pipes"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_tubes.png" id="13_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_tubes_door_shut.png" id="19_shut"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_tubes_door_open.png" id="20_open"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_porthole.png" id="15_porthole"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_plate.png" id="16_plate"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_posting_point.png" id="17_point"]
@@ -63,22 +64,10 @@ depth_bottom_y = 172.0
 depth_top_scale = 0.78
 depth_bottom_scale = 1.1
 
-[node name="BackWall" type="Parallax2D" parent="."]
-scroll_scale = Vector2(0.85, 1)
-
-[node name="Sprite" type="Sprite2D" parent="BackWall"]
-texture_filter = 2
+[node name="Background" type="Sprite2D" parent="."]
 position = Vector2(0, 0)
-scale = Vector2(0.2, 0.2)
 centered = false
-texture = ExtResource("13_wall")
-
-[node name="Pipes" type="Sprite2D" parent="."]
-texture_filter = 2
-position = Vector2(0, 0)
-scale = Vector2(0.2, 0.2)
-centered = false
-texture = ExtResource("14_pipes")
+texture = ExtResource("13_bg")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 navigation_polygon = SubResource("NavigationPolygon_floor")
@@ -119,37 +108,19 @@ target_entry = &"FromTubes"
 state_id = &"lobby_door"
 variants = Array[ExtResource("6_variant")]([SubResource("Resource_tubes_door_open")])
 
-[node name="Frame" type="Polygon2D" parent="DoorHotspot"]
-color = Color(0.24, 0.18, 0.14, 1)
-polygon = PackedVector2Array(-15, -23, 15, -23, 15, 22, -15, 22)
-
 [node name="Shut" type="Node2D" parent="DoorHotspot"]
 script = ExtResource("12_state")
 visible_if = PackedStringArray("!on:lobby_door")
 
-[node name="Leaf" type="Polygon2D" parent="DoorHotspot/Shut"]
-color = Color(0.35, 0.26, 0.2, 1)
-polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
-
-[node name="Handle" type="Polygon2D" parent="DoorHotspot/Shut"]
-color = Color(0.72, 0.64, 0.38, 1)
-polygon = PackedVector2Array(7, -3, 11, -3, 11, 2, 7, 2)
+[node name="Leaf" type="Sprite2D" parent="DoorHotspot/Shut"]
+texture = ExtResource("19_shut")
 
 [node name="Open" type="Node2D" parent="DoorHotspot"]
 script = ExtResource("12_state")
 visible_if = PackedStringArray("on:lobby_door")
 
-[node name="Dark" type="Polygon2D" parent="DoorHotspot/Open"]
-color = Color(0.07, 0.07, 0.09, 1)
-polygon = PackedVector2Array(-13, -21, 13, -21, 13, 21, -13, 21)
-
-[node name="FloorBeyond" type="Polygon2D" parent="DoorHotspot/Open"]
-color = Color(0.31, 0.29, 0.3, 1)
-polygon = PackedVector2Array(-13, 14, 13, 14, 13, 21, -13, 21)
-
-[node name="Leaf" type="Polygon2D" parent="DoorHotspot/Open"]
-color = Color(0.29, 0.21, 0.16, 1)
-polygon = PackedVector2Array(-13, -21, -8, -21, -8, 21, -13, 21)
+[node name="Beyond" type="Sprite2D" parent="DoorHotspot/Open"]
+texture = ExtResource("20_open")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
 shape = SubResource("RectangleShape2D_door")

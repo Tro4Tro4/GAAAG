@@ -262,8 +262,57 @@ def capsule() -> PixelCanvas:
     return k
 
 
+# --------------------------------------------------------------- door leaf ----
+# The two faces of the lobby door, seen from the corridor. Sprites and not
+# polygons because the leaf has two states and a StateVisual has to be able to
+# swap it -- and because a flat rectangle of one colour standing among shaded
+# pixel art reads as a hole in the drawing.
+#
+# The frame is not here: the background paints it, along with the recess behind.
+# These are only what changes.
+LEAF_W, LEAF_H = 26, 44
+
+
+def door_shut() -> PixelCanvas:
+    k = PixelCanvas(LEAF_W, LEAF_H)
+    k.rect(0, 0, LEAF_W - 1, LEAF_H - 1, INK)
+    k.rect(1, 1, LEAF_W - 2, LEAF_H - 2, STEEL)
+    k.rect(1, 1, 2, LEAF_H - 2, STEEL_L)              # lit on the hinge side
+    k.rect(1, 1, LEAF_W - 2, 1, STEEL_L)              # and along the top
+    k.rect(LEAF_W - 3, 2, LEAF_W - 2, LEAF_H - 2, STEEL_S)
+    # Two recessed panels, the same construction as the lobby's door.
+    for y0, y1 in ((4, 18), (22, 38)):
+        k.rect(4, y0, LEAF_W - 5, y1, STEEL_S)
+        k.rect(5, y0 + 1, LEAF_W - 6, y1 - 1, STEEL)
+        k.rect(4, y0, LEAF_W - 5, y0, STEEL_D)
+        k.rect(4, y0, 4, y1, STEEL_D)
+        k.rect(5, y1, LEAF_W - 5, y1, STEEL_L)
+    k.rect(LEAF_W - 8, 20, LEAF_W - 5, 21, BRASS_L)   # the handle
+    k.rect(LEAF_W - 8, 22, LEAF_W - 6, 22, BRASS_D)
+    k.rect(2, LEAF_H - 3, LEAF_W - 3, LEAF_H - 2, STEEL_D)
+    return k
+
+
+def door_open() -> PixelCanvas:
+    k = PixelCanvas(LEAF_W, LEAF_H)
+    # The dark of the lobby beyond, with its floor showing at the bottom: what
+    # says "open" is not the missing leaf, it is seeing somewhere else through it.
+    k.rect(0, 0, LEAF_W - 1, LEAF_H - 1, INK)
+    k.rect(1, 1, LEAF_W - 2, LEAF_H - 2, c("1E2320"))
+    k.rect(1, LEAF_H - 12, LEAF_W - 2, LEAF_H - 2, GLASS_D)
+    k.rect(1, LEAF_H - 12, LEAF_W - 2, LEAF_H - 12, GLASS)
+    k.rect(1, LEAF_H - 6, LEAF_W - 2, LEAF_H - 5, GLASS)
+    # The leaf itself, swung back against the near wall on the hinge side.
+    k.rect(1, 1, 6, LEAF_H - 2, STEEL_S)
+    k.rect(1, 1, 2, LEAF_H - 2, STEEL)
+    k.rect(6, 1, 6, LEAF_H - 2, STEEL_D)
+    k.rect(1, 1, 6, 1, STEEL_L)
+    return k
+
+
 PROPS = [("prop_porthole", porthole), ("prop_plate", plate),
-         ("prop_posting_point", posting_point), ("prop_capsule", capsule)]
+         ("prop_posting_point", posting_point), ("prop_capsule", capsule),
+         ("prop_tubes_door_shut", door_shut), ("prop_tubes_door_open", door_open)]
 
 
 if __name__ == "__main__":

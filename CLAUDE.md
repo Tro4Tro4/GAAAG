@@ -122,15 +122,16 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
 tools/               Script che producono asset, da eseguire dalla radice
   make_lobby_pixel_background.py  Lo sfondo dell'atrio, disegnato a 320x180
   make_lobby_props.py       Bacheca, portamoduli e sedie dell'atrio
+  make_tubes_pixel_background.py  Il corridoio, disegnato a 640x180
   make_lobby_background.py  Il vecchio sfondo dipinto dell'atrio, non piu' usato
-  make_tubes_background.py  I due piani dipinti del corridoio, ancora in uso
-  make_tubes_props.py       Oblo', targhetta, punto d'imbuco e capsula
+  make_tubes_background.py  I due piani dipinti del corridoio, non piu' usati
+  make_tubes_props.py       Oblo', targhetta, punto d'imbuco, capsula, battenti
   make_item_icons.py        Le otto icone d'inventario, 12x12
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
 assets/              sprites/ backgrounds/ audio/ fonts/
-  backgrounds/       Uno sfondo per stanza. L'atrio e' pixel art .png alle
-                     misure della stanza, a scala 1 e filtro Nearest; il
-                     corridoio e' ancora .webp dipinto, da rifare
+  backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
+                     stanza, a scala 1 e filtro Nearest: 320x180 l'atrio,
+                     640x180 il corridoio
   ui/                Le sette icone dei verbi, in SVG
   audio/             Cinque suoni segnaposto generati da uno script
 ```
@@ -1929,6 +1930,56 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     dello schermo, dove vedere meno mondo pesa più che vedere il personaggio
     grande.
 
+- **Il corridoio in pixel art, e niente parallasse.** Chiude il punto che era
+  rimasto aperto sui layer di parallasse, che quello stesso punto voleva deciso
+  *prima* di dipingere. Il corridoio diventa un'immagine sola, 640×180, a scala 1
+  e filtro Nearest come l'atrio; cadono i due piani dipinti a 3200×900, il
+  `Parallax2D` e gli override a `Linear`. Il progetto torna a non avere nessun
+  `Parallax2D`, che è la condizione in cui la decisione aperta lo descriveva.
+  - **La tavolozza è stata presa dai prop, non imposta ai prop.** L'acciaio
+    verde-grigio e l'ottone oliva sono quelli di `make_tubes_props.py`, che a
+    loro volta li aveva campionati dallo sfondo dipinto ora ritirato. È il verso
+    giusto: oblò, targhetta, punto d'imbuco e capsula sono arte già approvata e
+    già in gioco, quindi costa meno far appartenere il muro nuovo a loro che
+    ridisegnare quattro sprite per farli appartenere a un muro nuovo. Nessuno
+    dei quattro è stato toccato, e misurano da 0,04 a 0,06 contro una soglia di
+    0,16.
+  - **Il parallasse è stato scartato, non rimandato**, e per una ragione tecnica
+    che vale per qualunque stanza futura: un layer che si muove a una frazione
+    della telecamera si trova a coordinate frazionarie, e con filtro `Nearest`
+    la griglia di campionamento slitta — i pixel del fondo *strisciano* mentre
+    la telecamera scorre. Il rimedio è agganciare il layer a unità intere, che
+    scambia lo strisciamento con uno scatto: a `scroll_scale` 0,85 il fondo
+    salterebbe di un'unità ogni sette di telecamera, cioè sei pixel veri di
+    strappo. Nessuna delle due è gratis.
+  - E soprattutto **non comprerebbe niente qui**: il generatore dei piani
+    dipinti annotava già che i tubi *devono* stare sul piano di gioco, perché
+    oblò, targhetta e punto d'imbuco sono hotspot inchiodati a coordinate fisse.
+    Quindi al parallasse resterebbe il solo muro di fondo — una parete piatta,
+    che è esattamente la cosa che guadagna meno da un layer separato. Costo
+    certo, vantaggio nullo.
+  - **La profondità la porta il disegno invece del movimento**: tre lampade a
+    soffitto invece di una, distanti 224 unità, così nessuna schermata ne
+    contiene due. Camminare da una all'altra è ciò che fa sentire la lunghezza,
+    e ha il vantaggio di funzionare anche da fermi.
+  - **I due battenti diventano sprite**, perché la porta ha due stati e uno
+    `StateVisual` deve poterli scambiare — e perché un rettangolo di tinta unita
+    in mezzo a pixel art ombreggiata si legge come un buco nel disegno. Il
+    telaio invece è dipinto nel fondale: quello non cambia mai. Il corridoio non
+    ha più nessun `Polygon2D`.
+  - **Anche di qua la soglia era fuori posto**, 34 unità sotto la linea del
+    pavimento: lo stesso difetto già corretto sull'altra faccia della stessa
+    porta. È la seconda volta, quindi la regola è ora scritta nella skill.
+  - Ricaduta sul peso: i due `.webp` da 137 e 140 kB diventano un `.png` da
+    **6 kB**, e con essi sparisce l'ultimo asset con perdita del progetto.
+  - **Nota di metodo, misurata**: il corridoio è venuto più pulito dell'atrio —
+    6% di pixel isolati contro 17% — perché il suo bandeggio usa strisce di
+    transizione strette (`width=0.18`) e quello dell'atrio usava il valore di
+    default. L'atrio è stato riportato allo stesso numero e scende al 10%. La
+    regola "il dithering va ai bordi delle fasce" era già registrata: l'atrio
+    semplicemente non la rispettava, e il confronto fra due stanze l'ha reso
+    visibile come un'immagine sola non faceva.
+
 ## Decisioni ancora aperte
 - **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
   resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
@@ -1953,10 +2004,6 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   Nota sulla via di mezzo: **quantizzare a pochi gradini non risolve**, perché il
   fattore intero dipende anche dalla dimensione della finestra — 0,8 è esatto a 5×
   e non lo è a 3×. Cambiarla resta una funzione sola (`_depth_scale()`)
-- **Layer di parallasse negli sfondi**: la telecamera scorre già e il corridoio
-  dei tubi è largo due schermate, quindi è il posto dove si vedrebbe. Additivo e
-  opzionale — il progetto non ha nessun `Parallax2D` — ma **da decidere prima di
-  dipingere**, perché ogni layer è un file in più e non si scompone dopo
 - **Ambienza e musica insieme, o no**: `AudioDirector` ha due riproduttori, e le
   categorie `amb` e `mus` della skill audio competono per lo stesso. In
   un'avventura una stanza vuole spesso un tappeto ambientale *sotto* un tema.
