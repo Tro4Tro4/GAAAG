@@ -96,8 +96,9 @@ def duilio():
 
 # ============================================================= landing =======
 def landing_doors():
-    """Two identical doors, told apart entirely by what is stuck to them."""
-    for name, notice in (("prop_door_lino", True), ("prop_door_duilio", False)):
+    """Three identical doors, told apart entirely by what is stuck to them."""
+    for name, notice in (("prop_door_lino", "notice"), ("prop_door_duilio", "gone"),
+                         ("prop_door_cellar", "plain")):
         c = sprite(32, 48)
         c.rect(0, 0, 32, 48, SKIRT[2])
         c.rect(0, 0, 32, 2, SKIRT[3])
@@ -108,7 +109,7 @@ def landing_doors():
             c.rect(5, y0 + 1, 27, y0 + 2, SKIRT[3])
         c.rect(3, 23, 8, 26, BRASS[3])                  # handle and number
         c.rect(13, 2, 19, 4, BRASS[2])
-        if notice:
+        if notice == "notice":
             # The same withdrawal notice as the one on the street door, printed
             # smaller and stuck on with the same tape. Two copies of one form is
             # how an office says it means it.
@@ -118,12 +119,19 @@ def landing_doors():
                 c.rect(11, 13 + i * 2, 21 - i * 2, 14 + i * 2, (120, 116, 128))
             c.rect(8, 8, 12, 10, TAPE)
             c.rect(20, 18, 24, 20, TAPE)
-        else:
+        elif notice == "gone":
             # A doormat that says nothing, and a cardboard sign: GONE. Duilio is
             # the only person in the building who has finished packing.
             c.rect(10, 24, 22, 32, CARD[2])
             c.rect(10, 24, 22, 25, CARD[3])
             c.rect(12, 27, 20, 29, CARD[0])
+        else:
+            # The cellar door: nothing stuck to it, a keyhole, and the scuffs of
+            # forty years of somebody kicking it open with a box in both hands.
+            c.rect(4, 25, 7, 29, BRASS[1])
+            c.rect(5, 26, 6, 28, INK)
+            for i, x in enumerate(range(6, 26, 4)):
+                c.rect(x, 40 - (i % 2), x + 3, 43 - (i % 2), SKIRT[0])
         done(c, name)
 
 

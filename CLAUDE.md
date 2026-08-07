@@ -2837,6 +2837,33 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   avrebbe voluto dire mettere un indizio su una cosa il cui senso è che nessuno
   te l'ha chiesta.
 
+- **Un hotspot senza figura va verificato a mano contro il fondale, e il modo di
+  farlo è elencarli.** Il pianerottolo è nato con la sola scala disegnata che
+  portava in cantina e la via per la strada su un rettangolo invisibile in mezzo
+  al pavimento: chi entrava in casa non poteva più scendere. Nessuno dei controlli
+  automatici del progetto lo vedeva — le porte risolvevano, gli `entry` esistevano,
+  la catena si chiudeva a punto fisso, perché **tutti guardano il grafo e nessuno
+  guarda se il giocatore trova la porta**.
+  - Il controllo che lo trova costa venti righe e non è automatico per metà:
+    elenca ogni hotspot che non ha un nodo `Picture`, con il suo rettangolo, e
+    accanto **cosa il fondale disegna in quel punto**. La corrispondenza la
+    stabilisce un occhio, ma l'elenco fa sì che nessuno se ne dimentichi. Oggi
+    sono sette, e sei erano già giusti.
+  - Ne segue un secondo controllo che adesso c'è: **ogni stanza raggiungibile
+    deve avere almeno un'uscita.** Banale a dirsi, e questo difetto era
+    esattamente il suo contrario visto da dentro: l'uscita c'era nel file e non
+    nell'immagine.
+  - **La scala si è dovuta ridisegnare tre volte.** Sbarre in un rettangolo nero
+    leggevano come una grata; i soli gradini come una bocchetta di ventilazione.
+    Quello che rende una scala una scala è la **ringhiera**, che è l'unica parte
+    di una scala che non è mai nient'altro: disegnata scendente, con il pilastro
+    di partenza al capo vicino, la stanza si legge al primo colpo d'occhio.
+  - E la cantina ha guadagnato una porta sua, con l'insegna sopra, invece di
+    condividere la tromba delle scale. Una tromba delle scale con due
+    destinazioni non è esprimibile — un `DoorHotspot` ha un bersaglio solo — e
+    due trombe identiche sullo stesso pianerottolo si leggerebbero come un
+    errore di disegno.
+
 ## Decisioni ancora aperte
 - **La scala per profondità contro la pixel art**, ed è il conflitto che lo stile
   ibrido aveva aperto e che è sopravvissuto alla sua revoca. La prospettiva delle stanze scala la figura del personaggio

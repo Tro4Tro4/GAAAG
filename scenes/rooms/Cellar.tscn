@@ -22,7 +22,7 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(8, 106, 312, 106, 312, 
 agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="Rect_door"]
-size = Vector2(32, 46)
+size = Vector2(32, 44)
 
 [sub_resource type="RectangleShape2D" id="Rect_boxes"]
 size = Vector2(72, 54)
@@ -77,7 +77,7 @@ centered = false
 texture = ExtResource("8_door")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StairsHotspot"]
-position = Vector2(0, -23)
+position = Vector2(0, -22)
 shape = SubResource("Rect_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="StairsHotspot"]

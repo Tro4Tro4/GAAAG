@@ -493,7 +493,7 @@ correzioni, non le mancanze.
 | # | stanza | scena | cosa ci si fa |
 |---|--------|-------|---------------|
 | 1 | Via del palazzo | `Street` | l'avviso, il furgone, il posto di blocco |
-| 2 | Pianerottolo | `Landing` | Duilio, i campanelli, il vano contatori |
+| 2 | Pianerottolo | `Landing` | Duilio, i campanelli, il vano contatori, la scala |
 | 3 | Appartamento | `Apartment` | **cancello A**: la scatola dei documenti |
 | 4 | Cantina | `Cellar` | la distinta di carico, e il numero di spedizione |
 | 5 | Atrio | `Lobby` | il regolamento, i moduli, il comma 9 |
@@ -552,6 +552,13 @@ trovati altri. Verificato anche che ogni flag usato in una condizione è alzato 
 qualcosa, che ogni oggetto del catalogo è ottenibile, e che nove stanze su dieci
 sono raggiungibili camminando — la decima è la postazione di Cesare, chiusa per
 costruzione.
+
+**Corretto dopo la prima prova sul dispositivo**
+- **Dal pianerottolo non si scendeva in strada.** La sola scala disegnata portava
+  in cantina, e la via per la strada era un hotspot invisibile in mezzo al
+  pavimento. Adesso la tromba delle scale — ridisegnata con la ringhiera, che è
+  ciò che rende una scala riconoscibile — scende in strada, e la cantina ha una
+  porta sua con l'insegna sopra.
 
 **Cosa manca, e non è una mancanza nascosta**
 - **Non esiste un sistema di fine partita**, quindi finita la scena finale il

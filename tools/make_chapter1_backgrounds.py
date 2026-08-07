@@ -81,17 +81,37 @@ def landing():
     # difference is entirely in what is stuck to them.
     doorway(c, 26, 58, FLOOR_Y - 48, FLOOR_Y, WALL, INK)
     doorway(c, 150, 182, FLOOR_Y - 48, FLOOR_Y, WALL, INK)
+    # And the cellar door, with a sign over it, because it is the one opening on
+    # this landing that needs saying. The first version of the room had no such
+    # door: the way down to the street was an invisible rectangle in the middle
+    # of the floor and the only drawn stairwell led to the cellar, so a player
+    # who went into the flat could not get back out to the street.
+    doorway(c, 196, 228, FLOOR_Y - 48, FLOOR_Y, WALL, INK, sign=True)
 
-    # The stairwell going down, on the far right. Treads drawn as a stack that
-    # steps *away* from the opening, with the lit nose of each one showing:
-    # drawn as plain bars in a black rectangle it read as a grille.
-    c.rect(268, FLOOR_Y - 34, 318, FLOOR_Y, INK)
-    c.rect(270, FLOOR_Y - 32, 316, FLOOR_Y - 1, SKIRT[0])
-    for i in range(6):
-        y = FLOOR_Y - 30 + i * 5
-        c.rect(272 + i * 3, y, 316, y + 4, SKIRT[1])
-        c.rect(272 + i * 3, y, 316, y + 1, SKIRT[3])
-    c.rect(268, FLOOR_Y - 36, 318, FLOOR_Y - 34, WALL[0])
+    # The stairwell going down, on the far right.
+    #
+    # Three attempts. Plain bars in a black rectangle read as a grille; treads
+    # alone read as a louvred vent. What makes a stairwell a stairwell is the
+    # **handrail**, which is the one part of a staircase that is never anything
+    # else — so it gets drawn, descending, with its newel post at the near end.
+    c.rect(268, FLOOR_Y - 40, 318, FLOOR_Y, INK)
+    c.rect(270, FLOOR_Y - 38, 316, FLOOR_Y - 1, SKIRT[0])
+    for i in range(6):                                     # treads, going away
+        y = FLOOR_Y - 34 + i * 5
+        c.rect(274 + i * 4, y, 316, y + 4, SKIRT[1])
+        c.rect(274 + i * 4, y, 316, y + 1, SKIRT[3])
+
+    for i in range(24):                                    # the rail, descending
+        x = 272 + i * 2
+        y = FLOOR_Y - 40 + int(i * 1.5)
+        c.rect(x, y, x + 2, y + 3, BRASS[2])
+        c.rect(x, y, x + 2, y + 1, BRASS[3])
+    for i, x in enumerate((274, 288, 302)):                # and its balusters
+        top = FLOOR_Y - 39 + int((x - 272) / 2 * 1.5)
+        c.rect(x, top, x + 2, top + 14 - i * 2, SKIRT[2])
+    c.rect(270, FLOOR_Y - 44, 276, FLOOR_Y - 12, SKIRT[2])  # the newel post
+    c.rect(270, FLOOR_Y - 44, 276, FLOOR_Y - 41, BRASS[2])
+    c.rect(268, FLOOR_Y - 42, 318, FLOOR_Y - 40, WALL[0])
 
     # The meter cupboard, and the row of bells beside Lino's door.
     c.rect(96, FLOOR_Y - 62, 130, FLOOR_Y - 28, INK)
@@ -103,6 +123,7 @@ def landing():
     skirting(c, FLOOR_Y, SKIRT)
     c.rect(26, FLOOR_Y - 7, 58, FLOOR_Y, INK)
     c.rect(150, FLOOR_Y - 7, 182, FLOOR_Y, INK)
+    c.rect(196, FLOOR_Y - 7, 228, FLOOR_Y, INK)
     c.rect(272, FLOOR_Y - 7, 316, FLOOR_Y, INK)
 
     c.rect(0, FLOOR_Y, W, H, BOARD[2])
@@ -141,7 +162,7 @@ def cellar():
     c.wash(lamp_x, 44, 88, 58, BRICK[2], strength=0.7)
     c.wash(lamp_x, 30, 44, 26, BRICK[3], strength=0.7)
 
-    doorway(c, 22, 54, FLOOR_Y - 46, FLOOR_Y, BRICK, INK)   # the way up
+    doorway(c, 22, 54, FLOOR_Y - 44, FLOOR_Y, BRICK, INK)   # the way up
 
     # A vaulted alcove at the back, bricked round, where the building's meters
     # used to be before somebody moved them upstairs.

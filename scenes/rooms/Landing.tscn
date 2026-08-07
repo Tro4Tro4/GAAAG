@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://baggalandin01"]
+[gd_scene load_steps=19 format=3 uid="uid://baggalandin01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_door_lino.png" id="5_door_lino"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_door_duilio.png" id="6_door_duilio"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_bells.png" id="7_bells"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_door_cellar.png" id="16_door_cellar"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_duilio.png" id="8_duilio"]
 [ext_resource type="Resource" uid="uid://baggadlgduil01" path="res://resources/dialogues/duilio_landing.tres" id="9_dialogue"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="10_hum"]
@@ -63,7 +64,7 @@ position = Vector2(266, 128)
 position = Vector2(42, 124)
 
 [node name="FromCellar" type="Marker2D" parent="EntryPoints"]
-position = Vector2(266, 128)
+position = Vector2(212, 126)
 
 [node name="AtDuilio" type="Marker2D" parent="EntryPoints"]
 position = Vector2(166, 124)
@@ -147,8 +148,8 @@ shape = SubResource("Rect_door")
 [node name="ApproachPoint" type="Marker2D" parent="DuilioDoorHotspot"]
 position = Vector2(0, 18)
 
-[node name="StairsDownHotspot" type="Area2D" parent="."]
-position = Vector2(293, 106)
+[node name="CellarDoorHotspot" type="Area2D" parent="."]
+position = Vector2(212, 106)
 script = ExtResource("3_door")
 display_name = "LAND_STAIRS_DOWN"
 reach_verb = 7
@@ -158,15 +159,20 @@ reach_text = "LAND_STAIRS_DOWN_REACH"
 target_room = "res://scenes/rooms/Cellar.tscn"
 target_entry = &"FromLanding"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StairsDownHotspot"]
-position = Vector2(0, -17)
-shape = SubResource("Rect_stairs")
+[node name="Picture" type="Sprite2D" parent="CellarDoorHotspot"]
+position = Vector2(-16, -48)
+centered = false
+texture = ExtResource("16_door_cellar")
 
-[node name="ApproachPoint" type="Marker2D" parent="StairsDownHotspot"]
-position = Vector2(-16, 22)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CellarDoorHotspot"]
+position = Vector2(0, -24)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="CellarDoorHotspot"]
+position = Vector2(0, 18)
 
 [node name="StairsUpHotspot" type="Area2D" parent="."]
-position = Vector2(230, 118)
+position = Vector2(293, 106)
 script = ExtResource("3_door")
 display_name = "LAND_STAIRS_UP"
 reach_verb = 7
@@ -177,11 +183,11 @@ target_room = "res://scenes/rooms/Street.tscn"
 target_entry = &"AtDoor"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StairsUpHotspot"]
-position = Vector2(0, -8)
+position = Vector2(0, -17)
 shape = SubResource("Rect_stairs")
 
 [node name="ApproachPoint" type="Marker2D" parent="StairsUpHotspot"]
-position = Vector2(0, 12)
+position = Vector2(-8, 18)
 
 [node name="DuilioHotspot" type="Area2D" parent="."]
 position = Vector2(200, 130)
