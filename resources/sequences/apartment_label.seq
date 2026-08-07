@@ -1,0 +1,15 @@
+# Looking at the document box for the first time: Lino notices the old delivery
+# label under the tape, and the flag that goes up is what unlocks the option in
+# the clerk's conversation.
+#
+# A sequence and not a hotspot line because a line cannot raise a flag, and this
+# is a look that changes the world. Two steps is a small scene, but the closed
+# list of step kinds is exactly what makes a small one cheap.
+#
+# Guarded by sequence_if on the hotspot (!saw_delivery_label), so it plays once
+# and every later look falls through to the ordinary description.
+
+uid baggaseqaptl01
+
+say  SEQ_APT_LABEL
+flag saw_delivery_label

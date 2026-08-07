@@ -1,36 +1,36 @@
-[gd_resource type="Resource" script_class="Dialogue" load_steps=9 format=3 uid="uid://baggadlgcons01"]
+[gd_resource type="Resource" script_class="Dialogue" load_steps=10 format=3 uid="uid://baggadlgcons01"]
 
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
 
-[sub_resource type="Resource" id="Option_where"]
+[sub_resource type="Resource" id="Option_start_0"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_WHERE"
 conditions = PackedStringArray("!asked_where")
 reply = "DLG_CONSOLE_REPLY_WHERE"
 raises = PackedStringArray("asked_where")
 
-[sub_resource type="Resource" id="Option_reverse"]
+[sub_resource type="Resource" id="Option_start_1"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_REVERSE"
 conditions = PackedStringArray("!complaint_logged")
 reply = "DLG_CONSOLE_REPLY_REVERSE"
 
-[sub_resource type="Resource" id="Option_complain"]
+[sub_resource type="Resource" id="Option_start_2"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_COMPLAIN"
 conditions = PackedStringArray("!complaint_logged", "!asked_complain")
 reply = "DLG_CONSOLE_REPLY_COMPLAIN"
 raises = PackedStringArray("asked_complain")
 
-[sub_resource type="Resource" id="Option_ready"]
+[sub_resource type="Resource" id="Option_start_3"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_READY"
 conditions = PackedStringArray("complaint_logged")
 reply = "DLG_CONSOLE_REPLY_READY"
 
-[sub_resource type="Resource" id="Option_bye"]
+[sub_resource type="Resource" id="Option_start_4"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_BYE"
 reply = "DLG_CONSOLE_REPLY_BYE"
@@ -40,7 +40,7 @@ ends = true
 script = ExtResource("2_line")
 id = &"start"
 says = "DLG_CONSOLE_START"
-options = Array[ExtResource("3_option")]([SubResource("Option_where"), SubResource("Option_reverse"), SubResource("Option_complain"), SubResource("Option_ready"), SubResource("Option_bye")])
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4")])
 
 [resource]
 script = ExtResource("1_dialogue")

@@ -1,0 +1,69 @@
+# The loading clerk in Lino's flat. Gate A of chapter one.
+#
+# The rule he states in REPLY_STRIKE is the puzzle, and it is stated in full
+# before the player can use it: what is already recorded as delivered cannot be
+# withdrawn, because that would be a second withdrawal of the same thing and a
+# second withdrawal is not provided for. Everything else he says is texture.
+#
+# It is also the whole game in miniature, which is why it is the tutorial: Lino
+# saves his papers with the same cavil that saves his life at midnight.
+#
+# Order-free by construction. The label can be found before or after the rule is
+# heard — the option that uses it only asks for saw_delivery_label, and looking
+# at the box raises that whatever else has happened. A tutorial that can be
+# walked into backwards has to work backwards.
+
+uid    baggadlgclrk01
+colour 0.72 0.76 0.86
+
+line start
+    says DLG_CLERK_START
+
+    option DLG_CLERK_OPT_WHO
+        if    !asked_who
+        raise asked_who
+        reply DLG_CLERK_REPLY_WHO
+
+    option DLG_CLERK_OPT_LIST
+        if    !asked_list
+        raise asked_list
+        reply DLG_CLERK_REPLY_LIST
+
+    option DLG_CLERK_OPT_MINE
+        if    asked_list !asked_mine
+        raise asked_mine
+        reply DLG_CLERK_REPLY_MINE
+
+    # The rule. Available from the start and repeatable, because it is the one
+    # thing the player may need to hear twice — and an option that vanishes
+    # after being taken once is how a tutorial becomes unsolvable.
+    option DLG_CLERK_OPT_STRIKE
+        if    !box_struck_off
+        reply DLG_CLERK_REPLY_STRIKE
+
+    option DLG_CLERK_OPT_LABEL
+        if   saw_delivery_label !box_struck_off
+        goto label
+
+    option DLG_CLERK_OPT_THANKS
+        if    box_struck_off !thanked
+        raise thanked
+        reply DLG_CLERK_REPLY_THANKS
+
+    option DLG_CLERK_OPT_BYE
+        reply DLG_CLERK_REPLY_BYE
+        end
+
+# He goes over and reads it. Two beats and not one: the pen coming out is the
+# payoff the player worked for, and a payoff delivered inside the same sentence
+# as the request reads as nothing having happened.
+line label
+    says DLG_CLERK_LABEL
+
+    option DLG_CLERK_OPT_LABEL_YES
+        raise box_struck_off
+        reply DLG_CLERK_REPLY_LABEL_YES
+        end
+
+    option DLG_CLERK_OPT_LABEL_NO
+        goto start

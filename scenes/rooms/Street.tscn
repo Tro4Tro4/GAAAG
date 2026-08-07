@@ -1,7 +1,8 @@
-[gd_scene load_steps=24 format=3 uid="uid://baggastreet01"]
+[gd_scene load_steps=25 format=3 uid="uid://baggastreet01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="15_door"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="3_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="4_thud"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_street.png" id="5_bg"]
@@ -123,7 +124,7 @@ position = Vector2(0, 5)
 
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(127, 117)
-script = ExtResource("2_hotspot")
+script = ExtResource("15_door")
 display_name = "STREET_DOOR"
 act_verb = 4
 reach_verb = 7
@@ -131,6 +132,8 @@ default_verb = 7
 look_text = "STREET_DOOR_LOOK"
 act_text = "STREET_DOOR_ACT"
 reach_text = "STREET_DOOR_REACH"
+target_room = "res://scenes/rooms/Apartment.tscn"
+target_entry = &"FromStreet"
 
 [node name="Picture" type="Sprite2D" parent="DoorHotspot"]
 position = Vector2(-15, -48)

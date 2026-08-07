@@ -95,6 +95,7 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
   Main               Scena di avvio: personaggi, telecamera, audio, sequenze e
                      UI, e ospita la stanza corrente in RoomContainer
   rooms/Street       Capitolo 1: la via di casa, larga due schermate
+  rooms/Apartment    Capitolo 1: l'appartamento di Lino, meta' imballato
   rooms/Lobby        L'atrio dell'ufficio, dove Lino si fa emettere la notifica
   rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
   rooms/Station      Prototipo: la postazione dove sta Cesare
@@ -126,8 +127,9 @@ resources/           Risorse di dati (.tres), niente scene e niente codice
                      mettere in mano — più combinations.tres con le ricette e
                      catalogue.tres con l'elenco di tutti gli oggetti
   characters/        Un .tres di SpriteFrames per personaggio, scritto da tools/
-  dialogues/         Un file per conversazione
-  sequences/         Un file per scena scriptata
+  dialogues/         Un .dlg per conversazione — il copione, che e' la verita' —
+                     e il .tres che make_dialogues.py ne scrive
+  sequences/         Un .seq per scena scriptata, piu' il .tres generato
   text/              it.tres e en.tres — tutte le frasi del gioco
 docs/                Documenti di progetto, niente codice
   storia.md          La storia completa: catena causale, personaggi, capitoli,
@@ -146,6 +148,10 @@ tools/               Script che producono asset, da eseguire dalla radice
   make_item_icons.py        Le quattro icone d'inventario, 12x12
   make_character_sheets.py  I fogli dei personaggi e i loro SpriteFrames
   make_audio.py             I suoni sintetizzati, e il loro manifest
+  make_apartment_background.py  L'appartamento di Lino, disegnato a 320x180
+  make_apartment_props.py   Porta, finestra, scatole, cartellini, materasso,
+                            e l'addetto al carico — il primo PNG del gioco
+  make_dialogues.py         Da copione .dlg/.seq alle risorse .tres
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
                      stanza, a scala 1 e filtro Nearest: 320x180 l'atrio e la
@@ -2430,15 +2436,150 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     un salvataggio scritto dopo non deve rigiocarla e uno scritto prima sì. Il
     flag lo alza l'ultimo passo della sequenza.
 
+- **Formato di scrittura dei dialoghi e delle sequenze: un copione di testo, e un
+  generatore Python in `tools/` che ne scrive il `.tres`.** Chiude la decisione
+  che era rimasta aperta più a lungo di tutte, e la chiude nel momento che quella
+  stessa voce indicava — *"si prende con in mano il primo dialogo vero e non
+  prima"*. Il primo dialogo vero è l'addetto al carico nell'appartamento, ed è
+  stato scritto in questo formato invece che in `.tres`.
+  Il runtime **non è stato toccato di una riga**: `DialogueRunner` e
+  `SequenceRunner` continuano a consumare risorse, e la previsione registrata nel
+  commento in cima a `dialogue.gd` — che un parser si potesse aggiungere dopo
+  senza toccarli — si è rivelata esatta.
+  Il numero che ha deciso: `console.tres` sono **48 righe di `.tres` per due
+  battute e quattro opzioni**, e il gioco è dimensionato a quarantaquattro stanze
+  e centinaia di conversazioni.
+  - **Un parser GDScript che legge il copione a runtime**: niente file generati,
+    e funzionerebbe anche per scrivere un dialogo dal telefono. Scartato perché
+    sposta gli errori di forma da "generazione" a "esecuzione" — un `goto` che
+    non esiste diventerebbe un buco scoperto giocando invece che un messaggio a
+    riga e colonna — e perché costa ~150 righe di codice che dovrebbero poi
+    vivere per sempre nel gioco esportato.
+  - **Continuare a mano**: nessuna infrastruttura. Scartato per il solo numero
+    qui sopra, e perché il primo materiale vero del gioco sarebbe nato nel
+    formato che comunque va abbandonato.
+  - **Il `.tres` diventa un file generato**, e la verità sta nel `.dlg` o `.seq`
+    accanto. È esattamente la forma che il progetto usa già per gli asset —
+    `make_character_sheets.py` scrive il foglio **e** lo `SpriteFrames` — e la
+    ragione è la stessa: due rappresentazioni della stessa informazione scritte a
+    mano divergono.
+  - **Le tre risorse che esistevano sono state convertite nello stesso commit**,
+    non lasciate come sono. Due formati che convivono non sono una transizione
+    graduale, sono due formati: e la conversione è anche l'unica prova che il
+    generatore è fedele — il round-trip cambia **solo i nomi dei sub-resource**,
+    ogni valore, uid e percorso resta identico.
+  - **L'uid si dichiara nel copione**, e se manca si riprende dal `.tres` che si
+    sta sostituendo; inventarne uno è l'unico esito che il generatore rifiuta.
+    Una scena nomina una risorsa per uid *oltre* che per percorso, quindi un uid
+    nuovo a ogni esecuzione scollegherebbe `console.tres` da `Station.tscn` senza
+    che niente protesti.
+  - **Niente si scrive se un copione è sbagliato**: si costruisce tutto in
+    memoria e si salva solo alla fine. Una corsa fallita a metà lascerebbe metà
+    delle risorse nuove e metà vecchie, che è l'unico stato su cui non si può
+    ragionare.
+  - **Il generatore controlla quello che il runtime scoprirebbe tardi**: un
+    `goto` che nomina una battuta inesistente, `reply` e `goto` insieme (che il
+    runner segnala già, ma a gioco in corso), un oggetto o un suono che non
+    esiste. E **avverte** su ciò che non può decidere, come una chiave che non ha
+    la forma di una chiave.
+  - **Le parole chiave sono inglesi** come ogni altro identificatore del
+    progetto, e quello che il copione contiene sono **solo chiavi di testo**: le
+    frasi che il giocatore legge restano tutte in `resources/text/`, quindi
+    `check_texts.py` continua a controllarle leggendo i `.tres` generati come
+    qualunque altro.
+  - Costo accettato: **il `.tres` non si modifica più a mano.** Chi lo fa vede il
+    proprio lavoro sparire alla prima rigenerazione, ed è la stessa regola già
+    valida per i fogli dei personaggi e per gli sfondi.
+  - Nota: da rivedere verso il parser a runtime solo se un giorno lo sviluppatore
+    volesse scrivere dialoghi direttamente sul telefono, che oggi non è il modo
+    in cui il contenuto nasce.
+
+- **`PickupHotspot.takeable_if`: una cosa che non si può ancora prendere resta
+  nella stanza e rifiuta a voce.** Due campi — le condizioni, e `refused_text` —
+  accanto ai due che c'erano già.
+  Il motivo di non usare `present_if` è la regola portante del progetto: *uno
+  spicchio che compare solo quando funzionerebbe rivela la soluzione*. Una
+  scatola che non si può prendere deve continuare a offrire Prendi e a spiegare
+  perché no; farla sparire sarebbe la metà sbagliata due volte — invisibile, e
+  muta sul motivo.
+  Serve subito e servirà spesso, perché **il vincolo di Lino è esattamente
+  questo**: non può toccare ciò che è a catalogo. L'alternativa era uno script
+  per ogni oggetto del genere, che è quello che "hotspot come dati più segnale"
+  esiste per evitare.
+  - **`refused_text` è un campo suo e non un ripiego su `hand_text`**, e il
+    motivo si vede solo guardando l'ordine in `room.gd`: la stanza chiede la
+    frase **prima** di chiamare `interact()`, quindi `hand_text` è ciò che si
+    dice nel momento in cui la cosa *viene* presa. Con un campo solo, uno dei due
+    casi direbbe la frase dell'altro. I tre stati di un pickup sono "non ancora",
+    "ecco", "ce l'hai già", e adesso hanno tre campi.
+  - **"Ce l'hai già" batte "non puoi"**: un oggetto le cui condizioni si sono
+    girate dopo che è stato preso è comunque in tasca a qualcuno, e dire che non
+    si può prendere sarebbe una bugia sul mondo.
+
+- **Il primo PNG del gioco è un hotspot con un dialogo e un disegno fermo**, non
+  un personaggio. L'addetto al carico nell'appartamento ha uno sprite solo, alto
+  quaranta unità come i giocabili, e nessun foglio di animazione.
+  Regge perché la decisione *"parlare è un dato dell'hotspot, non un
+  `TalkHotspot`"* era già stata presa, e un PNG non ha bisogno di niente di più:
+  `display_name`, `look_text`, `reach_verb = TALK`, `dialogue`. Zero codice nuovo.
+  - **Un `PlayerCharacter` non giocabile** (istanziato in `Main.tscn` con
+    `available_if` che non si alza mai): avrebbe camminato e cambiato direzione.
+    Scartato perché costa un foglio di sprite completo — nove animazioni — e
+    perché un PNG che vive nell'albero dei personaggi eredita inventario,
+    posizione e stanza, cioè tre pezzi di stato che nessuno userebbe.
+  - **Che stia fermo è finzione, non risparmio**, ed è la parte che mi piace: i
+    traslocatori portano giù gli armadi, e questo **spunta**. Un solo disegno è
+    onesto perché il personaggio non fa nient'altro — e quando servirà un PNG che
+    cammina, quello sarà un `PlayerCharacter` e avrà il suo foglio.
+  - Nota: se i PNG diventassero molti e volessero pose diverse a seconda dello
+    stato, la strada è `HotspotVariant` per i testi più uno `StateVisual` per
+    ogni posa, che il progetto ha già. Non serve una classe nuova.
+
+- **Un fondale nudo non vuole un gradiente, vuole una forma.** Costa tre
+  tentativi buttati sull'appartamento, e vale per ogni stanza che venga dopo.
+  Un gradiente che attraversa un confine di fascia sparge la sua striscia di
+  dithering per quanto il gradiente impiega ad attraversarlo: su una parete
+  larga 320 unità e senza dettagli, una rampa lenta ha prodotto una **sbavatura
+  diagonale di trenta unità** in mezzo all'intonaco, e stringere la striscia non
+  l'ha risolta — perché la cosa lenta era il gradiente, non la striscia.
+  È l'altra metà della regola già registrata (*"la striscia va tenuta
+  stretta"*): stringere la striscia serve quando il gradiente è ripido. Quando
+  non lo è, il gradiente va tolto del tutto.
+  - **Quello che funziona**: parete piatta a una tinta, e la luce data come
+    l'oggetto che la produce. La finestra dell'appartamento proietta sul
+    pavimento un **rettangolo inclinato** con dentro l'ombra dei traversi, e due
+    forme annidate — una tinta piena, una striscia dithered al bordo — leggono
+    come luce dove una sfumatura leggeva come sporco.
+  - **Una finestra non illumina il muro in cui sta**, e i due tentativi
+    precedenti lo facevano: schiarivano la parete *attorno* al vetro tanto quanto
+    il pavimento davanti. Sul muro resta solo ciò che è davvero una conseguenza
+    della finestra, cioè la colatura sotto il davanzale.
+  - **Anche un'ombra al piede del muro sono due forme e non una sfumatura**:
+    disegnata come una singola dissolvenza dithered veniva un bordo punteggiato,
+    perché una dissolvenza la cui intera larghezza è transizione non si legge
+    come una dissolvenza.
+  - Misurato: 3% di pixel isolati contro il 10% che la skill dà come soglia, e
+    24 colori. Il primo tentativo, con i gradienti, stava al 12%.
+  - **E un cilindro verticale in una stanza è un mobile.** Il materasso
+    arrotolato in piedi è stato prima un armadietto di metallo e poi uno
+    scaldabagno, con ombreggiatura e ghiere diverse; coricato ha funzionato al
+    primo colpo. A questa dimensione la posa decide la lettura più del disegno.
+
+- **Il pavimento di una stanza non è un posto dove non succede niente.** La prima
+  composizione dell'appartamento aveva ogni oggetto appoggiato al muro di fondo,
+  e la metà bassa dello schermo era sessanta unità di legno vuoto. Adesso la pila
+  di scatole e la scatola dei documenti stanno **dentro la navmesh**: una la si
+  aggira, dietro l'altra ci si passa, e l'Y-sorting acceso mesi fa ha finalmente
+  qualcosa da ordinare.
+  - Il difetto si vede solo componendo il personaggio nella stanza a più
+    profondità diverse, non guardando il fondale: da fermo, un oggetto contro il
+    muro e uno in mezzo alla stanza si disegnano uguali.
+  - Ne segue una verifica da rifare a ogni stanza: **se nessun oggetto ha il nodo
+    dentro la navmesh, la stanza è un fondale con dei bottoni sopra.**
+
 ## Decisioni ancora aperte
-- **Formato di scrittura dei dialoghi**: il runtime consuma risorse `.tres`, ma
-  resta da vedere se scriverle a mano regga quando le conversazioni saranno vere
-  e lunghe. L'alternativa è un file di testo in formato copione con un parser
-  che produce le stesse risorse — si aggiunge senza toccare il runtime, quindi
-  la decisione si prende con in mano il primo dialogo vero e non prima. Lo
-  stesso vale per le sequenze, che hanno lo stesso problema in piccolo
-- **La scala per profondità contro la pixel art**, ed è il vero conflitto aperto
-  dallo stile ibrido. La prospettiva delle stanze scala la figura del personaggio
+- **La scala per profondità contro la pixel art**, ed è il conflitto che lo stile
+  ibrido aveva aperto e che è sopravvissuto alla sua revoca. La prospettiva delle stanze scala la figura del personaggio
   di un fattore continuo (nell'atrio da 0,85 a 1,05), e questo rompe la regola per
   cui un pixel di texture è un'unità di gioco: a 0,85 su uno schermo 5× un pixel
   di texture diventa 4,25 pixel veri, quindi alcuni escono 4 e altri 5.
@@ -2548,6 +2689,11 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   `.gd` passa da `gdparse`: `python .claude/skills/pixel-adventure-assets/
   scripts/qa_check.py <file> --profile sheet|sprite|shadow|background
   [--palette-from <sfondo>]`. Esce con 1 se qualcosa fallisce
+- **I `.tres` di dialoghi e sequenze sono file generati: non si modificano a
+  mano.** Si scrive il copione `.dlg` o `.seq` accanto e si esegue
+  `python tools/make_dialogues.py`, che li riscrive tutti e si rifiuta di
+  scrivere niente se un copione è sbagliato. Un `.tres` corretto a mano sparisce
+  alla prima rigenerazione, come già per i fogli dei personaggi e gli sfondi
 - **Ogni testo aggiunto passa da `tools/check_texts.py`**, che confronta le
   chiavi di `it.tres` ed `en.tres` e verifica che ogni chiave nominata in una
   scena, in una risorsa o in uno script esista in entrambe. Prima era uno

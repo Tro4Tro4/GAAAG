@@ -1,0 +1,237 @@
+[gd_scene load_steps=22 format=3 uid="uid://baggaapartm01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="5_variant"]
+[ext_resource type="Script" path="res://scripts/rooms/state_visual.gd" id="6_state"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_apartment.png" id="7_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_door.png" id="8_leaf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_window.png" id="9_window"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_boxes.png" id="10_boxes"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_docbox.png" id="11_docbox"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_tag_ticked.png" id="12_ticked"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_tag_struck.png" id="13_struck"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_mattress.png" id="14_mattress"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_clerk.png" id="15_clerk"]
+[ext_resource type="Resource" uid="uid://baggaitemdocu1" path="res://resources/items/documents.tres" id="16_documents"]
+[ext_resource type="Resource" uid="uid://baggadlgclrk01" path="res://resources/dialogues/clerk.tres" id="17_dialogue"]
+[ext_resource type="Resource" uid="uid://baggaseqaptl01" path="res://resources/sequences/apartment_label.tres" id="18_label"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="19_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="20_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="21_step1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="22_step2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="23_step3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_04.wav" id="24_step4"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_boards"]
+vertices = PackedVector2Array(8, 110, 312, 110, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 312, 110, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(32, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_window"]
+size = Vector2(56, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_boxes"]
+size = Vector2(50, 31)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_docbox"]
+size = Vector2(30, 19)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_clerk"]
+size = Vector2(26, 41)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mattress"]
+size = Vector2(44, 16)
+
+[sub_resource type="Resource" id="Variant_docbox_free"]
+script = ExtResource("5_variant")
+conditions = PackedStringArray("box_struck_off")
+look_text = "APT_DOCBOX_LOOK_FREE"
+
+[node name="Apartment" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("19_hum")
+footsteps = Array[AudioStream]([ExtResource("21_step1"), ExtResource("22_step2"), ExtResource("23_step3"), ExtResource("24_step4")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(0, 0)
+centered = false
+texture = ExtResource("7_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_boards")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(44, 126)
+
+[node name="FromStreet" type="Marker2D" parent="EntryPoints"]
+position = Vector2(44, 126)
+
+[node name="AtDoor" type="Marker2D" parent="EntryPoints"]
+position = Vector2(40, 119)
+
+[node name="AtBox" type="Marker2D" parent="EntryPoints"]
+position = Vector2(134, 156)
+
+[node name="WindowHotspot" type="Area2D" parent="."]
+position = Vector2(254, 84)
+script = ExtResource("2_hotspot")
+display_name = "APT_WINDOW"
+act_verb = 4
+look_text = "APT_WINDOW_LOOK"
+act_text = "APT_WINDOW_ACT"
+
+[node name="Picture" type="Sprite2D" parent="WindowHotspot"]
+position = Vector2(-28, -40)
+centered = false
+texture = ExtResource("9_window")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WindowHotspot"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_window")
+
+[node name="ApproachPoint" type="Marker2D" parent="WindowHotspot"]
+position = Vector2(0, 27)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(40, 104)
+script = ExtResource("3_door")
+display_name = "APT_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "APT_DOOR_LOOK"
+reach_text = "APT_DOOR_REACH"
+target_room = "res://scenes/rooms/Street.tscn"
+target_entry = &"AtDoor"
+
+[node name="Picture" type="Sprite2D" parent="DoorHotspot"]
+position = Vector2(-16, -44)
+centered = false
+texture = ExtResource("8_leaf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 15)
+
+[node name="BoxesHotspot" type="Area2D" parent="."]
+position = Vector2(86, 134)
+script = ExtResource("2_hotspot")
+display_name = "APT_BOXES"
+hand_verb = 2
+act_verb = 4
+look_text = "APT_BOXES_LOOK"
+hand_text = "APT_BOXES_HAND"
+act_text = "APT_BOXES_ACT"
+sound = ExtResource("20_thud")
+
+[node name="Picture" type="Sprite2D" parent="BoxesHotspot"]
+position = Vector2(-25, -31)
+centered = false
+texture = ExtResource("10_boxes")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoxesHotspot"]
+position = Vector2(0, -15)
+shape = SubResource("RectangleShape2D_boxes")
+
+[node name="ApproachPoint" type="Marker2D" parent="BoxesHotspot"]
+position = Vector2(0, 8)
+
+[node name="MattressHotspot" type="Area2D" parent="."]
+position = Vector2(290, 104)
+script = ExtResource("2_hotspot")
+display_name = "APT_MATTRESS"
+hand_verb = 2
+look_text = "APT_MATTRESS_LOOK"
+hand_text = "APT_MATTRESS_HAND"
+
+[node name="Picture" type="Sprite2D" parent="MattressHotspot"]
+position = Vector2(-22, -16)
+centered = false
+texture = ExtResource("14_mattress")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MattressHotspot"]
+position = Vector2(0, -8)
+shape = SubResource("RectangleShape2D_mattress")
+
+[node name="ApproachPoint" type="Marker2D" parent="MattressHotspot"]
+position = Vector2(0, 8)
+
+[node name="DocumentsHotspot" type="Area2D" parent="."]
+position = Vector2(150, 148)
+script = ExtResource("4_pickup")
+display_name = "APT_DOCBOX"
+hand_verb = 2
+look_text = "APT_DOCBOX_LOOK"
+hand_text = "APT_DOCBOX_HAND"
+variants = Array[ExtResource("5_variant")]([SubResource("Variant_docbox_free")])
+sequence = ExtResource("18_label")
+sequence_verb = 1
+sequence_if = PackedStringArray("!saw_delivery_label")
+item = ExtResource("16_documents")
+vanishes_when_taken = false
+taken_text = "APT_DOCBOX_TAKEN"
+takeable_if = PackedStringArray("box_struck_off")
+refused_text = "APT_DOCBOX_REFUSED"
+
+[node name="Picture" type="Sprite2D" parent="DocumentsHotspot"]
+position = Vector2(-15, -19)
+centered = false
+texture = ExtResource("11_docbox")
+
+[node name="TagTicked" type="Node2D" parent="DocumentsHotspot"]
+script = ExtResource("6_state")
+visible_if = PackedStringArray("!box_struck_off")
+
+[node name="Sprite" type="Sprite2D" parent="DocumentsHotspot/TagTicked"]
+position = Vector2(-9, -11)
+centered = false
+texture = ExtResource("12_ticked")
+
+[node name="TagStruck" type="Node2D" parent="DocumentsHotspot"]
+script = ExtResource("6_state")
+visible_if = PackedStringArray("box_struck_off")
+
+[node name="Sprite" type="Sprite2D" parent="DocumentsHotspot/TagStruck"]
+position = Vector2(-9, -11)
+centered = false
+texture = ExtResource("13_struck")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DocumentsHotspot"]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_docbox")
+
+[node name="ApproachPoint" type="Marker2D" parent="DocumentsHotspot"]
+position = Vector2(-16, 8)
+
+[node name="ClerkHotspot" type="Area2D" parent="."]
+position = Vector2(206, 120)
+script = ExtResource("2_hotspot")
+display_name = "APT_CLERK"
+reach_verb = 6
+look_text = "APT_CLERK_LOOK"
+dialogue = ExtResource("17_dialogue")
+
+[node name="Picture" type="Sprite2D" parent="ClerkHotspot"]
+position = Vector2(-13, -41)
+centered = false
+texture = ExtResource("15_clerk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClerkHotspot"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_clerk")
+
+[node name="ApproachPoint" type="Marker2D" parent="ClerkHotspot"]
+position = Vector2(-25, 6)

@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=15 format=3 uid="uid://baggadlgclrk01"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+
+[sub_resource type="Resource" id="Option_start_0"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_WHO"
+conditions = PackedStringArray("!asked_who")
+reply = "DLG_CLERK_REPLY_WHO"
+raises = PackedStringArray("asked_who")
+
+[sub_resource type="Resource" id="Option_start_1"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_LIST"
+conditions = PackedStringArray("!asked_list")
+reply = "DLG_CLERK_REPLY_LIST"
+raises = PackedStringArray("asked_list")
+
+[sub_resource type="Resource" id="Option_start_2"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_MINE"
+conditions = PackedStringArray("asked_list", "!asked_mine")
+reply = "DLG_CLERK_REPLY_MINE"
+raises = PackedStringArray("asked_mine")
+
+[sub_resource type="Resource" id="Option_start_3"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_STRIKE"
+conditions = PackedStringArray("!box_struck_off")
+reply = "DLG_CLERK_REPLY_STRIKE"
+
+[sub_resource type="Resource" id="Option_start_4"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_LABEL"
+conditions = PackedStringArray("saw_delivery_label", "!box_struck_off")
+goes_to = &"label"
+
+[sub_resource type="Resource" id="Option_start_5"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_THANKS"
+conditions = PackedStringArray("box_struck_off", "!thanked")
+reply = "DLG_CLERK_REPLY_THANKS"
+raises = PackedStringArray("thanked")
+
+[sub_resource type="Resource" id="Option_start_6"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_BYE"
+reply = "DLG_CLERK_REPLY_BYE"
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "DLG_CLERK_START"
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4"), SubResource("Option_start_5"), SubResource("Option_start_6")])
+
+[sub_resource type="Resource" id="Option_label_0"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_LABEL_YES"
+reply = "DLG_CLERK_REPLY_LABEL_YES"
+raises = PackedStringArray("box_struck_off")
+ends = true
+
+[sub_resource type="Resource" id="Option_label_1"]
+script = ExtResource("3_option")
+text = "DLG_CLERK_OPT_LABEL_NO"
+goes_to = &"start"
+
+[sub_resource type="Resource" id="Line_label"]
+script = ExtResource("2_line")
+id = &"label"
+says = "DLG_CLERK_LABEL"
+options = Array[ExtResource("3_option")]([SubResource("Option_label_0"), SubResource("Option_label_1")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.72, 0.76, 0.86, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start"), SubResource("Line_label")])

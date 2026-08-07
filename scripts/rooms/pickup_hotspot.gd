@@ -33,6 +33,33 @@ extends Hotspot
 ## wins over it, being the more deliberate of the two.
 @export_multiline var taken_text: String = ""
 
+## What has to be true before it can be picked up at all. Empty — the ordinary
+## case — means it can always be taken.
+##
+## Deliberately not the same thing as [member Hotspot.present_if], and the
+## difference is the design rule this project keeps coming back to: a slice that
+## appeared only when it would work would be telling the player the answer. So a
+## thing that cannot be taken *yet* stays in the room, goes on offering Prendi,
+## and refuses out loud — the refusal being whatever [member
+## Hotspot.hand_text] or a variant on the same conditions has to say. Being
+## absent instead would be the wrong half twice over: invisible, and silent
+## about why.
+##
+## Chapter one needs this over and over, because Lino's whole constraint is that
+## he may not touch what is under catalogue. The alternative was a script per
+## such object, which is what data on the ordinary hotspot exists to avoid.
+@export var takeable_if: PackedStringArray = PackedStringArray()
+
+## What Prendi says while [member takeable_if] does not hold.
+##
+## A field of its own rather than letting the refusal fall through to [member
+## Hotspot.hand_text], because hand_text is what is said at the moment the thing
+## *is* picked up — the room asks for the line before it calls interact(), so
+## both cases would otherwise come out of the same string and one of the two
+## would be wrong. Named alongside [member taken_text] on purpose: the three
+## states of a pickup are cannot yet, here you are, and already have.
+@export_multiline var refused_text: String = ""
+
 
 ## Gone once its item is in somebody's hands. Expressed here rather than as a
 ## condition in [member Hotspot.present_if] because the flag is derived from the
@@ -42,9 +69,24 @@ func is_present() -> bool:
 	return super() and not (vanishes_when_taken and _already_taken())
 
 
+## True when the conditions for picking this up are met. Asked at the moment of
+## the taking rather than worked out when the room was built, like a variant and
+## for the same reason: what is in somebody's pocket changes without the room
+## being rebuilt.
+func can_be_taken() -> bool:
+	return Conditions.all_hold(takeable_if, GameState.active_character)
+
+
 func get_text_for(verb: int) -> String:
-	if verb == Verb.TAKE and _already_taken() and not taken_text.is_empty():
-		return taken_text
+	if verb == Verb.TAKE:
+		# Already-had beats cannot-have: an object whose conditions have swung
+		# back the other way since it was taken is still in somebody's pocket,
+		# and saying it cannot be picked up would be a lie about the world.
+		if _already_taken() and not taken_text.is_empty():
+			return taken_text
+
+		if not can_be_taken() and not refused_text.is_empty():
+			return refused_text
 
 	return super(verb)
 
@@ -55,7 +97,7 @@ func interact(verb: int, character: PlayerCharacter) -> void:
 	if verb != Verb.TAKE or item == null or character == null:
 		return
 
-	if _already_taken():
+	if _already_taken() or not can_be_taken():
 		return
 
 	# Raised before the item is handed over: if anything later reacts to the

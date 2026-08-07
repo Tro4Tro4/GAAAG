@@ -152,13 +152,16 @@ Sono in `CLAUDE.md`, e queste sono quelle che toccano la grafica.
   `project.godot`). I PNG vanno esportati alla dimensione logica vera, senza
   upscaling: se ne serve uno ingrandito per mostrarlo all'utente, è
   un'anteprima, non l'asset.
-- **Lo stile del progetto è quello ibrido** descritto in
-  `references/hybrid-style-guide.md`: **personaggi, oggetti e figure degli
-  hotspot in pixel art netta, sfondi dipinti a piena risoluzione.** È una
-  decisione presa e registrata in `CLAUDE.md`, non una proposta. Le sette icone
-  dei verbi, che sono SVG, non sono più un'eccezione: sono lo strato morbido,
-  come gli sfondi.
-- **La regola che tiene insieme i due strati: un pixel di texture è un'unità di
+- **Tutto il progetto è pixel art**, sfondi compresi: personaggi, oggetti,
+  figure degli hotspot e fondali si disegnano tutti alla risoluzione logica e si
+  usano a `scale = 1`. Lo stile ibrido di `references/hybrid-style-guide.md` —
+  sprite netti su sfondi dipinti a piena risoluzione — **è stato adottato e poi
+  revocato**, ed è registrato come revocato in `CLAUDE.md`: uno sprite netto
+  appoggiato su un fondo morbido galleggia, e l'ombra di contatto non è bastata.
+  Quel documento resta come riferimento sul colore e sui materiali, non sulla
+  pipeline. L'unica arte non-pixel che sopravvive sono le sette icone dei verbi,
+  che sono SVG.
+- **La regola che tiene insieme tutto: un pixel di texture è un'unità di
   gioco.** Un personaggio alto 40 unità si disegna alto 40 pixel e si usa a
   `scale = 1`. Ogni pixel di texture diventa così esattamente
   *fattore-di-finestra* pixel veri, che è sempre un intero, quindi sempre un

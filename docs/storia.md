@@ -175,9 +175,10 @@ postazione) e sono canoniche.
 verificata sul dispositivo.
 
 **Le stanze (undici)**
-1. **Via del palazzo** — il furgone già parcheggiato, i traslocatori che
-   aspettano cortesi, la notifica sul portone. *(Torna nell'epilogo, cambiata.)*
-2. **Appartamento di Lino** — mezzo imballato da qualcun altro.
+1. **Via del palazzo** ✅ esiste — il furgone già parcheggiato, i traslocatori
+   che aspettano cortesi, la notifica sul portone. *(Torna nell'epilogo,
+   cambiata.)*
+2. **Appartamento di Lino** ✅ esiste — mezzo imballato da qualcun altro.
 3. **Pianerottolo** — la porta di Duilio, i campanelli, il vano contatori.
 4. **Cantina** — dove le scatole già catalogate aspettano il carico.
 5. **Posto di blocco della zona in trasloco** — si passa se si è residenti o
@@ -490,40 +491,60 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
 - **L'introduzione**, tutti e due i movimenti: l'ordine di ritiro che si compila
   riga per riga e viene timbrato (`scripts/ui/intro_screen.gd`, la carta e il
   timbro da `tools/make_intro_form.py`), e la scena in stanza di Lino che arriva
-  sotto casa (`resources/sequences/intro_street.tres`). Parte una volta sola,
+  sotto casa (`resources/sequences/intro_street.seq`). Parte una volta sola,
   guardata dal flag `intro_seen`.
 - **Stanza 1, Via del palazzo** (`scenes/rooms/Street.tscn`), larga due
   schermate, con otto hotspot che rispondono tutti: portone, avviso, campanelli,
   bidoni, vicolo, tombino, furgone, sbarra. Sfondo e prop da
   `tools/make_street_background.py` e `tools/make_street_props.py`.
+- **Stanza 2, Appartamento** (`scenes/rooms/Apartment.tscn`), una schermata, con
+  sei hotspot: porta di casa, scatole a catalogo, scatola dei documenti,
+  addetto al carico, finestra, materasso. Sfondo e prop da
+  `tools/make_apartment_background.py` e `tools/make_apartment_props.py`.
+- **Il cancello A, completo e giocabile.** La catena è di quattro passi e
+  attraversa tre sistemi: guardare la scatola dei documenti fa notare l'etichetta
+  di consegna (sequenza, alza `saw_delivery_label`); parlare con l'addetto dà la
+  regola — *si depenna solo ciò che risulta già consegnato*; l'opzione che nomina
+  l'etichetta compare solo con quel flag e alza `box_struck_off`; il cartellino
+  passa da spuntato a barrato (`StateVisual`) e la scatola diventa prendibile
+  (`PickupHotspot.takeable_if`). È **order-free**: si può guardare prima o
+  parlare prima.
+- **Il portone della via porta dentro**, ed è un `DoorHotspot` vero: via ↔
+  appartamento nei due sensi. Era l'impalcatura dichiarata del giro precedente.
+- **Il primo PNG del gioco**, l'addetto al carico: uno sprite fermo alto quaranta
+  unità, un hotspot con `dialogue` e nessun codice nuovo.
 - **Il roster che cresce**: `PlayerCharacter.available_if`. Cesare è in scena ma
   non compare nella barra finché non si alza `met_cesare`, che nessuno alza
   ancora — è l'aggancio che servirà quando il capitolo arriverà all'ufficio.
+- **I dialoghi e le sequenze si scrivono come copioni**, non come `.tres`:
+  `resources/dialogues/*.dlg` e `resources/sequences/*.seq`, e
+  `python tools/make_dialogues.py` ne scrive le risorse. Il runtime non è
+  cambiato.
 
 **Impalcatura da sostituire, e non è un difetto nascosto**
-- Il portone **non porta da nessuna parte**: risponde a Vai con i traslocatori
-  che scendono con l'armadio. È un blocco diegetico e onesto, ma resta un blocco
-  finché non esistono appartamento e pianerottolo. Va convertito in
-  `DoorHotspot` nello stesso commit in cui nasce la stanza 2.
+- La porta dell'appartamento **scende in strada**, non sul pianerottolo, perché
+  il pianerottolo non esiste. Quando nasce la stanza 3, la porta di casa punta
+  lì e le scale diventano un passaggio vero. È una riga in due scene.
+- La scatola dei documenti, una volta presa, **non serve ancora a niente**: il
+  suo scopo è il cancello B, cioè il dialogo con chi sorveglia la sbarra, che è
+  il passo successivo. Oggi il premio dell'enigma è averla in mano.
 
 **Da fare, nell'ordine che conviene**
-1. Stanza 2, **Appartamento** — e con essa il cancello A, cioè l'enigma della
-   scatola dei documenti («ciò che risulta già consegnato non si ritira»).
-   Serve un traslocatore con cui parlare: è il primo PNG del gioco.
-2. Stanza 3, **Pianerottolo**, e la prima comparsa di Duilio.
+1. **Cancello B**: il dialogo con chi sorveglia la sbarra nella via, che chiede
+   la prova di residenza e la trova nella scatola. Non serve una stanza nuova —
+   il posto di blocco è già dentro la via.
+2. Stanza 3, **Pianerottolo**, e la prima comparsa di Duilio; la porta di casa
+   viene ripuntata lì.
 3. Stanza 4, **Cantina**.
-4. Il **posto di blocco** è già dentro la via (la sbarra): il cancello B diventa
-   il dialogo con chi la sorveglia, non una stanza nuova.
-5. **Ufficio**: ritestare atrio, corridoio e postazione da collaudo a
+4. **Ufficio**: ritestare atrio, corridoio e postazione da collaudo a
    certificazione dell'occupazione, e alzare `met_cesare`.
-6. Cancello D, la sera, il bar, lo sgombero.
+5. Cancello D, la sera, il bar, lo sgombero.
 
 ## Cosa non è ancora deciso
 
 - **I nomi**, tutti, e il nome del progetto. Restano provvisori per scelta.
 - **Se il gioco abbia un capitolo 0 o un prologo**: oggi comincia dal furgone
   già parcheggiato sotto casa.
-- **Il formato di scrittura di dialoghi e sequenze.** Non è più una decisione
-  rimandabile a lungo: con quarantaquattro stanze e dieci ore di gioco le
-  conversazioni si contano a centinaia, e scrivere a mano altrettante risorse
-  `.tres` diventa il collo di bottiglia della produzione.
+- **Quanti hotspot di contorno vuole una stanza.** L'appartamento ne ha sei e
+  respira; la via ne ha otto ed è larga il doppio. Sotto i cinque una stanza
+  sembra una schermata di enigma e non un posto.

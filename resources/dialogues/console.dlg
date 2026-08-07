@@ -1,0 +1,34 @@
+# The console at Cesare's station: the terminal that will not reverse the line
+# until a complaint exists, which is the whole of the prototype's puzzle said
+# from the machine's side.
+#
+# Written as a single line with a list of topics, which is what the format is
+# for: one line and five options rather than five lines that each say one thing.
+
+uid    baggadlgcons01
+colour 0.55 0.9 0.7
+
+line start
+    says DLG_CONSOLE_START
+
+    option DLG_CONSOLE_OPT_WHERE
+        if    !asked_where
+        raise asked_where
+        reply DLG_CONSOLE_REPLY_WHERE
+
+    option DLG_CONSOLE_OPT_REVERSE
+        if    !complaint_logged
+        reply DLG_CONSOLE_REPLY_REVERSE
+
+    option DLG_CONSOLE_OPT_COMPLAIN
+        if    !complaint_logged !asked_complain
+        raise asked_complain
+        reply DLG_CONSOLE_REPLY_COMPLAIN
+
+    option DLG_CONSOLE_OPT_READY
+        if    complaint_logged
+        reply DLG_CONSOLE_REPLY_READY
+
+    option DLG_CONSOLE_OPT_BYE
+        reply DLG_CONSOLE_REPLY_BYE
+        end

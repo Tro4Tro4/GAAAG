@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemCatalogue" load_steps=7 format=3 uid="uid://baggaitemcat01"]
+[gd_resource type="Resource" script_class="ItemCatalogue" load_steps=8 format=3 uid="uid://baggaitemcat01"]
 
 [ext_resource type="Script" path="res://scripts/items/item_catalogue.gd" id="1_catalogue"]
 [ext_resource type="Script" path="res://scripts/items/inventory_item.gd" id="2_item"]
@@ -6,7 +6,8 @@
 [ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="4_plate"]
 [ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="5_form_filled"]
 [ext_resource type="Resource" uid="uid://baggaitemrenw1" path="res://resources/items/renewal.tres" id="6_renewal"]
+[ext_resource type="Resource" uid="uid://baggaitemdocu1" path="res://resources/items/documents.tres" id="7_documents"]
 
 [resource]
 script = ExtResource("1_catalogue")
-items = Array[ExtResource("2_item")]([ExtResource("3_form_blank"), ExtResource("4_plate"), ExtResource("5_form_filled"), ExtResource("6_renewal")])
+items = Array[ExtResource("2_item")]([ExtResource("3_form_blank"), ExtResource("4_plate"), ExtResource("5_form_filled"), ExtResource("6_renewal"), ExtResource("7_documents")])

@@ -1,0 +1,24 @@
+# Cesare throws the reversing lever and the blocked capsule comes out on Lino's
+# side. The payoff of the prototype's whole chain.
+#
+# The flag is third and not last on purpose: it is what the lever's StateVisual
+# watches, so raising it here is what drops the knob into its notch on the clack
+# rather than after the closing line. It does not change the meaning — the line
+# reverses when the lever is thrown, not when the narrator has finished saying
+# so — and it is safe because sequence_if is checked before the scene starts, so
+# raising it half way cancels nothing.
+
+uid baggaseqleve01
+
+say   SEQ_LEVER_PULL
+sound sfx_lever_throw
+flag  line_reversed
+
+sound hum_low
+say   SEQ_LEVER_RUMBLE
+
+# The wait is the silence the closing line describes; the thud arrives while it
+# is still ringing.
+wait  0.8
+sound sfx_capsule_land_far
+say   SEQ_LEVER_END

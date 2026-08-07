@@ -1,0 +1,21 @@
+# The second movement of the opening: Lino comes up the street and finds the
+# notice. The first movement is the order of withdrawal, which is a Control and
+# not a sequence — see scripts/ui/intro_screen.gd.
+#
+# The last step is what makes this play once: game.gd checks intro_seen before
+# starting it.
+
+uid baggaseqintr01
+
+walk  AtDoor
+say   SEQ_INTRO_ARRIVE
+
+# The van is behind him as he arrives, so he turns to it and the thud lands
+# while he is looking that way.
+face  AtVan
+sound thud
+say   SEQ_INTRO_VAN
+
+face  AtDoor
+say   SEQ_INTRO_NOTICE
+flag  intro_seen

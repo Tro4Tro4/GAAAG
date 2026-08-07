@@ -43,6 +43,13 @@ METAL_L = (138, 145, 158, 255)   # 8A919E
 # so that it reads as "not part of the building" without leaving the palette.
 OCHRE = (216, 180, 110, 255)
 OCHRE_D = (170, 132, 74, 255)
+# Cardboard, and the first tones in this set that do not come from the Lobby:
+# the document box is picked up in the Apartment, so its colours are the ones
+# make_apartment_background.py already put in that room. Same rule as before —
+# an item looks like the place it came out of — applied to a second place.
+CARD = (146, 116, 82, 255)
+CARD_L = (176, 140, 100, 255)
+CARD_D = (108, 84, 62, 255)
 
 
 # --------------------------------------------------------------- paper -------
@@ -142,11 +149,46 @@ _DISC = {2: (4, 7), 3: (3, 8), 4: (2, 9), 5: (2, 9),
 
 
 
+def draw_documents(c: PixelCanvas) -> None:
+    """Scatola dei documenti: cardboard, landscape, with the old label on it.
+
+    The only box in the set, so the silhouette alone separates it from the four
+    flat things — which matters more here than anywhere, because Lino carries it
+    around for the rest of the chapter and it has to be findable in a full bag
+    at a glance.
+
+    The label is the whole point of the object and so it gets the lightest value
+    in the icon: it is what made the box takeable, and the player worked for it.
+    """
+    # The lid, drawn as a band overhanging the body on both sides. That overhang
+    # is the whole of "this is a box and not a rectangle": a first attempt with
+    # the lid flush and a seam line across the middle read as a shelf.
+    c.rect(0, 2, 11, 5, OUT)
+    c.rect(1, 3, 10, 4, CARD_L)
+    for x in range(1, 11):
+        c.set(x, 4, CARD)
+
+    # The body, one pixel narrower each side so the lid sits proud of it.
+    c.rect(1, 5, 10, 10, OUT)
+    c.rect(2, 6, 9, 9, CARD)
+    for y in range(6, 10):
+        c.set(9, y, CARD_D)
+
+    # The delivery label: small, on the right of the front face, and the
+    # lightest thing in the icon. It is what made the box takeable, so it is
+    # what the eye should land on.
+    c.rect(5, 6, 8, 9, PAPER_L)
+    c.set(6, 7, INK)
+    c.set(7, 7, INK)
+    c.set(6, 8, INK)
+
+
 ICONS = [
     ("item_form_blank", draw_form_blank),
     ("item_form_filled", draw_form_filled),
     ("item_renewal", draw_renewal),
     ("item_plate", draw_plate),
+    ("item_documents", draw_documents),
 ]
 
 

@@ -4,46 +4,46 @@
 [ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="3_thud"]
 
-[sub_resource type="Resource" id="Step_walk_in"]
+[sub_resource type="Resource" id="Step_0_walk"]
 script = ExtResource("2_step")
 kind = 2
 point = &"AtDoor"
 
-[sub_resource type="Resource" id="Step_see_notice"]
+[sub_resource type="Resource" id="Step_1_say"]
 script = ExtResource("2_step")
 kind = 0
 text = "SEQ_INTRO_ARRIVE"
 
-[sub_resource type="Resource" id="Step_face_van"]
+[sub_resource type="Resource" id="Step_2_face"]
 script = ExtResource("2_step")
 kind = 3
 point = &"AtVan"
 
-[sub_resource type="Resource" id="Step_thud"]
+[sub_resource type="Resource" id="Step_3_sound"]
 script = ExtResource("2_step")
 kind = 4
 sound = ExtResource("3_thud")
 
-[sub_resource type="Resource" id="Step_van"]
+[sub_resource type="Resource" id="Step_4_say"]
 script = ExtResource("2_step")
 kind = 0
 text = "SEQ_INTRO_VAN"
 
-[sub_resource type="Resource" id="Step_face_door"]
+[sub_resource type="Resource" id="Step_5_face"]
 script = ExtResource("2_step")
 kind = 3
 point = &"AtDoor"
 
-[sub_resource type="Resource" id="Step_last"]
+[sub_resource type="Resource" id="Step_6_say"]
 script = ExtResource("2_step")
 kind = 0
 text = "SEQ_INTRO_NOTICE"
 
-[sub_resource type="Resource" id="Step_flag"]
+[sub_resource type="Resource" id="Step_7_flag"]
 script = ExtResource("2_step")
 kind = 5
 name = &"intro_seen"
 
 [resource]
 script = ExtResource("1_sequence")
-steps = Array[ExtResource("2_step")]([SubResource("Step_walk_in"), SubResource("Step_see_notice"), SubResource("Step_face_van"), SubResource("Step_thud"), SubResource("Step_van"), SubResource("Step_face_door"), SubResource("Step_last"), SubResource("Step_flag")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_0_walk"), SubResource("Step_1_say"), SubResource("Step_2_face"), SubResource("Step_3_sound"), SubResource("Step_4_say"), SubResource("Step_5_face"), SubResource("Step_6_say"), SubResource("Step_7_flag")])
