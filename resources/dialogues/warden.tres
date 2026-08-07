@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=14 format=3 uid="uid://baggadlgward01"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+
+[sub_resource type="Resource" id="Option_start_0"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_WHY"
+conditions = PackedStringArray("!asked_why")
+reply = "DLG_WARDEN_REPLY_WHY"
+raises = PackedStringArray("asked_why")
+
+[sub_resource type="Resource" id="Option_start_1"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_RESIDENT"
+conditions = PackedStringArray("!asked_resident")
+reply = "DLG_WARDEN_REPLY_RESIDENT"
+raises = PackedStringArray("asked_resident")
+
+[sub_resource type="Resource" id="Option_start_2"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_ID"
+conditions = PackedStringArray("asked_resident", "!passed_checkpoint")
+reply = "DLG_WARDEN_REPLY_ID"
+
+[sub_resource type="Resource" id="Option_start_3"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_SHOW"
+conditions = PackedStringArray("has:documents", "!passed_checkpoint")
+goes_to = &"show"
+
+[sub_resource type="Resource" id="Option_start_4"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_AGAIN"
+conditions = PackedStringArray("passed_checkpoint")
+reply = "DLG_WARDEN_REPLY_AGAIN"
+
+[sub_resource type="Resource" id="Option_start_5"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_BYE"
+reply = "DLG_WARDEN_REPLY_BYE"
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "DLG_WARDEN_START"
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4"), SubResource("Option_start_5")])
+
+[sub_resource type="Resource" id="Option_show_0"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_SHOW_YES"
+reply = "DLG_WARDEN_REPLY_SHOW_YES"
+raises = PackedStringArray("passed_checkpoint")
+ends = true
+
+[sub_resource type="Resource" id="Option_show_1"]
+script = ExtResource("3_option")
+text = "DLG_WARDEN_OPT_SHOW_NO"
+goes_to = &"start"
+
+[sub_resource type="Resource" id="Line_show"]
+script = ExtResource("2_line")
+id = &"show"
+says = "DLG_WARDEN_SHOW"
+options = Array[ExtResource("3_option")]([SubResource("Option_show_0"), SubResource("Option_show_1")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.86, 0.78, 0.52, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start"), SubResource("Line_show")])

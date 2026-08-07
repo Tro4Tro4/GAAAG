@@ -231,9 +231,125 @@ def barrier():
     save(img, "prop_barrier")
 
 
+def warden():
+    """The warden on the barrier: the second person in the game with a list.
+
+    Drawn to the same recipe as the loading clerk in the flat — forty units, one
+    still pose, both hands occupied — because they are the same *kind* of thing
+    and the player should recognise the kind. What tells them apart is the job:
+    the clerk holds a clipboard against his chest and reads it, this one holds
+    nothing and has his hands behind his back, because his whole function is to
+    stand there. The list is on the post beside him, not in his hands.
+
+    A single drawing, and for the reason recorded for the clerk: he does not walk
+    and he does not do anything. When a person in this game needs to move, they
+    become a PlayerCharacter and get a sheet of nine animations.
+    """
+    w, h = 24, 41
+    img = canvas(w, h)
+    mid = w // 2
+
+    # A high-visibility tabard over a dark uniform: the one warm thing in a
+    # street of violets and stone, which is what a tabard is for.
+    #
+    # The lit tone is Lino's hair ochre exactly, and that is not a coincidence
+    # but the rule. A first pass used a brighter yellow and qa_check measured it
+    # at 0.17 against the street, just outside the 0.16 the project allows —
+    # and the tool was right, because the street has no yellow in it anywhere.
+    # CLAUDE.md already settled where a warm note may come from: the one in this
+    # game comes from Lino's hair and from nowhere else. Borrowing it costs
+    # nothing here, since nobody reads a tabard and a fringe as the same colour.
+    VEST = (198, 162, 92)
+    VEST_L = (216, 180, 110)
+    VEST_D = (148, 118, 62)
+    CLOTH = ramp((32, 30, 44), (96, 92, 112))
+
+    for x0 in (mid - 5, mid + 1):                  # legs, and boots
+        fill(img, h - 14, h - 3, x0, x0 + 4, CLOTH[1])
+        fill(img, h - 14, h - 3, x0, x0 + 1, CLOTH[0])
+        fill(img, h - 3, h, x0 - 1, x0 + 4, CLOTH[0])
+
+    fill(img, 12, h - 12, mid - 7, mid + 7, CLOTH[2])           # the uniform
+    fill(img, 15, h - 15, mid - 8, mid + 8, VEST)               # the tabard
+    fill(img, 15, h - 15, mid + 5, mid + 8, VEST_L)             # lit right side
+    fill(img, 15, h - 15, mid - 8, mid - 6, VEST_D)
+    fill(img, 17, h - 17, mid - 1, mid + 1, VEST_D)             # its opening
+    for y in range(19, h - 18, 3):                              # the reflective
+        fill(img, y, y + 1, mid - 8, mid + 8, PAPER[4])         # band
+
+    # Arms down and behind, so the silhouette is a column: nothing in his hands
+    # is the whole characterisation.
+    for x0 in (mid - 10, mid + 7):
+        fill(img, 15, 26, x0, x0 + 3, CLOTH[2])
+        fill(img, 26, 29, x0, x0 + 3, (196, 152, 120))
+
+    # Head, and the peaked cap that says this is a uniform and not a coat.
+    # Ten wide and not eight: measured against Lino, whose head is eleven to
+    # thirteen, a narrower one made the warden read as a smaller species rather
+    # than as a different man.
+    fill(img, 3, 14, mid - 5, mid + 5, (196, 152, 120))
+    fill(img, 3, 14, mid - 5, mid - 3, (150, 112, 86))
+    fill(img, 0, 5, mid - 5, mid + 5, CLOTH[1])
+    fill(img, 1, 2, mid - 4, mid + 4, CLOTH[3])
+    fill(img, 4, 6, mid + 5, mid + 8, CLOTH[0])                 # the peak
+    dot(img, 8, mid - 2, INK)
+    dot(img, 8, mid + 2, INK)
+    fill(img, 11, 12, mid - 1, mid + 2, (150, 112, 86))
+
+    outline(img)
+    save(img, "prop_warden")
+
+
+def lobby_entrance():
+    """The street door of the office, standing open against its reveal.
+
+    No state and one drawing: a public office holds its front door open while it
+    is open, the way the flat's door is held open by the removers' wedge. Both
+    are ways through rather than things the player opens and shuts, and the
+    project has already decided that a door with no state_id says so by offering
+    no Apri.
+
+    Drawn to the Lobby's palette, not the Street's, because it is seen from the
+    inside — which is also why the light on it comes from the left, where the
+    lobby's fluorescent is, and the daylight is only a sliver down the edge.
+    """
+    from make_lobby_pixel_background import DOOR as L_DOOR  # noqa: E402
+    from make_lobby_pixel_background import NEON as L_NEON
+    from make_lobby_pixel_background import SKIRT as L_SKIRT
+    from make_lobby_pixel_background import WALL as L_WALL
+
+    w, h = 30, 44
+    img = canvas(w, h)
+    fill(img, 0, h, 0, w, L_SKIRT[2])
+    fill(img, 0, 2, 0, w, L_SKIRT[3])
+    fill(img, 0, h, 0, 2, L_SKIRT[3])
+
+    # A tall glazed panel, which is what an office street door has, with the
+    # morning outside showing through it.
+    fill(img, 4, h - 10, 5, w - 5, L_SKIRT[0])
+    fill(img, 5, h - 11, 6, w - 6, L_DOOR[2])
+    fill(img, 5, 16, 6, w - 6, L_NEON[1])
+    for i in range(1, 3):                          # glazing bars
+        fill(img, 5, h - 11, 5 + i * (w - 10) // 3, 6 + i * (w - 10) // 3,
+             L_SKIRT[1])
+    fill(img, 20, 21, 6, w - 6, L_SKIRT[1])
+
+    # A push bar, because nobody in a building like this pulls anything.
+    fill(img, 24, 26, 7, w - 7, L_WALL[0])
+    fill(img, 24, 25, 7, w - 7, L_WALL[3])
+
+    # Daylight down the hinge edge: it stands open, so the outside gets in.
+    for y in range(1, h - 1):
+        dot(img, y, w - 2, L_NEON[1])
+    outline(img)
+    save(img, "prop_lobby_entrance")
+
+
 if __name__ == "__main__":
     street_door()
     eviction_notice()
     bins()
     van()
     barrier()
+    warden()
+    lobby_entrance()

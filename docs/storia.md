@@ -181,8 +181,8 @@ verificata sul dispositivo.
 2. **Appartamento di Lino** ✅ esiste — mezzo imballato da qualcun altro.
 3. **Pianerottolo** — la porta di Duilio, i campanelli, il vano contatori.
 4. **Cantina** — dove le scatole già catalogate aspettano il carico.
-5. **Posto di blocco della zona in trasloco** — si passa se si è residenti o
-   personale.
+5. **Posto di blocco della zona in trasloco** ✅ esiste — è la sbarra dentro la
+   via, non una stanza sua: si passa se si è residenti o personale.
 6. **Atrio dell'ufficio** ✅ esiste
 7. **Corridoio dei tubi** ✅ esiste
 8. **Postazione di Cesare** ✅ esiste
@@ -511,6 +511,17 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
   parlare prima.
 - **Il portone della via porta dentro**, ed è un `DoorHotspot` vero: via ↔
   appartamento nei due sensi. Era l'impalcatura dichiarata del giro precedente.
+- **Il cancello B, completo e giocabile.** Il sorvegliante alla sbarra vuole una
+  prova di residenza e rifiuta il documento d'identità — «quello dice chi è, a me
+  serve dove». La prova è la stessa etichetta di consegna del cancello A, e
+  l'opzione compare solo con `has:documents`: conta avere la scatola addosso.
+  La sbarra è un `DoorHotspot` con `locked_if`, quindi resta visibile e rifiuta
+  a voce finché non si è passati.
+- **L'ufficio è di nuovo raggiungibile.** Da quando Lino parte dalla via, atrio,
+  corridoio e postazione non erano nominati da nessuno: la sbarra ora porta
+  all'atrio, e l'atrio ha guadagnato la porta d'ingresso che gli mancava — senza,
+  entrarci sarebbe stato un soft lock. Quattro stanze su cinque sono raggiungibili
+  camminando; la quinta è la postazione di Cesare, chiusa per costruzione.
 - **Il primo PNG del gioco**, l'addetto al carico: uno sprite fermo alto quaranta
   unità, un hotspot con `dialogue` e nessun codice nuovo.
 - **Il roster che cresce**: `PlayerCharacter.available_if`. Cesare è in scena ma
@@ -525,19 +536,26 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
 - La porta dell'appartamento **scende in strada**, non sul pianerottolo, perché
   il pianerottolo non esiste. Quando nasce la stanza 3, la porta di casa punta
   lì e le scale diventano un passaggio vero. È una riga in due scene.
-- La scatola dei documenti, una volta presa, **non serve ancora a niente**: il
-  suo scopo è il cancello B, cioè il dialogo con chi sorveglia la sbarra, che è
-  il passo successivo. Oggi il premio dell'enigma è averla in mano.
+- **L'ufficio parla ancora del prototipo**: atrio, corridoio e postazione
+  raccontano il collaudo della posta pneumatica, non la certificazione
+  dell'occupazione che la storia richiede. Le scene reggono, i testi no, ed è il
+  primo passo dell'elenco qui sotto.
+- **La sbarra porta dritta all'atrio**, saltando il resto della città. Stessa
+  compressione onesta del portone che porta dritto in casa: quando esisteranno
+  altre stanze in mezzo, è una riga da cambiare.
 
 **Da fare, nell'ordine che conviene**
-1. **Cancello B**: il dialogo con chi sorveglia la sbarra nella via, che chiede
-   la prova di residenza e la trova nella scatola. Non serve una stanza nuova —
-   il posto di blocco è già dentro la via.
-2. Stanza 3, **Pianerottolo**, e la prima comparsa di Duilio; la porta di casa
-   viene ripuntata lì.
-3. Stanza 4, **Cantina**.
-4. **Ufficio**: ritestare atrio, corridoio e postazione da collaudo a
-   certificazione dell'occupazione, e alzare `met_cesare`.
+1. **Ufficio**: riscrivere atrio, corridoio e postazione da collaudo della posta
+   pneumatica a certificazione dell'occupazione, e alzare `met_cesare` — che è
+   ciò che rende Cesare giocabile e la postazione raggiungibile. È il passo che
+   sblocca più superficie con meno lavoro nuovo, perché le tre stanze e la catena
+   cooperativa esistono già e verificate: cambiano i testi, non le scene.
+2. Il **cancello C**, cioè la catena del prototipo allungata: il numero di
+   protocollo dedotto dal registro, e lo spurgo in cui uno guarda e l'altro
+   agisce da due stanze diverse.
+3. Stanza 3, **Pianerottolo**, e la prima comparsa di Duilio; la porta di casa
+   viene ripuntata lì invece che sulla strada.
+4. Stanza 4, **Cantina**; stanze 9 e 10, **archivio** e **cortile**.
 5. Cancello D, la sera, il bar, lo sgombero.
 
 ## Cosa non è ancora deciso

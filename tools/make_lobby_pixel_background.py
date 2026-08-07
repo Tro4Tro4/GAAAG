@@ -39,6 +39,12 @@ W, H = 320, 180
 FLOOR_Y = 108
 SKIRT_H = 6
 DOOR_X, DOOR_W, DOOR_TOP, DOOR_BOT = 260, 26, FLOOR_Y - 44, FLOOR_Y
+# The way in from the street, on the far side of the room from the corridor
+# door. It exists because chapter one now arrives here from the checkpoint, and
+# a public office with one door -- that one leading further in -- would be a
+# room the player can enter and never leave. Wider than the corridor door and
+# taller, because it is a front entrance and not an internal one.
+ENTRY_X, ENTRY_W, ENTRY_TOP = 30, 30, FLOOR_Y - 48
 # The threshold is FLOOR_Y and not a number of its own, and it is the measure
 # that decides whether this reads as a door at all. Drawn ten pixels lower --
 # which it was -- the frame closes below the skirting and paints over the near
@@ -275,6 +281,45 @@ def main():
         for x in range(x1 + 4, min(W, x1 + 9)):
             if BAYER[y % 8, x % 8] < 0.5 - (x - x1 - 4) * 0.1:
                 img[y, x] = WALL[1]
+
+    # --------------------------------------------------------- the entrance --
+    # Same construction as the corridor door and the same rule: reveal and frame
+    # only, the leaf is a sprite. The threshold is FLOOR_Y here too, which is the
+    # measure that has been got wrong twice in this project and is now checked
+    # every time rather than eyeballed.
+    e0, e1 = ENTRY_X - ENTRY_W // 2, ENTRY_X + ENTRY_W // 2
+    img[ENTRY_TOP - 4:FLOOR_Y, e0 - 4:e1 + 4] = INK
+    img[ENTRY_TOP - 3:FLOOR_Y - 1, e0 - 3:e1 + 3] = DOOR[1]
+    img[ENTRY_TOP - 3:FLOOR_Y - 1, e1 + 1:e1 + 3] = DOOR[3]
+    img[ENTRY_TOP - 3, e0 - 3:e1 + 3] = DOOR[4]
+    img[ENTRY_TOP - 3:FLOOR_Y - 1, e0 - 3:e0 - 1] = DOOR[0]
+    img[ENTRY_TOP:FLOOR_Y, e0:e1] = INK
+    img[ENTRY_TOP:FLOOR_Y, e1 - 1:e1] = DOOR[0]
+    img[ENTRY_TOP:ENTRY_TOP + 1, e0:e1] = DOOR[0]
+
+    # Daylight coming in and lying on the floor in front of it. Painted, not a
+    # StateVisual, because this door has no states: it is held open while the
+    # office is open, and the light is a consequence rather than the thing that
+    # changes. A wedge with a defined edge, in two steps.
+    for y in range(FLOOR_Y, min(H, FLOOR_Y + 34)):
+        t_down = (y - FLOOR_Y) / 34.0
+        half = (ENTRY_W // 2) + int(t_down * 16)
+        for x in range(max(0, ENTRY_X - half), min(W, ENTRY_X + half)):
+            edge = min(x - (ENTRY_X - half), (ENTRY_X + half) - 1 - x)
+            if edge > 4:
+                img[y, x] = FLOOR[4]
+            elif BAYER[y % 8, x % 8] < edge / 5.0:
+                img[y, x] = FLOOR[3]
+
+    # And the sign over it, blank: no generator writes legible words at this
+    # size, and what this office is called is said by the hotspot's text.
+    img[ENTRY_TOP - 14:ENTRY_TOP - 5, e0 - 2:e1 + 2] = INK
+    img[ENTRY_TOP - 13:ENTRY_TOP - 6, e0 - 1:e1 + 1] = DOOR[2]
+    img[ENTRY_TOP - 13, e0 - 1:e1 + 1] = DOOR[3]
+    for i in range(2):
+        img[ENTRY_TOP - 11 + i * 3, e0 + 2:e1 - 2] = DOOR[0]
+
+    assert not (img[FLOOR_Y, ENTRY_X] == INK).all(), "soglia sotto la linea del pavimento"
 
     Image.fromarray(img).save(ASSET)
     print(f"{ASSET}  {W}x{H}  ({len(np.unique(img.reshape(-1, 3), axis=0))} colori)")

@@ -1,0 +1,59 @@
+# The warden on the barrier. Gate B of chapter one.
+#
+# The rule here is the mirror of the clerk's, and the pair is the point: the
+# clerk would not release a thing because it was on a list, and this one will not
+# release a person because he is not on one. In both cases what wins is a
+# document about an *object* — the same delivery label, used twice for two
+# different purposes. That is the chapter's thesis in two rooms: paperwork about
+# things outranks paperwork about people.
+#
+# Requires has:documents rather than a flag, so it is genuinely gated on Lino
+# having the box with him and not merely on having solved gate A. Carrying it is
+# the point; he cannot leave it behind.
+
+uid    baggadlgward01
+colour 0.86 0.78 0.52
+
+line start
+    says DLG_WARDEN_START
+
+    option DLG_WARDEN_OPT_WHY
+        if    !asked_why
+        raise asked_why
+        reply DLG_WARDEN_REPLY_WHY
+
+    option DLG_WARDEN_OPT_RESIDENT
+        if    !asked_resident
+        raise asked_resident
+        reply DLG_WARDEN_REPLY_RESIDENT
+
+    # The wrong answer, and it stays available: it is where the distinction the
+    # puzzle turns on gets stated, and the player may need it twice.
+    option DLG_WARDEN_OPT_ID
+        if    asked_resident !passed_checkpoint
+        reply DLG_WARDEN_REPLY_ID
+
+    option DLG_WARDEN_OPT_SHOW
+        if   has:documents !passed_checkpoint
+        goto show
+
+    option DLG_WARDEN_OPT_AGAIN
+        if    passed_checkpoint
+        reply DLG_WARDEN_REPLY_AGAIN
+
+    option DLG_WARDEN_OPT_BYE
+        reply DLG_WARDEN_REPLY_BYE
+        end
+
+# He objects that it is three years old, which is true and which the rule does
+# not mention. The player says so, and that is the whole of gate B.
+line show
+    says DLG_WARDEN_SHOW
+
+    option DLG_WARDEN_OPT_SHOW_YES
+        raise passed_checkpoint
+        reply DLG_WARDEN_REPLY_SHOW_YES
+        end
+
+    option DLG_WARDEN_OPT_SHOW_NO
+        goto start

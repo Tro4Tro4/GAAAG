@@ -2577,6 +2577,65 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Ne segue una verifica da rifare a ogni stanza: **se nessun oggetto ha il nodo
     dentro la navmesh, la stanza è un fondale con dei bottoni sopra.**
 
+- **`DoorHotspot.locked_if`: un passaggio che non ti è ancora concesso resta
+  visibile e rifiuta a voce.** È il gemello esatto di `PickupHotspot.takeable_if`
+  registrato sopra, e nasce dallo stesso bisogno una stanza dopo: il posto di
+  blocco del capitolo 1 deve continuare a offrire Vai e a dire perché no.
+  Non è `state_id`, e la distinzione vale la pena: `state_id` è una porta aperta
+  o chiusa — il giocatore la vede e la cambia con le mani; `locked_if` è se gli
+  è permesso passare, che non si vede e non si cambia senza aver fatto altro.
+  **Un posto di blocco non è una porta chiusa.**
+  - Scartata l'alternativa a due hotspot sovrapposti — uno che rifiuta con
+    `present_if = ["!passato"]`, uno che è la porta — perché i verbi offerti
+    cambierebbero con lo stato, e *quali* verbi ci sono è una proprietà statica
+    dell'oggetto. Con `locked_if` cambia solo il testo, che è la linea giusta.
+  - **Passando da un varco chiuso non si apre niente**: `interact()` esce prima
+    di `set_switch()`. Un tornello che resta aperto dopo averti respinto sarebbe
+    una cosa strana da lasciarsi alle spalle.
+
+- **L'ufficio era diventato irraggiungibile, e il cancello B è ciò che lo
+  riattacca.** Da quando Lino parte dalla via, `Lobby`, `Tubes` e `Station` non
+  erano nominate da nessuno: tre stanze verificate sul dispositivo, vive nel
+  repository e morte nel gioco. Non era un difetto dichiarato, era un difetto e
+  basta, e si vede solo percorrendo il grafo delle porte a partire dalla stanza
+  iniziale del personaggio.
+  - Ne segue un controllo da rifare a ogni stanza aggiunta, e costa venti righe:
+    **da dove parte il giocatore, quali stanze si raggiungono seguendo i
+    `target_room`?** Oggi quattro su cinque; la quinta è la postazione di Cesare,
+    che è irraggiungibile *per costruzione* — i due sono separati
+    dall'autorizzazione, non da una porta — e si apre con `met_cesare`.
+  - **La sbarra porta all'atrio**, che è una compressione geografica onesta come
+    il portone che porta dritto in casa: il pianerottolo e il resto della città
+    arriveranno, e allora la sbarra punterà altrove. Una riga in una scena.
+  - **L'atrio ha guadagnato una seconda porta, e non era facoltativa**: entrarci
+    senza poterne uscire è un soft lock, perché l'unico altro personaggio non è
+    ancora disponibile. Una stanza che si può solo entrare va trattata come un
+    bug di pari gravità con una navmesh sbagliata.
+
+- **Quando `qa_check` boccia un colore, di solito ha ragione lui.** La pettorina
+  del sorvegliante era un giallo alta visibilità, e il controllo l'ha misurata a
+  0,17 contro la via, appena fuori dalla soglia di 0,16. Il riflesso è pensare
+  che una pettorina *debba* essere estranea — è il suo mestiere — ma la via non
+  ha giallo da nessuna parte, e la decisione su dove può nascere una nota calda
+  in questo gioco era già presa: **viene dai capelli di Lino e da nessun altro
+  posto**. Ripresa quella, la pettorina misura 0,15 e nessuno leggerà mai una
+  frangia e un giubbotto come lo stesso colore.
+  - È il terzo caso registrato di controllo contro asset, e il primo in cui ha
+    vinto lo strumento. Vale come regola: **si guarda prima se la tavolozza
+    della stanza contiene davvero la famiglia che si sta usando**, e solo dopo
+    si discute la soglia.
+
+- **Lo stesso documento risolve due enigmi di fila, ed è deliberato.**
+  L'etichetta di consegna salva la scatola dal carico (cancello A) e poi prova
+  la residenza al posto di blocco (cancello B). È il modo più economico di
+  insegnare la tesi del capitolo — *le carte che parlano di oggetti battono
+  quelle che parlano di persone* — e il cancello B lo dice in chiaro: il
+  sorvegliante rifiuta un documento d'identità perché «quello dice chi è», e
+  accetta una bolla di consegna di tre anni prima perché dice **dove**.
+  - Ne segue che il cancello B è condizionato a `has:documents` e non a un flag:
+    conta avere la scatola addosso, non aver risolto il cancello A. Lino non
+    può posarla, ed è giusto che il gioco glielo faccia sentire.
+
 ## Decisioni ancora aperte
 - **La scala per profondità contro la pixel art**, ed è il conflitto che lo stile
   ibrido aveva aperto e che è sopravvissuto alla sua revoca. La prospettiva delle stanze scala la figura del personaggio

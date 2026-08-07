@@ -39,6 +39,34 @@ const CLOSING: String = "GENERIC_DOOR_CLOSE"
 @export_multiline var opening_text: String = ""
 @export_multiline var closing_text: String = ""
 
+@export_group("Not yet")
+
+## What has to be true before this door lets anybody through. Empty — the
+## ordinary case — means it always does.
+##
+## The twin of [member PickupHotspot.takeable_if], and for the same reason: a
+## way through that is not open to you *yet* stays in the room, goes on offering
+## Vai, and refuses out loud. Making it disappear, or dropping the verb, would
+## tell the player the answer — the rule this project keeps coming back to.
+##
+## Deliberately not [member state_id]. That is a door standing open or shut,
+## which the player can see and can change by hand; this is whether they are
+## allowed through at all, which they cannot see and cannot change without
+## having done something else first. A checkpoint is not a door that is shut.
+@export var locked_if: PackedStringArray = PackedStringArray()
+
+## What Vai says while [member locked_if] does not hold. This is where the
+## reason goes, and there should always be one: a refusal with no reason reads
+## as a bug in a genre where most things refuse most of the time.
+@export_multiline var locked_text: String = ""
+
+
+## True when whoever is asking may go through. Worked out at the moment of
+## asking, not when the room was built: what is in a pocket, or who is asking,
+## changes without the room being rebuilt.
+func is_passable() -> bool:
+	return Conditions.all_hold(locked_if, GameState.active_character)
+
 
 ## True when the door stands open. A door with no state is never in the way.
 func is_open() -> bool:
@@ -63,6 +91,12 @@ func get_text_for(verb: int) -> String:
 	if verb == Verb.CLOSE:
 		return closing_text if not closing_text.is_empty() else CLOSING
 
+	# Checked before falling through, so the refusal takes the place of the line
+	# about going somewhere — which would otherwise be said by somebody who is
+	# not going anywhere.
+	if verb == Verb.GO and not is_passable() and not locked_text.is_empty():
+		return locked_text
+
 	return super(verb)
 
 
@@ -79,6 +113,13 @@ func interact(verb: int, character: PlayerCharacter) -> void:
 		return
 
 	if character == null:
+		return
+
+	# The refusal has already been said by then — the room asks for the line
+	# before calling this — so there is nothing to say here, only somewhere not
+	# to go. Note that the door is not opened either: a checkpoint that swings
+	# open as you are turned away would be a strange thing to leave behind.
+	if not is_passable():
 		return
 
 	if target_room.is_empty():

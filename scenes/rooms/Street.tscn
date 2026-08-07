@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://baggastreet01"]
+[gd_scene load_steps=28 format=3 uid="uid://baggastreet01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_bins.png" id="8_bins"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_van.png" id="9_van"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_barrier.png" id="10_barrier"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_warden.png" id="16_warden"]
+[ext_resource type="Resource" uid="uid://baggadlgward01" path="res://resources/dialogues/warden.tres" id="17_warden_dlg"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="11_step1"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="12_step2"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="13_step3"]
@@ -36,6 +38,9 @@ size = Vector2(158, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_barrier"]
 size = Vector2(76, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_warden"]
+size = Vector2(24, 41)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_alley"]
 size = Vector2(24, 50)
@@ -212,13 +217,17 @@ position = Vector2(-14, 48)
 
 [node name="BarrierHotspot" type="Area2D" parent="."]
 position = Vector2(600, 122)
-script = ExtResource("2_hotspot")
+script = ExtResource("15_door")
 display_name = "STREET_BARRIER"
 act_verb = 3
 reach_verb = 7
 look_text = "STREET_BARRIER_LOOK"
 act_text = "STREET_BARRIER_ACT"
 reach_text = "STREET_BARRIER_REACH"
+target_room = "res://scenes/rooms/Lobby.tscn"
+target_entry = &"FromStreet"
+locked_if = PackedStringArray("passed_checkpoint")
+locked_text = "STREET_BARRIER_LOCKED"
 
 [node name="Picture" type="Sprite2D" parent="BarrierHotspot"]
 position = Vector2(-38, -36)
@@ -231,3 +240,23 @@ shape = SubResource("RectangleShape2D_barrier")
 
 [node name="ApproachPoint" type="Marker2D" parent="BarrierHotspot"]
 position = Vector2(-62, 42)
+
+[node name="WardenHotspot" type="Area2D" parent="."]
+position = Vector2(548, 138)
+script = ExtResource("2_hotspot")
+display_name = "STREET_WARDEN"
+reach_verb = 6
+look_text = "STREET_WARDEN_LOOK"
+dialogue = ExtResource("17_warden_dlg")
+
+[node name="Picture" type="Sprite2D" parent="WardenHotspot"]
+position = Vector2(-12, -41)
+centered = false
+texture = ExtResource("16_warden")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WardenHotspot"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_warden")
+
+[node name="ApproachPoint" type="Marker2D" parent="WardenHotspot"]
+position = Vector2(-26, 6)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=28 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_chairs.png" id="13_chairs"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_shut.png" id="14_shut"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_open.png" id="15_open"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_entrance.png" id="35_entrance"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="31_step1"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="32_step2"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="33_step3"]
@@ -28,6 +29,9 @@ agent_radius = 4.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(26, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_entrance"]
+size = Vector2(30, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
 size = Vector2(32, 24)
@@ -81,6 +85,9 @@ position = Vector2(117, 158)
 
 [node name="FromTubes" type="Marker2D" parent="EntryPoints"]
 position = Vector2(250, 145)
+
+[node name="FromStreet" type="Marker2D" parent="EntryPoints"]
+position = Vector2(52, 128)
 
 [node name="NoticeHotspot" type="Area2D" parent="."]
 position = Vector2(66, 78)
@@ -169,3 +176,26 @@ shape = SubResource("RectangleShape2D_door")
 
 [node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
 position = Vector2(0, 38)
+
+[node name="EntranceHotspot" type="Area2D" parent="."]
+position = Vector2(30, 108)
+script = ExtResource("3_door")
+display_name = "PROTO_LOBBY_ENTRANCE"
+reach_verb = 7
+default_verb = 7
+look_text = "PROTO_LOBBY_ENTRANCE_LOOK"
+reach_text = "PROTO_LOBBY_ENTRANCE_REACH"
+target_room = "res://scenes/rooms/Street.tscn"
+target_entry = &"AtBarrier"
+
+[node name="Picture" type="Sprite2D" parent="EntranceHotspot"]
+position = Vector2(-15, -44)
+centered = false
+texture = ExtResource("35_entrance")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntranceHotspot"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_entrance")
+
+[node name="ApproachPoint" type="Marker2D" parent="EntranceHotspot"]
+position = Vector2(0, 15)
