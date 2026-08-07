@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://baggatubes0001"]
+[gd_scene load_steps=36 format=3 uid="uid://baggatubes0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -8,7 +8,8 @@
 [ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="6_variant"]
 [ext_resource type="Script" path="res://scripts/rooms/state_visual.gd" id="12_state"]
 [ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="7_plate"]
-[ext_resource type="Resource" uid="uid://baggaitemrenw1" path="res://resources/items/renewal.tres" id="8_renewal"]
+[ext_resource type="Resource" uid="uid://baggaitemcert1" path="res://resources/items/certificate.tres" id="8_certificate"]
+[ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="20_form_filled"]
 [ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="9_hum"]
 [ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="10_thud"]
 [ext_resource type="AudioStream" path="res://assets/audio/ui_click.wav" id="11_click"]
@@ -57,12 +58,12 @@ size = Vector2(128, 48)
 [sub_resource type="Resource" id="Resource_tubes_door_open"]
 script = ExtResource("6_variant")
 conditions = PackedStringArray("on:lobby_door")
-look_text = "PROTO_TUBES_DOOR_LOOK_OPEN"
+look_text = "TUBES_DOOR_LOOK_OPEN"
 
 [sub_resource type="Resource" id="Resource_porthole_clear"]
 script = ExtResource("6_variant")
 conditions = PackedStringArray("line_reversed")
-look_text = "PROTO_TUBES_PORTHOLE_LOOK_CLEAR"
+look_text = "TUBES_PORTHOLE_LOOK_CLEAR"
 
 [node name="Tubes" type="Node2D"]
 y_sort_enabled = true
@@ -94,10 +95,10 @@ position = Vector2(83, 128)
 [node name="PipeHotspot" type="Area2D" parent="."]
 position = Vector2(320, 50)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_TUBES_PIPE"
+display_name = "TUBES_PIPE"
 act_verb = 3
-look_text = "PROTO_TUBES_PIPE_LOOK"
-act_text = "PROTO_TUBES_PIPE_ACT"
+look_text = "TUBES_PIPE_LOOK"
+act_text = "TUBES_PIPE_ACT"
 
 [node name="Left" type="CollisionShape2D" parent="PipeHotspot"]
 position = Vector2(-171, 0)
@@ -117,12 +118,12 @@ position = Vector2(0, 68)
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(50, 90)
 script = ExtResource("3_door")
-display_name = "PROTO_TUBES_DOOR"
+display_name = "TUBES_DOOR"
 sound = ExtResource("10_thud")
 reach_verb = 7
 default_verb = 7
-look_text = "PROTO_TUBES_DOOR_LOOK"
-reach_text = "PROTO_TUBES_DOOR_REACH"
+look_text = "TUBES_DOOR_LOOK"
+reach_text = "TUBES_DOOR_REACH"
 target_room = "res://scenes/rooms/Lobby.tscn"
 target_entry = &"FromTubes"
 state_id = &"lobby_door"
@@ -151,10 +152,10 @@ position = Vector2(0, 38)
 [node name="PortholeHotspot" type="Area2D" parent="."]
 position = Vector2(250, 63)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_TUBES_PORTHOLE"
+display_name = "TUBES_PORTHOLE"
 act_verb = 4
-look_text = "PROTO_TUBES_PORTHOLE_LOOK"
-act_text = "PROTO_TUBES_PORTHOLE_ACT"
+look_text = "TUBES_PORTHOLE_LOOK"
+act_text = "TUBES_PORTHOLE_ACT"
 variants = Array[ExtResource("6_variant")]([SubResource("Resource_porthole_clear")])
 
 [node name="Picture" type="Sprite2D" parent="PortholeHotspot"]
@@ -169,11 +170,11 @@ position = Vector2(0, 55)
 [node name="PlateHotspot" type="Area2D" parent="."]
 position = Vector2(250, 83)
 script = ExtResource("4_pickup")
-display_name = "PROTO_TUBES_PLATE"
+display_name = "TUBES_PLATE"
 sound = ExtResource("11_click")
 hand_verb = 2
-look_text = "PROTO_TUBES_PLATE_LOOK"
-hand_text = "PROTO_TUBES_PLATE_HAND"
+look_text = "TUBES_PLATE_LOOK"
+hand_text = "TUBES_PLATE_HAND"
 item = ExtResource("7_plate")
 
 [node name="Picture" type="Sprite2D" parent="PlateHotspot"]
@@ -188,14 +189,16 @@ position = Vector2(0, 35)
 [node name="PublicPointHotspot" type="Area2D" parent="."]
 position = Vector2(467, 88)
 script = ExtResource("5_passage")
-display_name = "PROTO_TUBES_POINT"
+display_name = "TUBES_POINT"
 sound = ExtResource("11_click")
 hand_verb = 2
-look_text = "PROTO_TUBES_POINT_LOOK"
-hand_text = "PROTO_TUBES_POINT_HAND"
+look_text = "TUBES_POINT_LOOK"
+hand_text = "TUBES_POINT_HAND"
 cache_id = &"tube"
-posted_text = "PROTO_TUBES_POINT_POSTED"
-waiting_text = "PROTO_TUBES_POINT_WAITING"
+fits_only = ExtResource("20_form_filled")
+accepted_flag = &"complaint_posted"
+posted_text = "TUBES_POINT_POSTED"
+waiting_text = "TUBES_POINT_WAITING"
 
 [node name="Picture" type="Sprite2D" parent="PublicPointHotspot"]
 texture = ExtResource("17_point")
@@ -209,13 +212,13 @@ position = Vector2(-20, 30)
 [node name="CapsuleHotspot" type="Area2D" parent="."]
 position = Vector2(467, 162)
 script = ExtResource("4_pickup")
-display_name = "PROTO_TUBES_CAPSULE"
+display_name = "TUBES_CAPSULE"
 sound = ExtResource("10_thud")
 hand_verb = 2
-look_text = "PROTO_TUBES_CAPSULE_LOOK"
-hand_text = "PROTO_TUBES_CAPSULE_HAND"
+look_text = "TUBES_CAPSULE_LOOK"
+hand_text = "TUBES_CAPSULE_HAND"
 present_if = PackedStringArray("line_reversed")
-item = ExtResource("8_renewal")
+item = ExtResource("8_certificate")
 
 [node name="Picture" type="Sprite2D" parent="CapsuleHotspot"]
 position = Vector2(0, -6)

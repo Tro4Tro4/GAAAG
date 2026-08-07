@@ -42,7 +42,7 @@ size = Vector2(24, 32)
 [sub_resource type="Resource" id="Resource_lever_done"]
 script = ExtResource("4_variant")
 conditions = PackedStringArray("line_reversed")
-act_text = "PROTO_STATION_LEVER_ACT_DONE"
+act_text = "STATION_LEVER_ACT_DONE"
 
 [node name="Station" type="Node2D"]
 y_sort_enabled = true
@@ -70,14 +70,14 @@ position = Vector2(167, 150)
 [node name="ServicePointHotspot" type="Area2D" parent="."]
 position = Vector2(50, 68)
 script = ExtResource("3_passage")
-display_name = "PROTO_STATION_POINT"
+display_name = "STATION_POINT"
 sound = ExtResource("9_click")
 hand_verb = 2
-look_text = "PROTO_STATION_POINT_LOOK"
-hand_text = "PROTO_STATION_POINT_HAND"
+look_text = "STATION_POINT_LOOK"
+hand_text = "STATION_POINT_HAND"
 cache_id = &"tube"
-posted_text = "PROTO_STATION_POINT_POSTED"
-waiting_text = "PROTO_STATION_POINT_WAITING"
+posted_text = "STATION_POINT_POSTED"
+waiting_text = "STATION_POINT_WAITING"
 
 [node name="Picture" type="Sprite2D" parent="ServicePointHotspot"]
 texture = ExtResource("23_point")
@@ -91,10 +91,10 @@ position = Vector2(0, 38)
 [node name="ConsoleHotspot" type="Area2D" parent="."]
 position = Vector2(117, 60)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_STATION_CONSOLE"
+display_name = "STATION_CONSOLE"
 reach_verb = 6
 default_verb = 6
-look_text = "PROTO_STATION_CONSOLE_LOOK"
+look_text = "STATION_CONSOLE_LOOK"
 dialogue = ExtResource("6_console")
 
 [node name="Picture" type="Sprite2D" parent="ConsoleHotspot"]
@@ -109,10 +109,10 @@ position = Vector2(0, 50)
 [node name="LeverHotspot" type="Area2D" parent="."]
 position = Vector2(183, 60)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_STATION_LEVER"
+display_name = "STATION_LEVER"
 act_verb = 3
-look_text = "PROTO_STATION_LEVER_LOOK"
-act_text = "PROTO_STATION_LEVER_ACT"
+look_text = "STATION_LEVER_LOOK"
+act_text = "STATION_LEVER_ACT"
 variants = Array[ExtResource("4_variant")]([SubResource("Resource_lever_done")])
 sequence = ExtResource("7_lever_scene")
 sequence_verb = 3
@@ -144,13 +144,13 @@ position = Vector2(0, 46)
 [node name="LogHotspot" type="Area2D" parent="."]
 position = Vector2(252, 86)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_STATION_LOG"
+display_name = "STATION_LOG"
 sound = ExtResource("9_click")
 act_verb = 3
-look_text = "PROTO_STATION_LOG_LOOK"
-act_text = "PROTO_STATION_LOG_ACT"
+look_text = "STATION_LOG_LOOK"
+act_text = "STATION_LOG_ACT"
 accepted_item = ExtResource("5_form_filled")
-accepted_text = "PROTO_STATION_LOG_ACCEPTED"
+accepted_text = "STATION_LOG_ACCEPTED"
 consumes_accepted_item = true
 accepted_flag = &"complaint_logged"
 

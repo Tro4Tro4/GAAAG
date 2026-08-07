@@ -2603,7 +2603,7 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     **da dove parte il giocatore, quali stanze si raggiungono seguendo i
     `target_room`?** Oggi quattro su cinque; la quinta è la postazione di Cesare,
     che è irraggiungibile *per costruzione* — i due sono separati
-    dall'autorizzazione, non da una porta — e si apre con `met_cesare`.
+    dall'autorizzazione, non da una porta — e si apre con `complaint_posted`.
   - **La sbarra porta all'atrio**, che è una compressione geografica onesta come
     il portone che porta dritto in casa: il pianerottolo e il resto della città
     arriveranno, e allora la sbarra punterà altrove. Una riga in una scena.
@@ -2635,6 +2635,69 @@ assets/              sprites/ backgrounds/ audio/ fonts/
   - Ne segue che il cancello B è condizionato a `has:documents` e non a un flag:
     conta avere la scatola addosso, non aver risolto il cancello A. Lino non
     può posarla, ed è giusto che il gioco glielo faccia sentire.
+
+- **L'ufficio smette di collaudare e comincia a certificare, e Lino smette di
+  essere un ispettore.** Le tre stanze del prototipo — atrio, corridoio,
+  postazione — diventano l'Ufficio Certificazioni di Occupazione del capitolo 1.
+  **Non è cambiata una scena**: sono cambiati i testi, i nomi delle chiavi e un
+  campo. La catena verificata sul dispositivo è la stessa, passo per passo.
+  La parte che vale la pena registrare è che i due vincoli sono usciti **più
+  puliti** dalla riscrittura, non più deboli. Prima erano: l'ispettrice può
+  andare ovunque ma non toccare l'impianto sotto collaudo; il manovratore può
+  azionare ma non è pubblico. Il primo aveva bisogno di un tesserino e di un
+  collaudo per esistere. Adesso sono: **il pubblico non tocca, il personale non
+  conta come pubblico** — e il primo non ha bisogno di niente, perché *essere
+  pubblico è già la ragione per cui non si tocca*, ed è la stessa ragione per
+  cui il suo reclamo vale. Un vincolo che nasce dalla stessa proprietà che dà
+  il potere è meglio di due regole separate.
+  - Ne segue la trovata che tiene insieme la stanza: il corridoio dei tubi
+    diventa una **galleria d'ispezione pubblica**. Spiega da sola tutto quello
+    che c'era già dentro e che prima aveva bisogno del tesserino — perché un
+    cittadino può entrarci, perché c'è un oblò da cui guardare, perché c'è un
+    punto d'imbucata pubblico, e perché sul muro c'è scritto di non toccare.
+    Non ho aggiunto niente: ho trovato il cartello che rendeva vero l'esistente.
+  - **`met_cesare` diventa `complaint_posted`, e lo alza l'imbucata.** Il flag
+    non dice più "hai conosciuto qualcuno" — Lino non incontra mai Cesare, ed è
+    il punto — ma "c'è un reclamo dall'altra parte". Cesare entra nella storia
+    nel momento in cui qualcosa lo aspetta, che è la cosa giusta da far
+    coincidere con l'apparire di un secondo personaggio nella barra.
+  - E **costa zero codice**: `PassageHotspot` alza già `accepted_flag` quando
+    qualcosa viene imbucato. Il campo c'era, ereditato dalla classe base, e
+    significava esattamente questo. Scartato `available_if = ["in:tube"]`, che
+    sarebbe stato ancora più corto ma **si sarebbe girato al contrario**: il
+    ritiro svuota la cache, quindi Cesare sarebbe diventato non disponibile
+    mentre il giocatore lo sta controllando.
+  - **Nella capsula c'è il certificato di occupazione**, non più il rinnovo
+    dell'accreditamento della ditta. È la stessa scena e lo stesso oggetto, ma
+    adesso è la causa del gioco invece che una beffa locale: l'ufficio che
+    certifica che qui abita qualcuno non spedisce da tre anni perché una capsula
+    si è messa di traverso. In fondo al foglio c'è l'elenco degli indirizzi
+    certificati e **l'ultimo è quello di Lino**, che rima con l'ultima riga
+    dell'ordine di ritiro dell'introduzione. La scala planetaria non viene detta:
+    quella arriva a fine capitolo, come da `docs/storia.md`.
+  - **Il prefisso `PROTO_` è ritirato** e le chiavi diventano `LOBBY_`, `TUBES_`,
+    `STATION_`. Un prefisso che dice "prototipo" su stanze che sono capitolo 1
+    canonico è una bugia piccola che non scade mai da sola.
+  - **L'oggetto `renewal` diventa `certificate`**, e con esso il file, l'icona e
+    la voce di catalogo. È l'unico caso in cui ho rotto la regola *"un id non si
+    cambia una volta in uso"*, consapevolmente: quella regola esiste per i
+    salvataggi, i salvataggi in sviluppo sono usa e getta, e la versione passa a
+    **4** proprio per rifiutare quelli vecchi invece di lasciarli caricare un id
+    che non esiste più. Un id che nomina una cosa diversa da quella che è,
+    invece, non scade mai.
+  - **Il punto d'imbucata pubblico guadagna `fits_only`**, ed è un difetto
+    trovato rileggendo e non giocando: senza, il tubo si mangia **la scatola dei
+    documenti**. Lino la porta addosso dal capitolo 1 e non può posarla; un
+    passaggio senza `fits_only` accetta qualunque cosa, la toglie
+    dall'inventario e la deposita dall'altra parte, dove la ritira Cesare e non
+    torna più indietro. È l'unico oggetto del gioco che il giocatore è stato
+    esplicitamente invitato a custodire, ed era l'unico che il tubo poteva
+    ingoiare.
+  - Nota su cosa **non** è stato riscritto: il dialogo della console. «CON UN
+    MOTIVO PROTOCOLLATO. UN MOTIVO VALIDO È UN RECLAMO DEL PUBBLICO. LEI NON È
+    PUBBLICO: LEI È QUI» funziona parola per parola nella cornice nuova, e il
+    fatto che regga senza una modifica è la misura di quanto la cornice vecchia
+    e la nuova condividano davvero la stessa ossatura.
 
 ## Decisioni ancora aperte
 - **La scala per profondità contro la pixel art**, ed è il conflitto che lo stile

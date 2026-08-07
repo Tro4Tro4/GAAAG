@@ -517,6 +517,21 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
   l'opzione compare solo con `has:documents`: conta avere la scatola addosso.
   La sbarra è un `DoorHotspot` con `locked_if`, quindi resta visibile e rifiuta
   a voce finché non si è passati.
+- **L'ufficio è del capitolo 1, non più del prototipo.** Atrio, corridoio e
+  postazione certificano l'occupazione invece di collaudare la posta pneumatica,
+  e Lino ci entra come pubblico e non come ispettore — il corridoio è una
+  galleria d'ispezione pubblica, che è ciò che gli dà il diritto di stare lì e
+  insieme il divieto di toccare. Non è cambiata una scena: testi, chiavi e un
+  campo. Le chiavi `PROTO_*` sono diventate `LOBBY_*`, `TUBES_*`, `STATION_*`.
+- **Cesare è giocabile**, e lo diventa nel momento in cui Lino imbuca il reclamo
+  dal punto pubblico: `complaint_posted` — che era `met_cesare` — lo alza il
+  passaggio stesso. I due non si incontrano mai, ed è il punto.
+- **La catena cooperativa del prototipo è ora canonica**, dall'inizio alla fine:
+  modulo dal portamoduli, targhetta dall'oblò, combinazione, imbucata dal punto
+  pubblico, cambio personaggio, ritiro dalla bocchetta di servizio,
+  protocollazione nel registro, leva d'inversione, capsula che esce dalla parte
+  di Lino. Dentro c'è il **certificato di occupazione** spedito tre anni fa e mai
+  consegnato, e in fondo l'elenco degli indirizzi certificati: l'ultimo è il suo.
 - **L'ufficio è di nuovo raggiungibile.** Da quando Lino parte dalla via, atrio,
   corridoio e postazione non erano nominati da nessuno: la sbarra ora porta
   all'atrio, e l'atrio ha guadagnato la porta d'ingresso che gli mancava — senza,
@@ -525,7 +540,7 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
 - **Il primo PNG del gioco**, l'addetto al carico: uno sprite fermo alto quaranta
   unità, un hotspot con `dialogue` e nessun codice nuovo.
 - **Il roster che cresce**: `PlayerCharacter.available_if`. Cesare è in scena ma
-  non compare nella barra finché non si alza `met_cesare`, che nessuno alza
+  non compare nella barra finché non si alza `complaint_posted`, che nessuno alza
   ancora — è l'aggancio che servirà quando il capitolo arriverà all'ufficio.
 - **I dialoghi e le sequenze si scrivono come copioni**, non come `.tres`:
   `resources/dialogues/*.dlg` e `resources/sequences/*.seq`, e
@@ -536,17 +551,13 @@ Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
 - La porta dell'appartamento **scende in strada**, non sul pianerottolo, perché
   il pianerottolo non esiste. Quando nasce la stanza 3, la porta di casa punta
   lì e le scale diventano un passaggio vero. È una riga in due scene.
-- **L'ufficio parla ancora del prototipo**: atrio, corridoio e postazione
-  raccontano il collaudo della posta pneumatica, non la certificazione
-  dell'occupazione che la storia richiede. Le scene reggono, i testi no, ed è il
-  primo passo dell'elenco qui sotto.
 - **La sbarra porta dritta all'atrio**, saltando il resto della città. Stessa
   compressione onesta del portone che porta dritto in casa: quando esisteranno
   altre stanze in mezzo, è una riga da cambiare.
 
 **Da fare, nell'ordine che conviene**
 1. **Ufficio**: riscrivere atrio, corridoio e postazione da collaudo della posta
-   pneumatica a certificazione dell'occupazione, e alzare `met_cesare` — che è
+   pneumatica a certificazione dell'occupazione, e alzare `complaint_posted` — che è
    ciò che rende Cesare giocabile e la postazione raggiungibile. È il passo che
    sblocca più superficie con meno lavoro nuovo, perché le tre stanze e la catena
    cooperativa esistono già e verificate: cambiano i testi, non le scene.

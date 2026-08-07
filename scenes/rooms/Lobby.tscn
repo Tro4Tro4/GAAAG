@@ -45,7 +45,7 @@ size = Vector2(48, 20)
 [sub_resource type="Resource" id="Resource_lobby_door_open"]
 script = ExtResource("9_variant")
 conditions = PackedStringArray("on:lobby_door")
-look_text = "PROTO_LOBBY_DOOR_LOOK_OPEN"
+look_text = "LOBBY_DOOR_LOOK_OPEN"
 
 [node name="Lobby" type="Node2D"]
 y_sort_enabled = true
@@ -92,8 +92,8 @@ position = Vector2(52, 128)
 [node name="NoticeHotspot" type="Area2D" parent="."]
 position = Vector2(66, 78)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_LOBBY_NOTICE"
-look_text = "PROTO_LOBBY_NOTICE_LOOK"
+display_name = "LOBBY_NOTICE"
+look_text = "LOBBY_NOTICE_LOOK"
 
 [node name="Picture" type="Sprite2D" parent="NoticeHotspot"]
 texture = ExtResource("11_notice")
@@ -107,14 +107,14 @@ position = Vector2(0, 36)
 [node name="FormRackHotspot" type="Area2D" parent="."]
 position = Vector2(142, 76)
 script = ExtResource("4_pickup")
-display_name = "PROTO_LOBBY_FORMS"
+display_name = "LOBBY_FORMS"
 sound = ExtResource("7_thud")
 hand_verb = 2
-look_text = "PROTO_LOBBY_FORMS_LOOK"
-hand_text = "PROTO_LOBBY_FORMS_HAND"
+look_text = "LOBBY_FORMS_LOOK"
+hand_text = "LOBBY_FORMS_HAND"
 item = ExtResource("5_form_blank")
 vanishes_when_taken = false
-taken_text = "PROTO_LOBBY_FORMS_TAKEN"
+taken_text = "LOBBY_FORMS_TAKEN"
 
 [node name="Picture" type="Sprite2D" parent="FormRackHotspot"]
 texture = ExtResource("12_rack")
@@ -128,8 +128,8 @@ position = Vector2(0, 38)
 [node name="ChairsHotspot" type="Area2D" parent="."]
 position = Vector2(92, 158)
 script = ExtResource("2_hotspot")
-display_name = "PROTO_LOBBY_CHAIRS"
-look_text = "PROTO_LOBBY_CHAIRS_LOOK"
+display_name = "LOBBY_CHAIRS"
+look_text = "LOBBY_CHAIRS_LOOK"
 
 [node name="Picture" type="Sprite2D" parent="ChairsHotspot"]
 position = Vector2(-24, -20)
@@ -146,12 +146,12 @@ position = Vector2(0, 8)
 [node name="DoorHotspot" type="Area2D" parent="."]
 position = Vector2(260, 86)
 script = ExtResource("3_door")
-display_name = "PROTO_LOBBY_DOOR"
+display_name = "LOBBY_DOOR"
 sound = ExtResource("7_thud")
 reach_verb = 7
 default_verb = 7
-look_text = "PROTO_LOBBY_DOOR_LOOK"
-reach_text = "PROTO_LOBBY_DOOR_REACH"
+look_text = "LOBBY_DOOR_LOOK"
+reach_text = "LOBBY_DOOR_REACH"
 target_room = "res://scenes/rooms/Tubes.tscn"
 target_entry = &"FromLobby"
 state_id = &"lobby_door"
@@ -180,11 +180,11 @@ position = Vector2(0, 38)
 [node name="EntranceHotspot" type="Area2D" parent="."]
 position = Vector2(30, 108)
 script = ExtResource("3_door")
-display_name = "PROTO_LOBBY_ENTRANCE"
+display_name = "LOBBY_ENTRANCE"
 reach_verb = 7
 default_verb = 7
-look_text = "PROTO_LOBBY_ENTRANCE_LOOK"
-reach_text = "PROTO_LOBBY_ENTRANCE_REACH"
+look_text = "LOBBY_ENTRANCE_LOOK"
+reach_text = "LOBBY_ENTRANCE_REACH"
 target_room = "res://scenes/rooms/Street.tscn"
 target_entry = &"AtBarrier"
 

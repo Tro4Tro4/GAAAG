@@ -102,8 +102,8 @@ def draw_form_filled(c: PixelCanvas) -> None:
     c.set(5, 7, ENAMEL_L)
 
 
-def draw_renewal(c: PixelCanvas) -> None:
-    """Rinnovo dell'accreditamento: the letter that sat in the tube for years.
+def draw_certificate(c: PixelCanvas) -> None:
+    """Certificato di occupazione: the sheet that sat in the tube for three years.
 
     The stamp is the only round thing in the paper family, so it carries the
     whole difference at a glance.
@@ -186,7 +186,7 @@ def draw_documents(c: PixelCanvas) -> None:
 ICONS = [
     ("item_form_blank", draw_form_blank),
     ("item_form_filled", draw_form_filled),
-    ("item_renewal", draw_renewal),
+    ("item_certificate", draw_certificate),
     ("item_plate", draw_plate),
     ("item_documents", draw_documents),
 ]

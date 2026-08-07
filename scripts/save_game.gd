@@ -36,7 +36,7 @@ extends RefCounted
 ##    could give out any more. A save naming a room that no longer exists loads
 ##    into an empty RoomContainer -- no navigation region, so nobody walks --
 ##    which is the same soft lock by another route.
-const VERSION: int = 3
+const VERSION: int = 4
 
 ## The slot the menu writes to.
 const MANUAL_SLOT: StringName = &"manual"

@@ -50,7 +50,7 @@ position = Vector2(167, 150)
 display_name = "CHAR_CESARE"
 frames = ExtResource("19_cesare")
 current_room = "res://scenes/rooms/Station.tscn"
-available_if = PackedStringArray("met_cesare")
+available_if = PackedStringArray("complaint_posted")
 
 [node name="Sequence" type="Node" parent="."]
 script = ExtResource("17_sequence")
