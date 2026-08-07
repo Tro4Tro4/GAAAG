@@ -1,6 +1,7 @@
-[gd_scene load_steps=27 format=3 uid="uid://baggastation01"]
+[gd_scene load_steps=28 format=3 uid="uid://baggastation01"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Resource" uid="uid://baggaseqpurge1" path="res://resources/sequences/station_purge.tres" id="20_purge"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
 [ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="3_passage"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="4_variant"]
@@ -92,6 +93,11 @@ position = Vector2(0, 38)
 position = Vector2(117, 60)
 script = ExtResource("2_hotspot")
 display_name = "STATION_CONSOLE"
+act_verb = 3
+act_text = "STATION_CONSOLE_ACT"
+sequence = ExtResource("20_purge")
+sequence_verb = 3
+sequence_if = PackedStringArray("line_reversed", "knows_flange", "!line_purged")
 reach_verb = 6
 default_verb = 6
 look_text = "STATION_CONSOLE_LOOK"
@@ -153,6 +159,8 @@ accepted_item = ExtResource("5_form_filled")
 accepted_text = "STATION_LOG_ACCEPTED"
 consumes_accepted_item = true
 accepted_flag = &"complaint_logged"
+accepted_if = PackedStringArray("protocol_ready")
+not_yet_text = "STATION_LOG_NOT_YET"
 
 [node name="Picture" type="Sprite2D" parent="LogHotspot"]
 position = Vector2(0, -3)

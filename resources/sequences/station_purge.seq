@@ -1,0 +1,14 @@
+# The purge. Cesare enters the place Lino read off the frost line, and the
+# section blows clear. The payoff of the chapter's one genuinely cooperative
+# puzzle, so it gets a scene rather than a line in a box.
+
+uid baggaseqpurge1
+
+say   SEQ_PURGE_1
+sound sfx_lever_throw
+say   SEQ_PURGE_2
+sound hum_high
+wait  0.9
+sound sfx_capsule_land_far
+flag  line_purged
+say   SEQ_PURGE_3

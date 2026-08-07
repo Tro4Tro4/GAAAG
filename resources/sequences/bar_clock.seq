@@ -1,0 +1,9 @@
+# The clock against the receipt. Guarded on has:notification, so it only plays
+# once Lino has something with a printed time on it to compare — looking at a
+# clock when you have nothing to check it against tells you nothing.
+
+uid baggaseqclock1
+
+say  SEQ_BAR_CLOCK_1
+say  SEQ_BAR_CLOCK_2
+flag knows_clock

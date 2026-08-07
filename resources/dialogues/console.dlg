@@ -1,9 +1,12 @@
-# The console at Cesare's station: the terminal that will not reverse the line
-# until a complaint exists, which is the whole of the prototype's puzzle said
-# from the machine's side.
+# The terminal at Cesare's station. It grew from the prototype's five options
+# into the spine of gate C: the protocol number, the purge, and the emission all
+# go through it, because it is the only thing in the office that can be asked a
+# question.
 #
-# Written as a single line with a list of topics, which is what the format is
-# for: one line and five options rather than five lines that each say one thing.
+# Three of its options are gated on things *Lino* found out, in rooms Cesare can
+# never go to. That is the chapter's one genuinely cooperative mechanic: objects need a
+# tube to cross between the two of them, but knowledge crosses for free, because
+# the player is the same person in both bodies.
 
 uid    baggadlgcons01
 colour 0.55 0.9 0.7
@@ -25,10 +28,62 @@ line start
         raise asked_complain
         reply DLG_CONSOLE_REPLY_COMPLAIN
 
+    # The protocol number. The machine that prints them is downstream of the
+    # blockage, so the number has to be worked out instead of drawn — and the
+    # rule for working it out is on the regulations board in the lobby, where
+    # only Lino ever stands.
+    option DLG_CONSOLE_OPT_NUMBER
+        if   complaint_posted !protocol_ready
+        goto number
+
     option DLG_CONSOLE_OPT_READY
         if    complaint_logged
         reply DLG_CONSOLE_REPLY_READY
 
+    option DLG_CONSOLE_OPT_PURGE
+        if    line_reversed !line_purged
+        reply DLG_CONSOLE_REPLY_PURGE
+
+    # Emission. Needs a working line to send on and a consignment number to
+    # write in the box, and Lino read that off the removers' list in a cellar
+    # on the other side of the district.
+    option DLG_CONSOLE_OPT_FILE
+        if    line_purged !knows_consignment
+        reply DLG_CONSOLE_REPLY_FILE
+
+    option DLG_CONSOLE_OPT_EMIT
+        if    line_purged knows_consignment !notification_emitted
+        raise notification_emitted
+        give  notification
+        reply DLG_CONSOLE_REPLY_EMIT
+
+    option DLG_CONSOLE_OPT_SENT
+        if    notification_emitted
+        reply DLG_CONSOLE_REPLY_SENT
+
     option DLG_CONSOLE_OPT_BYE
         reply DLG_CONSOLE_REPLY_BYE
         end
+
+line number
+    says DLG_CONSOLE_NUMBER
+
+    # Three answers and one is right, and the right one is a joke about the
+    # premise: after three years in which nothing was filed, and a numbering
+    # that restarts every year, the next protocol number is one.
+    option DLG_CONSOLE_OPT_N_NEXT
+        if    !knows_numbering
+        reply DLG_CONSOLE_REPLY_N_NEXT
+
+    option DLG_CONSOLE_OPT_N_ONE
+        if    knows_numbering
+        raise protocol_ready
+        reply DLG_CONSOLE_REPLY_N_ONE
+        end
+
+    option DLG_CONSOLE_OPT_N_GUESS
+        if    knows_numbering
+        reply DLG_CONSOLE_REPLY_N_GUESS
+
+    option DLG_CONSOLE_OPT_N_BACK
+        goto start

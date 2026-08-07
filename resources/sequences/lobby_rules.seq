@@ -1,0 +1,9 @@
+# Reading the regulations board properly, which is where clause 9 is: the
+# protocol numbering restarts at one every year. Lino has no use for it. Cesare,
+# two rooms away and unable to come and read it, does.
+
+uid baggaseqrules1
+
+say  SEQ_LOBBY_RULES_1
+say  SEQ_LOBBY_RULES_2
+flag knows_numbering

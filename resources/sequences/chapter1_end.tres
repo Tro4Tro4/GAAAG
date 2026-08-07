@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="Sequence" load_steps=16 format=3 uid="uid://baggaseqend001"]
+
+[ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
+[ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="3_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="4_hum_low"]
+
+[sub_resource type="Resource" id="Step_0_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_1"
+
+[sub_resource type="Resource" id="Step_1_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_2"
+
+[sub_resource type="Resource" id="Step_2_flag"]
+script = ExtResource("2_step")
+kind = 5
+name = &"duilio_gone"
+
+[sub_resource type="Resource" id="Step_3_wait"]
+script = ExtResource("2_step")
+kind = 1
+seconds = 0.6
+
+[sub_resource type="Resource" id="Step_4_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("3_thud")
+
+[sub_resource type="Resource" id="Step_5_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_3"
+
+[sub_resource type="Resource" id="Step_6_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_4"
+
+[sub_resource type="Resource" id="Step_7_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("4_hum_low")
+
+[sub_resource type="Resource" id="Step_8_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_5"
+
+[sub_resource type="Resource" id="Step_9_flag"]
+script = ExtResource("2_step")
+kind = 5
+name = &"chapter1_done"
+
+[sub_resource type="Resource" id="Step_10_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_END_6"
+
+[resource]
+script = ExtResource("1_sequence")
+steps = Array[ExtResource("2_step")]([SubResource("Step_0_say"), SubResource("Step_1_say"), SubResource("Step_2_flag"), SubResource("Step_3_wait"), SubResource("Step_4_sound"), SubResource("Step_5_say"), SubResource("Step_6_say"), SubResource("Step_7_sound"), SubResource("Step_8_say"), SubResource("Step_9_flag"), SubResource("Step_10_say")])

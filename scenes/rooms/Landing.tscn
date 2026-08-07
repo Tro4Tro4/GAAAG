@@ -1,0 +1,205 @@
+[gd_scene load_steps=18 format=3 uid="uid://baggalandin01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_landing.png" id="4_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_door_lino.png" id="5_door_lino"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_door_duilio.png" id="6_door_duilio"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_bells.png" id="7_bells"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_duilio.png" id="8_duilio"]
+[ext_resource type="Resource" uid="uid://baggadlgduil01" path="res://resources/dialogues/duilio_landing.tres" id="9_dialogue"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="10_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="11_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="12_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="13_s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="14_s3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_04.wav" id="15_s4"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_landing"]
+vertices = PackedVector2Array(8, 112, 312, 112, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 112, 312, 112, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="Rect_door"]
+size = Vector2(32, 48)
+
+[sub_resource type="RectangleShape2D" id="Rect_bells"]
+size = Vector2(18, 30)
+
+[sub_resource type="RectangleShape2D" id="Rect_meters"]
+size = Vector2(34, 34)
+
+[sub_resource type="RectangleShape2D" id="Rect_stairs"]
+size = Vector2(50, 34)
+
+[sub_resource type="RectangleShape2D" id="Rect_duilio"]
+size = Vector2(24, 41)
+
+[node name="Landing" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("10_hum")
+footsteps = Array[AudioStream]([ExtResource("12_s1"), ExtResource("13_s2"), ExtResource("14_s3"), ExtResource("15_s4")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+texture = ExtResource("4_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_landing")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(250, 130)
+
+[node name="FromStreet" type="Marker2D" parent="EntryPoints"]
+position = Vector2(266, 128)
+
+[node name="FromFlat" type="Marker2D" parent="EntryPoints"]
+position = Vector2(42, 124)
+
+[node name="FromCellar" type="Marker2D" parent="EntryPoints"]
+position = Vector2(266, 128)
+
+[node name="AtDuilio" type="Marker2D" parent="EntryPoints"]
+position = Vector2(166, 124)
+
+[node name="BellsHotspot" type="Area2D" parent="."]
+position = Vector2(72, 96)
+script = ExtResource("2_hotspot")
+display_name = "LAND_BELLS"
+act_verb = 3
+look_text = "LAND_BELLS_LOOK"
+act_text = "LAND_BELLS_ACT"
+sound = ExtResource("11_thud")
+
+[node name="Picture" type="Sprite2D" parent="BellsHotspot"]
+position = Vector2(-9, -30)
+centered = false
+texture = ExtResource("7_bells")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BellsHotspot"]
+position = Vector2(0, -15)
+shape = SubResource("Rect_bells")
+
+[node name="ApproachPoint" type="Marker2D" parent="BellsHotspot"]
+position = Vector2(0, 16)
+
+[node name="MetersHotspot" type="Area2D" parent="."]
+position = Vector2(113, 78)
+script = ExtResource("2_hotspot")
+display_name = "LAND_METERS"
+act_verb = 4
+look_text = "LAND_METERS_LOOK"
+act_text = "LAND_METERS_ACT"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MetersHotspot"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_meters")
+
+[node name="ApproachPoint" type="Marker2D" parent="MetersHotspot"]
+position = Vector2(0, 34)
+
+[node name="FlatDoorHotspot" type="Area2D" parent="."]
+position = Vector2(42, 106)
+script = ExtResource("3_door")
+display_name = "LAND_FLAT_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "LAND_FLAT_DOOR_LOOK"
+reach_text = "LAND_FLAT_DOOR_REACH"
+target_room = "res://scenes/rooms/Apartment.tscn"
+target_entry = &"FromStreet"
+
+[node name="Picture" type="Sprite2D" parent="FlatDoorHotspot"]
+position = Vector2(-16, -48)
+centered = false
+texture = ExtResource("5_door_lino")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlatDoorHotspot"]
+position = Vector2(0, -24)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="FlatDoorHotspot"]
+position = Vector2(0, 18)
+
+[node name="DuilioDoorHotspot" type="Area2D" parent="."]
+position = Vector2(166, 106)
+script = ExtResource("2_hotspot")
+display_name = "LAND_DUILIO_DOOR"
+act_verb = 4
+look_text = "LAND_DUILIO_DOOR_LOOK"
+act_text = "LAND_DUILIO_DOOR_ACT"
+
+[node name="Picture" type="Sprite2D" parent="DuilioDoorHotspot"]
+position = Vector2(-16, -48)
+centered = false
+texture = ExtResource("6_door_duilio")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DuilioDoorHotspot"]
+position = Vector2(0, -24)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DuilioDoorHotspot"]
+position = Vector2(0, 18)
+
+[node name="StairsDownHotspot" type="Area2D" parent="."]
+position = Vector2(293, 106)
+script = ExtResource("3_door")
+display_name = "LAND_STAIRS_DOWN"
+reach_verb = 7
+default_verb = 7
+look_text = "LAND_STAIRS_DOWN_LOOK"
+reach_text = "LAND_STAIRS_DOWN_REACH"
+target_room = "res://scenes/rooms/Cellar.tscn"
+target_entry = &"FromLanding"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StairsDownHotspot"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_stairs")
+
+[node name="ApproachPoint" type="Marker2D" parent="StairsDownHotspot"]
+position = Vector2(-16, 22)
+
+[node name="StairsUpHotspot" type="Area2D" parent="."]
+position = Vector2(230, 118)
+script = ExtResource("3_door")
+display_name = "LAND_STAIRS_UP"
+reach_verb = 7
+default_verb = 7
+look_text = "LAND_STAIRS_UP_LOOK"
+reach_text = "LAND_STAIRS_UP_REACH"
+target_room = "res://scenes/rooms/Street.tscn"
+target_entry = &"AtDoor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StairsUpHotspot"]
+position = Vector2(0, -8)
+shape = SubResource("Rect_stairs")
+
+[node name="ApproachPoint" type="Marker2D" parent="StairsUpHotspot"]
+position = Vector2(0, 12)
+
+[node name="DuilioHotspot" type="Area2D" parent="."]
+position = Vector2(200, 130)
+script = ExtResource("2_hotspot")
+display_name = "LAND_DUILIO"
+reach_verb = 6
+look_text = "LAND_DUILIO_LOOK"
+dialogue = ExtResource("9_dialogue")
+present_if = PackedStringArray("!witnessed")
+
+[node name="Picture" type="Sprite2D" parent="DuilioHotspot"]
+position = Vector2(-12, -41)
+centered = false
+texture = ExtResource("8_duilio")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DuilioHotspot"]
+position = Vector2(0, -20)
+shape = SubResource("Rect_duilio")
+
+[node name="ApproachPoint" type="Marker2D" parent="DuilioHotspot"]
+position = Vector2(-24, 6)

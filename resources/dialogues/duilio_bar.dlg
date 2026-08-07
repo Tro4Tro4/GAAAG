@@ -1,0 +1,47 @@
+# Duilio in the bar, at midnight. The last puzzle of the chapter and its last
+# scene, in one conversation.
+#
+# The puzzle: the papers need a resident's signature, the bar clock says it is
+# already past midnight, and Lino has a receipt in his pocket with a time
+# printed on it. Comparing the two is the whole of it — and the receipt he is
+# using to prove he still lives somewhere is the receipt for being told he does
+# not, which is the chapter in one gesture.
+#
+# The last option raises witnessed, which the ending sequence hangs off.
+
+uid    baggadlgbar001
+colour 0.82 0.66 0.44
+
+line start
+    says DLG_BAR_START
+
+    option DLG_BAR_OPT_WHAT
+        if    !bar_asked_what
+        raise bar_asked_what
+        reply DLG_BAR_REPLY_WHAT
+
+    option DLG_BAR_OPT_SIGN
+        if    !knows_clock
+        reply DLG_BAR_REPLY_SIGN
+
+    # Only once he has looked at the clock with the receipt on him. The
+    # condition is the flag and not has:notification, because what matters is
+    # that he made the comparison, not that he is carrying the paper.
+    option DLG_BAR_OPT_CLOCK
+        if   knows_clock !witnessed
+        goto clock
+
+    option DLG_BAR_OPT_BYE
+        reply DLG_BAR_REPLY_BYE
+        end
+
+line clock
+    says DLG_BAR_CLOCK
+
+    option DLG_BAR_OPT_SHOW
+        raise witnessed
+        reply DLG_BAR_REPLY_SHOW
+        end
+
+    option DLG_BAR_OPT_NOT_YET
+        goto start

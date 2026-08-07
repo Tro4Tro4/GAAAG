@@ -1,0 +1,187 @@
+[gd_scene load_steps=18 format=3 uid="uid://baggabar00001"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="4_variant"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_bar.png" id="5_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_bar_counter.png" id="6_counter"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_bar_clock.png" id="7_clock"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_bar_papers.png" id="8_papers"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_duilio.png" id="9_duilio"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_door.png" id="10_door"]
+[ext_resource type="Resource" uid="uid://baggadlgbar001" path="res://resources/dialogues/duilio_bar.tres" id="11_dialogue"]
+[ext_resource type="Resource" uid="uid://baggaseqclock1" path="res://resources/sequences/bar_clock.tres" id="12_seq"]
+[ext_resource type="Resource" uid="uid://baggaseqend001" path="res://resources/sequences/chapter1_end.tres" id="17_end"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_high.wav" id="13_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="14_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="15_s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="16_s3"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_bar"]
+vertices = PackedVector2Array(8, 114, 312, 114, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 114, 312, 114, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="Rect_door"]
+size = Vector2(32, 48)
+
+[sub_resource type="RectangleShape2D" id="Rect_counter"]
+size = Vector2(120, 26)
+
+[sub_resource type="RectangleShape2D" id="Rect_clock"]
+size = Vector2(26, 26)
+
+[sub_resource type="RectangleShape2D" id="Rect_papers"]
+size = Vector2(30, 16)
+
+[sub_resource type="RectangleShape2D" id="Rect_duilio"]
+size = Vector2(24, 41)
+
+[sub_resource type="Resource" id="Variant_clock_known"]
+script = ExtResource("4_variant")
+conditions = PackedStringArray("knows_clock")
+look_text = "BAR_CLOCK_LOOK_KNOWN"
+
+[sub_resource type="Resource" id="Variant_papers_signed"]
+script = ExtResource("4_variant")
+conditions = PackedStringArray("witnessed")
+look_text = "BAR_PAPERS_LOOK_SIGNED"
+
+[node name="Bar" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("13_hum")
+footsteps = Array[AudioStream]([ExtResource("14_s1"), ExtResource("15_s2"), ExtResource("16_s3")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+texture = ExtResource("5_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_bar")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(44, 128)
+
+[node name="FromStreet" type="Marker2D" parent="EntryPoints"]
+position = Vector2(44, 128)
+
+[node name="AtCounter" type="Marker2D" parent="EntryPoints"]
+position = Vector2(150, 166)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(36, 108)
+script = ExtResource("3_door")
+display_name = "BAR_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "BAR_DOOR_LOOK"
+reach_text = "BAR_DOOR_REACH"
+target_room = "res://scenes/rooms/Street.tscn"
+target_entry = &"AtAlley"
+locked_if = PackedStringArray("!witnessed")
+locked_text = "BAR_DOOR_LOCKED"
+sequence = ExtResource("17_end")
+sequence_verb = 7
+sequence_if = PackedStringArray("witnessed", "!chapter1_done")
+
+[node name="Picture" type="Sprite2D" parent="DoorHotspot"]
+position = Vector2(-16, -48)
+centered = false
+texture = ExtResource("10_door")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+position = Vector2(0, -24)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 21)
+
+[node name="ClockHotspot" type="Area2D" parent="."]
+position = Vector2(258, 26)
+script = ExtResource("2_hotspot")
+display_name = "BAR_CLOCK"
+look_text = "BAR_CLOCK_LOOK"
+variants = Array[ExtResource("4_variant")]([SubResource("Variant_clock_known")])
+sequence = ExtResource("12_seq")
+sequence_verb = 1
+sequence_if = PackedStringArray("has:notification", "!knows_clock")
+
+[node name="Picture" type="Sprite2D" parent="ClockHotspot"]
+position = Vector2(-13, -26)
+centered = false
+texture = ExtResource("7_clock")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClockHotspot"]
+position = Vector2(0, -13)
+shape = SubResource("Rect_clock")
+
+[node name="ApproachPoint" type="Marker2D" parent="ClockHotspot"]
+position = Vector2(0, 92)
+
+[node name="CounterHotspot" type="Area2D" parent="."]
+position = Vector2(196, 150)
+script = ExtResource("2_hotspot")
+display_name = "BAR_COUNTER"
+act_verb = 3
+look_text = "BAR_COUNTER_LOOK"
+act_text = "BAR_COUNTER_ACT"
+
+[node name="Picture" type="Sprite2D" parent="CounterHotspot"]
+position = Vector2(-60, -26)
+centered = false
+texture = ExtResource("6_counter")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CounterHotspot"]
+position = Vector2(0, -13)
+shape = SubResource("Rect_counter")
+
+[node name="ApproachPoint" type="Marker2D" parent="CounterHotspot"]
+position = Vector2(-70, 16)
+
+[node name="PapersHotspot" type="Area2D" parent="."]
+position = Vector2(212, 151)
+script = ExtResource("2_hotspot")
+display_name = "BAR_PAPERS"
+hand_verb = 2
+look_text = "BAR_PAPERS_LOOK"
+hand_text = "BAR_PAPERS_HAND"
+variants = Array[ExtResource("4_variant")]([SubResource("Variant_papers_signed")])
+
+[node name="Picture" type="Sprite2D" parent="PapersHotspot"]
+position = Vector2(-15, -37)
+centered = false
+texture = ExtResource("8_papers")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PapersHotspot"]
+position = Vector2(0, -29)
+shape = SubResource("Rect_papers")
+
+[node name="ApproachPoint" type="Marker2D" parent="PapersHotspot"]
+position = Vector2(-26, 9)
+
+[node name="DuilioHotspot" type="Area2D" parent="."]
+position = Vector2(154, 160)
+script = ExtResource("2_hotspot")
+display_name = "BAR_DUILIO"
+reach_verb = 6
+look_text = "BAR_DUILIO_LOOK"
+dialogue = ExtResource("11_dialogue")
+present_if = PackedStringArray("!duilio_gone")
+
+[node name="Picture" type="Sprite2D" parent="DuilioHotspot"]
+position = Vector2(-12, -41)
+centered = false
+texture = ExtResource("9_duilio")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DuilioHotspot"]
+position = Vector2(0, -20)
+shape = SubResource("Rect_duilio")
+
+[node name="ApproachPoint" type="Marker2D" parent="DuilioHotspot"]
+position = Vector2(-24, 6)

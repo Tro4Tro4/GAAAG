@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=10 format=3 uid="uid://baggadlgduil01"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+
+[sub_resource type="Resource" id="Option_start_0"]
+script = ExtResource("3_option")
+text = "DLG_DUILIO_OPT_CALM"
+conditions = PackedStringArray("!asked_calm")
+reply = "DLG_DUILIO_REPLY_CALM"
+raises = PackedStringArray("asked_calm")
+
+[sub_resource type="Resource" id="Option_start_1"]
+script = ExtResource("3_option")
+text = "DLG_DUILIO_OPT_WITNESS"
+conditions = PackedStringArray("asked_calm", "!asked_witness")
+reply = "DLG_DUILIO_REPLY_WITNESS"
+raises = PackedStringArray("asked_witness", "met_duilio")
+
+[sub_resource type="Resource" id="Option_start_2"]
+script = ExtResource("3_option")
+text = "DLG_DUILIO_OPT_WHEN"
+conditions = PackedStringArray("asked_witness")
+reply = "DLG_DUILIO_REPLY_WHEN"
+
+[sub_resource type="Resource" id="Option_start_3"]
+script = ExtResource("3_option")
+text = "DLG_DUILIO_OPT_NOTICE"
+conditions = PackedStringArray("!asked_notice")
+reply = "DLG_DUILIO_REPLY_NOTICE"
+raises = PackedStringArray("asked_notice")
+
+[sub_resource type="Resource" id="Option_start_4"]
+script = ExtResource("3_option")
+text = "DLG_DUILIO_OPT_BYE"
+reply = "DLG_DUILIO_REPLY_BYE"
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "DLG_DUILIO_START"
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.82, 0.66, 0.44, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start")])

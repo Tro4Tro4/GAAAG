@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Sequence" load_steps=6 format=3 uid="uid://baggaseqrules1"]
+
+[ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
+[ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_0_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_LOBBY_RULES_1"
+
+[sub_resource type="Resource" id="Step_1_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_LOBBY_RULES_2"
+
+[sub_resource type="Resource" id="Step_2_flag"]
+script = ExtResource("2_step")
+kind = 5
+name = &"knows_numbering"
+
+[resource]
+script = ExtResource("1_sequence")
+steps = Array[ExtResource("2_step")]([SubResource("Step_0_say"), SubResource("Step_1_say"), SubResource("Step_2_flag")])

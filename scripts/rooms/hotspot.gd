@@ -134,6 +134,22 @@ const ITEM_REFUSAL: String = "GENERIC_ITEM_REFUSAL"
 
 @export_multiline var accepted_text: String = ""
 
+## What has to be true before the right item is any use here. Empty — the
+## ordinary case — means it always is.
+##
+## The third of the family, after [member PickupHotspot.takeable_if] and
+## [member DoorHotspot.locked_if], and the reasoning is theirs: a thing that
+## will take the item *later* has to go on taking the attempt now and say why
+## not. The register in the office wants a protocol number before it will log a
+## complaint, and the complaint is the right item either way.
+@export var accepted_if: PackedStringArray = PackedStringArray()
+
+## What is said when the right item is offered and [member accepted_if] does not
+## hold. Its own field for the reason the other two have one: [member
+## accepted_text] is what is said at the moment the item *is* accepted, so a
+## single string would have to serve both and one of the two would be wrong.
+@export_multiline var not_yet_text: String = ""
+
 ## Whether the item is used up. A key that opens a door is usually gone
 ## afterwards; a screwdriver is not.
 @export var consumes_accepted_item: bool = true
@@ -352,15 +368,25 @@ func _text_of(variant: HotspotVariant, slot: int) -> String:
 
 ## The line to show when [param item] is used on this hotspot.
 func get_text_for_item(item: InventoryItem) -> String:
+	# The one it wants, offered too early, gets its own answer: the generic
+	# "that does nothing here" would be a lie about a thing that will work.
+	if item != null and item == accepted_item and not _accepts_yet():
+		return not_yet_text if not not_yet_text.is_empty() else REFUSAL
+
 	if not accepts(item):
 		return ITEM_REFUSAL
 
 	return accepted_text if not accepted_text.is_empty() else REFUSAL
 
 
-## True when [param item] is the one thing this hotspot is waiting for.
+## True when [param item] is the one thing this hotspot is waiting for, and the
+## moment for it has come.
 func accepts(item: InventoryItem) -> bool:
-	return item != null and item == accepted_item
+	return item != null and item == accepted_item and _accepts_yet()
+
+
+func _accepts_yet() -> bool:
+	return Conditions.all_hold(accepted_if, GameState.active_character)
 
 
 ## Runs [param verb] on this hotspot, on behalf of [param character]. The text

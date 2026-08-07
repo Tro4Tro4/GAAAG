@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://baggalobby0001"]
+[gd_scene load_steps=31 format=3 uid="uid://baggalobby0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -16,6 +16,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_shut.png" id="14_shut"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_door_open.png" id="15_open"]
 [ext_resource type="Texture2D" path="res://assets/sprites/prop_lobby_entrance.png" id="35_entrance"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_office_door.png" id="36_archdoor"]
+[ext_resource type="Resource" uid="uid://baggaseqrules1" path="res://resources/sequences/lobby_rules.tres" id="37_rules"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="31_step1"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="32_step2"]
 [ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="33_step3"]
@@ -32,6 +34,9 @@ size = Vector2(26, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_entrance"]
 size = Vector2(30, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_archdoor"]
+size = Vector2(32, 46)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_notice"]
 size = Vector2(32, 24)
@@ -89,10 +94,16 @@ position = Vector2(250, 145)
 [node name="FromStreet" type="Marker2D" parent="EntryPoints"]
 position = Vector2(52, 128)
 
+[node name="FromArchive" type="Marker2D" parent="EntryPoints"]
+position = Vector2(180, 126)
+
 [node name="NoticeHotspot" type="Area2D" parent="."]
 position = Vector2(66, 78)
 script = ExtResource("2_hotspot")
 display_name = "LOBBY_NOTICE"
+sequence = ExtResource("37_rules")
+sequence_verb = 1
+sequence_if = PackedStringArray("!knows_numbering")
 look_text = "LOBBY_NOTICE_LOOK"
 
 [node name="Picture" type="Sprite2D" parent="NoticeHotspot"]
@@ -199,3 +210,26 @@ shape = SubResource("RectangleShape2D_entrance")
 
 [node name="ApproachPoint" type="Marker2D" parent="EntranceHotspot"]
 position = Vector2(0, 15)
+
+[node name="ArchiveDoorHotspot" type="Area2D" parent="."]
+position = Vector2(180, 108)
+script = ExtResource("3_door")
+display_name = "LOBBY_ARCHIVE_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "LOBBY_ARCHIVE_DOOR_LOOK"
+reach_text = "LOBBY_ARCHIVE_DOOR_REACH"
+target_room = "res://scenes/rooms/Archive.tscn"
+target_entry = &"FromLobby"
+
+[node name="Picture" type="Sprite2D" parent="ArchiveDoorHotspot"]
+position = Vector2(-16, -46)
+centered = false
+texture = ExtResource("36_archdoor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ArchiveDoorHotspot"]
+position = Vector2(0, -23)
+shape = SubResource("RectangleShape2D_archdoor")
+
+[node name="ApproachPoint" type="Marker2D" parent="ArchiveDoorHotspot"]
+position = Vector2(0, 19)

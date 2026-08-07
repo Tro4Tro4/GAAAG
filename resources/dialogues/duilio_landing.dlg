@@ -1,0 +1,36 @@
+# Duilio on the landing, in the morning. His job in the chapter is to be the
+# one person who is not worried, and to ask for something Lino cannot give him
+# yet — which is what makes the bar, twelve hours later, a place the player
+# wants to go rather than a room the plot needs.
+#
+# He does not explain where he is going. Neither does the bar scene, until the
+# last two lines of it.
+
+uid    baggadlgduil01
+colour 0.82 0.66 0.44
+
+line start
+    says DLG_DUILIO_START
+
+    option DLG_DUILIO_OPT_CALM
+        if    !asked_calm
+        raise asked_calm
+        reply DLG_DUILIO_REPLY_CALM
+
+    option DLG_DUILIO_OPT_WITNESS
+        if    asked_calm !asked_witness
+        raise asked_witness met_duilio
+        reply DLG_DUILIO_REPLY_WITNESS
+
+    option DLG_DUILIO_OPT_WHEN
+        if    asked_witness
+        reply DLG_DUILIO_REPLY_WHEN
+
+    option DLG_DUILIO_OPT_NOTICE
+        if    !asked_notice
+        raise asked_notice
+        reply DLG_DUILIO_REPLY_NOTICE
+
+    option DLG_DUILIO_OPT_BYE
+        reply DLG_DUILIO_REPLY_BYE
+        end

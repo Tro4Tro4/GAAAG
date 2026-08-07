@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="Sequence" load_steps=14 format=3 uid="uid://baggaseqpurge1"]
+
+[ext_resource type="Script" path="res://scripts/sequence/sequence.gd" id="1_sequence"]
+[ext_resource type="Script" path="res://scripts/sequence/sequence_step.gd" id="2_step"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx_lever_throw.wav" id="3_sfx_lever_throw"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_high.wav" id="4_hum_high"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx_capsule_land_far.wav" id="5_sfx_capsule_land_far"]
+
+[sub_resource type="Resource" id="Step_0_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_PURGE_1"
+
+[sub_resource type="Resource" id="Step_1_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("3_sfx_lever_throw")
+
+[sub_resource type="Resource" id="Step_2_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_PURGE_2"
+
+[sub_resource type="Resource" id="Step_3_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("4_hum_high")
+
+[sub_resource type="Resource" id="Step_4_wait"]
+script = ExtResource("2_step")
+kind = 1
+seconds = 0.9
+
+[sub_resource type="Resource" id="Step_5_sound"]
+script = ExtResource("2_step")
+kind = 4
+sound = ExtResource("5_sfx_capsule_land_far")
+
+[sub_resource type="Resource" id="Step_6_flag"]
+script = ExtResource("2_step")
+kind = 5
+name = &"line_purged"
+
+[sub_resource type="Resource" id="Step_7_say"]
+script = ExtResource("2_step")
+kind = 0
+text = "SEQ_PURGE_3"
+
+[resource]
+script = ExtResource("1_sequence")
+steps = Array[ExtResource("2_step")]([SubResource("Step_0_say"), SubResource("Step_1_sound"), SubResource("Step_2_say"), SubResource("Step_3_sound"), SubResource("Step_4_wait"), SubResource("Step_5_sound"), SubResource("Step_6_flag"), SubResource("Step_7_say")])

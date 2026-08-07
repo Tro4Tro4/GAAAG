@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://baggatubes0001"]
+[gd_scene load_steps=41 format=3 uid="uid://baggatubes0001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
@@ -7,6 +7,10 @@
 [ext_resource type="Script" path="res://scripts/rooms/passage_hotspot.gd" id="5_passage"]
 [ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="6_variant"]
 [ext_resource type="Script" path="res://scripts/rooms/state_visual.gd" id="12_state"]
+[ext_resource type="Script" path="res://scripts/items/inventory_item.gd" id="21_item"]
+[ext_resource type="Resource" uid="uid://baggaitembklg1" path="res://resources/items/backlog.tres" id="22_backlog"]
+[ext_resource type="Resource" uid="uid://baggaitemkeyy1" path="res://resources/items/backyard_key.tres" id="23_key"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_office_door.png" id="24_yarddoor"]
 [ext_resource type="Resource" uid="uid://baggaitemplat1" path="res://resources/items/plate.tres" id="7_plate"]
 [ext_resource type="Resource" uid="uid://baggaitemcert1" path="res://resources/items/certificate.tres" id="8_certificate"]
 [ext_resource type="Resource" uid="uid://baggaitemffil1" path="res://resources/items/form_filled.tres" id="20_form_filled"]
@@ -65,6 +69,9 @@ script = ExtResource("6_variant")
 conditions = PackedStringArray("line_reversed")
 look_text = "TUBES_PORTHOLE_LOOK_CLEAR"
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yarddoor"]
+size = Vector2(32, 46)
+
 [node name="Tubes" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_room")
@@ -88,6 +95,9 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 
 [node name="Default" type="Marker2D" parent="EntryPoints"]
 position = Vector2(100, 133)
+
+[node name="FromYard" type="Marker2D" parent="EntryPoints"]
+position = Vector2(556, 150)
 
 [node name="FromLobby" type="Marker2D" parent="EntryPoints"]
 position = Vector2(83, 128)
@@ -195,7 +205,7 @@ hand_verb = 2
 look_text = "TUBES_POINT_LOOK"
 hand_text = "TUBES_POINT_HAND"
 cache_id = &"tube"
-fits_only = ExtResource("20_form_filled")
+fits_only = Array[ExtResource("21_item")]([ExtResource("20_form_filled"), ExtResource("22_backlog")])
 accepted_flag = &"complaint_posted"
 posted_text = "TUBES_POINT_POSTED"
 waiting_text = "TUBES_POINT_WAITING"
@@ -230,3 +240,28 @@ shape = SubResource("RectangleShape2D_capsule")
 
 [node name="ApproachPoint" type="Marker2D" parent="CapsuleHotspot"]
 position = Vector2(-20, 6)
+
+[node name="YardDoorHotspot" type="Area2D" parent="."]
+position = Vector2(590, 112)
+script = ExtResource("3_door")
+display_name = "TUBES_YARD_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "TUBES_YARD_DOOR_LOOK"
+reach_text = "TUBES_YARD_DOOR_REACH"
+target_room = "res://scenes/rooms/Backyard.tscn"
+target_entry = &"FromTubes"
+locked_if = PackedStringArray("has:backyard_key")
+locked_text = "TUBES_YARD_DOOR_LOCKED"
+
+[node name="Picture" type="Sprite2D" parent="YardDoorHotspot"]
+position = Vector2(-16, -46)
+centered = false
+texture = ExtResource("24_yarddoor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YardDoorHotspot"]
+position = Vector2(0, -23)
+shape = SubResource("RectangleShape2D_yarddoor")
+
+[node name="ApproachPoint" type="Marker2D" parent="YardDoorHotspot"]
+position = Vector2(-20, 24)

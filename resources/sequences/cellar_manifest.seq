@@ -1,0 +1,10 @@
+# Reading the removers' master list in the cellar. Two beats: what it is, and
+# the one line on it that has Lino's building in it. The flag it raises is what
+# lets Cesare fill in the notification later — knowledge crossing between two
+# characters who never meet, which objects cannot do in this game.
+
+uid baggaseqmanif1
+
+say  SEQ_CELLAR_MANIFEST_1
+say  SEQ_CELLAR_MANIFEST_2
+flag knows_consignment

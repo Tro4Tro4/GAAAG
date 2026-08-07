@@ -1,0 +1,21 @@
+# The end of chapter one. Duilio signs, takes his papers and goes; the bar
+# empties; and the thing that leaves is not the building.
+#
+# Hung on the bar door rather than on the conversation, because a sequence
+# cannot be started from a dialogue option and because walking out is what the
+# player will do next anyway. The door is locked from the moment the papers are
+# witnessed, so Vai plays this instead of moving anybody.
+
+uid baggaseqend001
+
+say   SEQ_END_1
+say   SEQ_END_2
+flag  duilio_gone
+wait  0.6
+sound thud
+say   SEQ_END_3
+say   SEQ_END_4
+sound hum_low
+say   SEQ_END_5
+flag  chapter1_done
+say   SEQ_END_6

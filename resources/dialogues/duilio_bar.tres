@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="Dialogue" load_steps=12 format=3 uid="uid://baggadlgbar001"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+
+[sub_resource type="Resource" id="Option_start_0"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_WHAT"
+conditions = PackedStringArray("!bar_asked_what")
+reply = "DLG_BAR_REPLY_WHAT"
+raises = PackedStringArray("bar_asked_what")
+
+[sub_resource type="Resource" id="Option_start_1"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_SIGN"
+conditions = PackedStringArray("!knows_clock")
+reply = "DLG_BAR_REPLY_SIGN"
+
+[sub_resource type="Resource" id="Option_start_2"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_CLOCK"
+conditions = PackedStringArray("knows_clock", "!witnessed")
+goes_to = &"clock"
+
+[sub_resource type="Resource" id="Option_start_3"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_BYE"
+reply = "DLG_BAR_REPLY_BYE"
+ends = true
+
+[sub_resource type="Resource" id="Line_start"]
+script = ExtResource("2_line")
+id = &"start"
+says = "DLG_BAR_START"
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3")])
+
+[sub_resource type="Resource" id="Option_clock_0"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_SHOW"
+reply = "DLG_BAR_REPLY_SHOW"
+raises = PackedStringArray("witnessed")
+ends = true
+
+[sub_resource type="Resource" id="Option_clock_1"]
+script = ExtResource("3_option")
+text = "DLG_BAR_OPT_NOT_YET"
+goes_to = &"start"
+
+[sub_resource type="Resource" id="Line_clock"]
+script = ExtResource("2_line")
+id = &"clock"
+says = "DLG_BAR_CLOCK"
+options = Array[ExtResource("3_option")]([SubResource("Option_clock_0"), SubResource("Option_clock_1")])
+
+[resource]
+script = ExtResource("1_dialogue")
+speaker_color = Color(0.82, 0.66, 0.44, 1)
+lines = Array[ExtResource("2_line")]([SubResource("Line_start"), SubResource("Line_clock")])

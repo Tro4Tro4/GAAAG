@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=3 format=3 uid="uid://baggaitemkeyy1"]
+
+[ext_resource type="Script" path="res://scripts/items/inventory_item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/sprites/item_backyard_key.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_item")
+id = &"backyard_key"
+display_name = "ITEM_BACKYARD_KEY"
+look_text = "ITEM_BACKYARD_KEY_LOOK"
+icon = ExtResource("2_icon")

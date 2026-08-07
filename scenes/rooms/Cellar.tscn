@@ -1,0 +1,143 @@
+[gd_scene load_steps=15 format=3 uid="uid://baggacellar01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="4_variant"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_cellar.png" id="5_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_cellar_boxes.png" id="6_boxes"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_manifest.png" id="7_manifest"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flat_door.png" id="8_door"]
+[ext_resource type="Resource" uid="uid://baggaseqmanif1" path="res://resources/sequences/cellar_manifest.tres" id="9_seq"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="10_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="11_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="12_s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="13_s3"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_04.wav" id="14_s4"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_cellar"]
+vertices = PackedVector2Array(8, 106, 312, 106, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 106, 312, 106, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="Rect_door"]
+size = Vector2(32, 46)
+
+[sub_resource type="RectangleShape2D" id="Rect_boxes"]
+size = Vector2(72, 54)
+
+[sub_resource type="RectangleShape2D" id="Rect_manifest"]
+size = Vector2(40, 52)
+
+[sub_resource type="RectangleShape2D" id="Rect_alcove"]
+size = Vector2(56, 44)
+
+[sub_resource type="Resource" id="Variant_manifest_read"]
+script = ExtResource("4_variant")
+conditions = PackedStringArray("knows_consignment")
+look_text = "CELLAR_MANIFEST_LOOK_READ"
+
+[node name="Cellar" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("10_hum")
+footsteps = Array[AudioStream]([ExtResource("11_s1"), ExtResource("12_s2"), ExtResource("13_s3"), ExtResource("14_s4")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+texture = ExtResource("5_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_cellar")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(38, 120)
+
+[node name="FromLanding" type="Marker2D" parent="EntryPoints"]
+position = Vector2(38, 120)
+
+[node name="StairsHotspot" type="Area2D" parent="."]
+position = Vector2(38, 100)
+script = ExtResource("3_door")
+display_name = "CELLAR_STAIRS"
+reach_verb = 7
+default_verb = 7
+look_text = "CELLAR_STAIRS_LOOK"
+reach_text = "CELLAR_STAIRS_REACH"
+target_room = "res://scenes/rooms/Landing.tscn"
+target_entry = &"FromCellar"
+
+[node name="Picture" type="Sprite2D" parent="StairsHotspot"]
+position = Vector2(-16, -44)
+centered = false
+texture = ExtResource("8_door")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StairsHotspot"]
+position = Vector2(0, -23)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="StairsHotspot"]
+position = Vector2(0, 18)
+
+[node name="ManifestHotspot" type="Area2D" parent="."]
+position = Vector2(96, 88)
+script = ExtResource("2_hotspot")
+display_name = "CELLAR_MANIFEST"
+hand_verb = 2
+look_text = "CELLAR_MANIFEST_LOOK"
+hand_text = "CELLAR_MANIFEST_HAND"
+variants = Array[ExtResource("4_variant")]([SubResource("Variant_manifest_read")])
+sequence = ExtResource("9_seq")
+sequence_verb = 1
+sequence_if = PackedStringArray("!knows_consignment")
+
+[node name="Picture" type="Sprite2D" parent="ManifestHotspot"]
+position = Vector2(-20, -52)
+centered = false
+texture = ExtResource("7_manifest")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ManifestHotspot"]
+position = Vector2(0, -26)
+shape = SubResource("Rect_manifest")
+
+[node name="ApproachPoint" type="Marker2D" parent="ManifestHotspot"]
+position = Vector2(0, 22)
+
+[node name="BoxesHotspot" type="Area2D" parent="."]
+position = Vector2(196, 146)
+script = ExtResource("2_hotspot")
+display_name = "CELLAR_BOXES"
+hand_verb = 2
+act_verb = 4
+look_text = "CELLAR_BOXES_LOOK"
+hand_text = "CELLAR_BOXES_HAND"
+act_text = "CELLAR_BOXES_ACT"
+
+[node name="Picture" type="Sprite2D" parent="BoxesHotspot"]
+position = Vector2(-36, -54)
+centered = false
+texture = ExtResource("6_boxes")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoxesHotspot"]
+position = Vector2(0, -27)
+shape = SubResource("Rect_boxes")
+
+[node name="ApproachPoint" type="Marker2D" parent="BoxesHotspot"]
+position = Vector2(-46, 8)
+
+[node name="AlcoveHotspot" type="Area2D" parent="."]
+position = Vector2(264, 96)
+script = ExtResource("2_hotspot")
+display_name = "CELLAR_ALCOVE"
+look_text = "CELLAR_ALCOVE_LOOK"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AlcoveHotspot"]
+position = Vector2(0, -22)
+shape = SubResource("Rect_alcove")
+
+[node name="ApproachPoint" type="Marker2D" parent="AlcoveHotspot"]
+position = Vector2(0, 16)

@@ -183,12 +183,70 @@ def draw_documents(c: PixelCanvas) -> None:
     c.set(6, 8, INK)
 
 
+def draw_backyard_key(c: PixelCanvas) -> None:
+    """Chiave del cortile: a key, drawn lying down.
+
+    Horizontal and not upright, and that is the whole of why it reads. Stood on
+    end at twelve pixels a key is a blob with a lump on top — there is no room
+    for a bow, a shank and teeth in a vertical strip four pixels wide. Lying
+    down it gets the full width for the silhouette everybody already knows, and
+    the ring gets a hole in it, which makes it the only item in the set with a
+    hole and therefore findable without reading.
+    """
+    # The ring: drawn as an outline square with its middle cleared, because a
+    # circle of diameter five comes out as a blob whatever you do.
+    c.rect(1, 3, 5, 9, OUT)
+    c.rect(2, 4, 4, 8, METAL_L)
+    c.rect(3, 5, 3, 7, CLEAR)
+
+    c.rect(5, 5, 10, 7, OUT)                 # the shank
+    c.rect(5, 6, 10, 6, METAL_L)
+    c.rect(8, 7, 9, 9, OUT)                  # two teeth, hanging down
+    c.set(8, 8, METAL)
+    c.rect(10, 7, 11, 9, OUT)
+    c.set(10, 8, METAL)
+
+
+def draw_notification(c: PixelCanvas) -> None:
+    """Notifica di occupazione: the sheet the whole chapter was fought for.
+
+    A square stamp where the certificate has a round one, and a signature line
+    across the foot. The pair have to be told apart at twelve pixels, and shape
+    is the only channel that works at that size.
+    """
+    _sheet(c)
+    _lines(c, ((2, 8),))
+    c.rect(4, 4, 7, 7, OCHRE_D)              # the square stamp
+    c.rect(5, 5, 6, 6, OCHRE)
+    c.rect(4, 9, 8, 9, INK)                  # the line to sign on
+    c.set(5, 8, INK)
+
+
+def draw_backlog(c: PixelCanvas) -> None:
+    """L'arretrato: three years of certificates, tied in a bundle.
+
+    Drawn as a stack seen edge on rather than as a sheet, so it does not read as
+    a fourth kind of form: what matters about it is that it is *many*.
+    """
+    c.rect(1, 2, 11, 10, OUT)
+    for i in range(4):
+        y = 3 + i * 2
+        c.rect(2, y, 10, y + 1, PAPER_L if i % 2 else PAPER)
+        c.rect(2, y + 1, 10, y + 2, PAPER_D)
+    c.rect(5, 1, 7, 11, OCHRE_D)             # the string round it
+    c.set(5, 0, OCHRE)
+    c.set(7, 0, OCHRE)
+
+
 ICONS = [
     ("item_form_blank", draw_form_blank),
     ("item_form_filled", draw_form_filled),
     ("item_certificate", draw_certificate),
     ("item_plate", draw_plate),
     ("item_documents", draw_documents),
+    ("item_backyard_key", draw_backyard_key),
+    ("item_notification", draw_notification),
+    ("item_backlog", draw_backlog),
 ]
 
 

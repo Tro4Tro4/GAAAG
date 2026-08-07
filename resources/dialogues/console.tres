@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Dialogue" load_steps=10 format=3 uid="uid://baggadlgcons01"]
+[gd_resource type="Resource" script_class="Dialogue" load_steps=21 format=3 uid="uid://baggadlgcons01"]
 
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue.gd" id="1_dialogue"]
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue_line.gd" id="2_line"]
 [ext_resource type="Script" path="res://scripts/dialogue/dialogue_option.gd" id="3_option"]
+[ext_resource type="Resource" path="res://resources/items/notification.tres" id="4_notification"]
 
 [sub_resource type="Resource" id="Option_start_0"]
 script = ExtResource("3_option")
@@ -26,11 +27,43 @@ raises = PackedStringArray("asked_complain")
 
 [sub_resource type="Resource" id="Option_start_3"]
 script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_NUMBER"
+conditions = PackedStringArray("complaint_posted", "!protocol_ready")
+goes_to = &"number"
+
+[sub_resource type="Resource" id="Option_start_4"]
+script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_READY"
 conditions = PackedStringArray("complaint_logged")
 reply = "DLG_CONSOLE_REPLY_READY"
 
-[sub_resource type="Resource" id="Option_start_4"]
+[sub_resource type="Resource" id="Option_start_5"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_PURGE"
+conditions = PackedStringArray("line_reversed", "!line_purged")
+reply = "DLG_CONSOLE_REPLY_PURGE"
+
+[sub_resource type="Resource" id="Option_start_6"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_FILE"
+conditions = PackedStringArray("line_purged", "!knows_consignment")
+reply = "DLG_CONSOLE_REPLY_FILE"
+
+[sub_resource type="Resource" id="Option_start_7"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_EMIT"
+conditions = PackedStringArray("line_purged", "knows_consignment", "!notification_emitted")
+reply = "DLG_CONSOLE_REPLY_EMIT"
+raises = PackedStringArray("notification_emitted")
+gives = ExtResource("4_notification")
+
+[sub_resource type="Resource" id="Option_start_8"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_SENT"
+conditions = PackedStringArray("notification_emitted")
+reply = "DLG_CONSOLE_REPLY_SENT"
+
+[sub_resource type="Resource" id="Option_start_9"]
 script = ExtResource("3_option")
 text = "DLG_CONSOLE_OPT_BYE"
 reply = "DLG_CONSOLE_REPLY_BYE"
@@ -40,9 +73,40 @@ ends = true
 script = ExtResource("2_line")
 id = &"start"
 says = "DLG_CONSOLE_START"
-options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4")])
+options = Array[ExtResource("3_option")]([SubResource("Option_start_0"), SubResource("Option_start_1"), SubResource("Option_start_2"), SubResource("Option_start_3"), SubResource("Option_start_4"), SubResource("Option_start_5"), SubResource("Option_start_6"), SubResource("Option_start_7"), SubResource("Option_start_8"), SubResource("Option_start_9")])
+
+[sub_resource type="Resource" id="Option_number_0"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_N_NEXT"
+conditions = PackedStringArray("!knows_numbering")
+reply = "DLG_CONSOLE_REPLY_N_NEXT"
+
+[sub_resource type="Resource" id="Option_number_1"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_N_ONE"
+conditions = PackedStringArray("knows_numbering")
+reply = "DLG_CONSOLE_REPLY_N_ONE"
+raises = PackedStringArray("protocol_ready")
+ends = true
+
+[sub_resource type="Resource" id="Option_number_2"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_N_GUESS"
+conditions = PackedStringArray("knows_numbering")
+reply = "DLG_CONSOLE_REPLY_N_GUESS"
+
+[sub_resource type="Resource" id="Option_number_3"]
+script = ExtResource("3_option")
+text = "DLG_CONSOLE_OPT_N_BACK"
+goes_to = &"start"
+
+[sub_resource type="Resource" id="Line_number"]
+script = ExtResource("2_line")
+id = &"number"
+says = "DLG_CONSOLE_NUMBER"
+options = Array[ExtResource("3_option")]([SubResource("Option_number_0"), SubResource("Option_number_1"), SubResource("Option_number_2"), SubResource("Option_number_3")])
 
 [resource]
 script = ExtResource("1_dialogue")
 speaker_color = Color(0.55, 0.9, 0.7, 1)
-lines = Array[ExtResource("2_line")]([SubResource("Line_start")])
+lines = Array[ExtResource("2_line")]([SubResource("Line_start"), SubResource("Line_number")])

@@ -27,9 +27,14 @@ const POSTED: String = "GENERIC_PASSAGE_POSTED"
 ## cache_id are two ends of one slot; a name used only once is a hiding place.
 @export var cache_id: StringName = &""
 
-## The only thing that fits, if the passage is fussy — a gap under a door takes
-## flat objects and nothing else. Left empty, anything goes through.
-@export var fits_only: InventoryItem = null
+## What fits, if the passage is fussy — a gap under a door takes flat objects
+## and nothing else. Left empty, anything goes through.
+##
+## A list and not one item, which it was until the office had two different
+## things to send down the same tube. One item was also a trap of its own: with
+## no list at all the tube happily swallowed the box of papers Lino is carrying
+## and is told to hold on to, handed it to Cesare, and there was no way back.
+@export var fits_only: Array[InventoryItem] = []
 
 @export_multiline var posted_text: String = ""
 
@@ -67,7 +72,7 @@ func accepts(item: InventoryItem) -> bool:
 	if item == null:
 		return false
 
-	return fits_only == null or item == fits_only
+	return fits_only.is_empty() or fits_only.has(item)
 
 
 func get_text_for_item(item: InventoryItem) -> String:

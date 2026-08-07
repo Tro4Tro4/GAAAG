@@ -96,6 +96,11 @@ scenes/              Scene Godot (.tscn), nomi in PascalCase
                      UI, e ospita la stanza corrente in RoomContainer
   rooms/Street       Capitolo 1: la via di casa, larga due schermate
   rooms/Apartment    Capitolo 1: l'appartamento di Lino, meta' imballato
+  rooms/Landing      Capitolo 1: il pianerottolo, la porta di Duilio
+  rooms/Cellar       Capitolo 1: la cantina, e la distinta di carico
+  rooms/Archive      Capitolo 1: il sottoscala dell'ufficio, tre anni di posta
+  rooms/Backyard     Capitolo 1: il cortile, dove la linea corre all'aperto
+  rooms/Bar          Capitolo 1: l'ultima stanza, e la sola calda
   rooms/Lobby        L'atrio dell'ufficio, dove Lino si fa emettere la notifica
   rooms/Tubes        Prototipo: il corridoio dei tubi, largo due schermate
   rooms/Station      Prototipo: la postazione dove sta Cesare
@@ -152,6 +157,9 @@ tools/               Script che producono asset, da eseguire dalla radice
   make_apartment_props.py   Porta, finestra, scatole, cartellini, materasso,
                             e l'addetto al carico — il primo PNG del gioco
   make_dialogues.py         Da copione .dlg/.seq alle risorse .tres
+  pixelkit.py               Il kit di disegno condiviso del capitolo 1
+  make_chapter1_backgrounds.py  Pianerottolo, cantina, archivio, cortile, bar
+  make_chapter1_props.py    I quindici prop delle cinque stanze, e Duilio
 assets/              sprites/ backgrounds/ audio/ fonts/
   backgrounds/       Uno sfondo per stanza, pixel art .png alle misure della
                      stanza, a scala 1 e filtro Nearest: 320x180 l'atrio e la
@@ -2698,6 +2706,136 @@ assets/              sprites/ backgrounds/ audio/ fonts/
     PUBBLICO: LEI È QUI» funziona parola per parola nella cornice nuova, e il
     fatto che regga senza una modifica è la misura di quanto la cornice vecchia
     e la nuova condividano davvero la stessa ossatura.
+
+- **Il capitolo 1 è completo: dieci stanze, quattro cancelli, un finale.**
+  Cinque stanze nuove — pianerottolo, cantina, sottoscala-archivio, cortile,
+  bar — più i cancelli C e D, la scena finale, e il primo giro in cui la storia
+  scritta in `docs/storia.md` è tutta giocabile. Le decisioni che ne discendono
+  sono qui sotto; la trama sta nel documento.
+
+- **`tools/pixelkit.py`: il kit di disegno condiviso, fatto al sesto fondale e
+  non al primo.** `ramp`, `banded`, la matrice di Bayer, il battiscopa, le fughe
+  del pavimento e il vano di una porta erano copiati in quattro generatori, e
+  cinque stanze nuove stavano per farne un quinto. È l'esecuzione della decisione
+  già registrata — *una tavolozza e un kit per capitolo* — nel momento in cui il
+  costo di non averlo diventava misurabile.
+  - **I colori restano nelle stanze, non entrano nel kit.** Una tavolozza è una
+    decisione su un posto, non un'utilità: la via decide di che violetto è il
+    capitolo, e le stanze dentro quel palazzo la importano da lì. Il kit contiene
+    solo meccanica.
+  - **I quattro generatori già scritti non sono stati riscritti** per usarlo.
+    Funzionano, sono verificati sul dispositivo, e riscrivere un generatore che
+    funziona per far quadrare un'astrazione è il modo di rompere la cosa che si
+    stava mettendo in ordine.
+  - Il default di `banded` è la striscia stretta (0,18) e non quella larga: il
+    numero non è un'opinione, è la differenza fra il 6% di pixel isolati del
+    corridoio e il 17% dell'atrio.
+
+- **La luce si dà in due modi, e sbagliare quale è un difetto visibile.**
+  `wedge` è per la luce che ha una **forma** — la pozza che una finestra proietta,
+  la lama di una porta — dove il bordo è il bordo dell'apertura e va tenuto duro.
+  `wash` è per la luce che **cade** su un muro, che non ha bordo: solo dithering,
+  nessun nucleo pieno.
+  Il primo giro delle cinque stanze usava `wedge` per tutto, e il risultato era
+  inequivocabile: la lampada del bar veniva un **triangolo pallido pieno appoggiato
+  al pavimento**, che l'occhio legge come una tenda e non come luce. Un `wash` non
+  può fare quell'errore, perché non ha nessuna regione piena che possa leggersi
+  come una superficie.
+
+- **Il conto dei pixel isolati conta anche le linee verticali da un pixel**, e
+  quindi il mattone e le piastrelle lo gonfiano senza essere rumore. Misurato con
+  un test apposta: un muro fatto di sole fughe verticali, con zero dithering,
+  segna il 10%. Ne segue che la soglia del 10% vale per **superfici lisce**, e che
+  su una stanza di mattoni (la cantina, al 25%) va guardata l'immagine e non il
+  numero. È il quarto caso registrato di strumento contro asset, e stavolta il
+  numero misura una cosa diversa da quella che intende.
+  - Nota: da rivedere se valesse la pena escludere dal conto i pixel che hanno
+    almeno un vicino *verticale* uguale. Non l'ho fatto perché cambierebbe il
+    significato di tutte le misure già registrate.
+
+- **`Hotspot.accepted_if` e `not_yet_text`: il terzo della famiglia**, dopo
+  `PickupHotspot.takeable_if` e `DoorHotspot.locked_if`. Una cosa che accetterà
+  l'oggetto *più tardi* deve continuare ad accettare il tentativo adesso e dire
+  perché no — il registro dell'ufficio vuole un numero di protocollo prima di
+  protocollare, e il reclamo è l'oggetto giusto in entrambi i casi.
+  - `not_yet_text` è un campo suo per la ragione dei due gemelli: `accepted_text`
+    è quello che si dice nel momento in cui l'oggetto *viene* accettato, quindi
+    una stringa sola servirebbe due casi e uno dei due sarebbe sbagliato.
+  - Con tre membri, la famiglia è ormai un pattern e non tre eccezioni: **una
+    condizione che decide se un'azione funziona sta accanto all'azione, e il
+    rifiuto ha una frase sua.**
+
+- **`PassageHotspot.fits_only` diventa una lista.** Era un oggetto solo, e il
+  tubo dell'ufficio ha finito per dover portare due cose diverse — il reclamo e
+  l'arretrato di tre anni. Un oggetto solo era anche una trappola per conto suo:
+  con la lista vuota il tubo si mangiava la scatola dei documenti che Lino porta
+  addosso e a cui gli è stato detto di stare attento, la consegnava a Cesare, e
+  non tornava più.
+
+- **Il nodo di una cosa appoggiata su un'altra non sta dove tocca il pavimento**,
+  e questa è l'unica eccezione alla regola dell'Y-sorting. Il vassoio della posta
+  in partenza sta *sul* banco: il suo nodo va sotto quello del banco perché
+  l'ordinamento lo disegni davanti, e il suo sprite è spostato in alto fin dove
+  sta il piano. **Il nodo decide l'ordine, l'offset decide l'immagine.** Messo il
+  nodo dove il vassoio "tocca", galleggiava in aria; messo il nodo in alto,
+  spariva dietro il banco.
+
+- **Un bancone è alto ventisei unità, non quaranta.** Disegnato dell'altezza di
+  una persona si leggeva come un muro con le bottiglie dietro, e — la parte
+  misurabile — il suo piano veniva a trovarsi trenta unità sopra le mani di chi
+  gli sta davanti. La regola sull'altezza degli oggetti raggiungibili non serve
+  solo a decidere dove *mettere* una cosa: **serve a decidere quanto è alta.**
+  È la prima volta che quel controllo ha corretto un disegno invece di una
+  coordinata.
+
+- **La conoscenza passa fra i personaggi gratis, gli oggetti no** — ed è il
+  meccanismo cooperativo del capitolo, più di qualunque tubo. Tre opzioni della
+  console sono condizionate a cose che ha scoperto **Lino**, in stanze dove
+  Cesare non può andare: la regola dei protocolli letta sulla bacheca dell'atrio,
+  il giunto dodici letto sulla brina in cortile, il numero di spedizione letto
+  sulla distinta in una cantina dall'altra parte del quartiere.
+  Il tubo esiste perché gli oggetti hanno bisogno di un varco. Le informazioni
+  non ne hanno bisogno, perché **il giocatore è la stessa persona in due corpi** —
+  e questo, invece di essere un buco nella finzione, è la cosa che rende il cambio
+  personaggio un enigma anziché un tragitto.
+  - Ne segue una forma di enigma che il progetto non aveva ancora usato: *A vede
+    e non può agire, B agisce e non può vedere.* Non serve nessun sistema nuovo,
+    solo condizioni su flag alzati in stanze diverse.
+
+- **Un capitolo si verifica con una chiusura a punto fisso, non giocandolo.**
+  Uno script di ottanta righe elenca ogni azione del capitolo come *(stanza, chi,
+  cosa richiede, cosa dà, cosa alza)* e applica tutto quello che è possibile
+  finché non emerge niente di nuovo. Se `chapter1_done` finisce nell'insieme, il
+  capitolo si chiude.
+  - **Ha trovato un soft lock che una partita avrebbe scoperto in fondo**:
+    l'opzione del numero di protocollo era condizionata a `in:tube`, cioè a
+    qualcosa in attesa nel passaggio. Ma la prima cosa che Cesare fa è ritirarlo,
+    e ritirandolo svuota la cache: chi faceva la cosa ovvia per prima non poteva
+    più chiedere il numero, e restava bloccato. Adesso è condizionata a
+    `complaint_posted`, che è un flag a senso unico e non può girarsi.
+  - **Regola che ne resta**: una condizione su `in:` è vera *mentre* qualcosa
+    c'è, quindi non va mai usata per sbloccare qualcosa che serve **dopo** che
+    quel qualcosa è stato ritirato. Vale anche per `has:`.
+  - La prima versione del verificatore camminava il capitolo invece di chiuderlo,
+    e si è impiantata a oscillare fra due porte. Era un difetto suo: i flag di
+    questo progetto sono a senso unico per costruzione e nessun oggetto viene mai
+    buttato, quindi il modello onesto è monotono.
+
+- **Il finale è appeso alla porta chiusa, non alla conversazione.** Una sequenza
+  non si può far partire da un'opzione di dialogo, quindi firmare alza `witnessed`
+  e la porta del bar prende `locked_if = ["!witnessed"]`: da quel momento Vai non
+  muove nessuno e fa partire la scena. È lo stesso meccanismo del posto di
+  blocco, usato per l'effetto opposto.
+  - Costo accettato, ed è la conseguenza dell'unica decisione ancora aperta che
+    tocca: **finita la scena il giocatore resta nel bar.** Non esiste un sistema
+    di fine partita, quindi non c'è dove andare, e la frase della porta lo dice
+    invece di far finta di niente. Il capitolo 2 è la risposta, non una schermata.
+
+- **L'arretrato di tre anni è un gesto opzionale e resta opzionale.** Imbucarlo
+  non sblocca niente: è la cortesia che `docs/storia.md` chiede, e un giocatore
+  può finire il capitolo senza accorgersene. Scartato renderlo obbligatorio, che
+  avrebbe voluto dire mettere un indizio su una cosa il cui senso è che nessuno
+  te l'ha chiesta.
 
 ## Decisioni ancora aperte
 - **La scala per profondità contro la pixel art**, ed è il conflitto che lo stile

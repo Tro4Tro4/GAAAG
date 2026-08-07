@@ -1,0 +1,9 @@
+# Looking at the line where it runs outside. The frost stops part way along,
+# and where it stops is where the air stops — which is the answer the console
+# inside is asking for and cannot see for itself.
+
+uid baggaseqflang1
+
+say  SEQ_YARD_FROST_1
+say  SEQ_YARD_FROST_2
+flag knows_flange

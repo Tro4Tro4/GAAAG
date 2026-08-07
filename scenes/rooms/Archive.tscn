@@ -1,0 +1,164 @@
+[gd_scene load_steps=19 format=3 uid="uid://baggaarchiv01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/pickup_hotspot.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="5_variant"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_archive.png" id="6_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_office_door.png" id="7_door"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_archive_sacks.png" id="8_sacks"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_archive_desk.png" id="9_desk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_archive_tray.png" id="10_tray"]
+[ext_resource type="Resource" uid="uid://baggaitemkeyy1" path="res://resources/items/backyard_key.tres" id="11_key"]
+[ext_resource type="Resource" uid="uid://baggaitembklg1" path="res://resources/items/backlog.tres" id="12_backlog"]
+[ext_resource type="Resource" uid="uid://baggaitemnoti1" path="res://resources/items/notification.tres" id="13_notification"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_low.wav" id="14_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/thud.wav" id="15_thud"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_01.wav" id="16_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_02.wav" id="17_s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_wood_03.wav" id="18_s3"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_archive"]
+vertices = PackedVector2Array(8, 110, 312, 110, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 110, 312, 110, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="Rect_door"]
+size = Vector2(32, 46)
+
+[sub_resource type="RectangleShape2D" id="Rect_sacks"]
+size = Vector2(64, 34)
+
+[sub_resource type="RectangleShape2D" id="Rect_desk"]
+size = Vector2(56, 30)
+
+[sub_resource type="RectangleShape2D" id="Rect_tray"]
+size = Vector2(34, 22)
+
+[sub_resource type="Resource" id="Variant_sacks_searched"]
+script = ExtResource("5_variant")
+conditions = PackedStringArray("taken:backyard_key")
+look_text = "ARCH_SACKS_LOOK_DONE"
+
+[node name="Archive" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("14_hum")
+footsteps = Array[AudioStream]([ExtResource("16_s1"), ExtResource("17_s2"), ExtResource("18_s3")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+texture = ExtResource("6_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_archive")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(46, 124)
+
+[node name="FromLobby" type="Marker2D" parent="EntryPoints"]
+position = Vector2(46, 124)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(46, 104)
+script = ExtResource("3_door")
+display_name = "ARCH_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "ARCH_DOOR_LOOK"
+reach_text = "ARCH_DOOR_REACH"
+target_room = "res://scenes/rooms/Lobby.tscn"
+target_entry = &"FromArchive"
+
+[node name="Picture" type="Sprite2D" parent="DoorHotspot"]
+position = Vector2(-16, -46)
+centered = false
+texture = ExtResource("7_door")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+position = Vector2(0, -23)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 19)
+
+[node name="SacksHotspot" type="Area2D" parent="."]
+position = Vector2(148, 142)
+script = ExtResource("4_pickup")
+display_name = "ARCH_SACKS"
+hand_verb = 2
+act_verb = 3
+look_text = "ARCH_SACKS_LOOK"
+hand_text = "ARCH_SACKS_HAND"
+act_text = "ARCH_SACKS_ACT"
+variants = Array[ExtResource("5_variant")]([SubResource("Variant_sacks_searched")])
+sound = ExtResource("15_thud")
+item = ExtResource("11_key")
+vanishes_when_taken = false
+taken_text = "ARCH_SACKS_TAKEN"
+
+[node name="Picture" type="Sprite2D" parent="SacksHotspot"]
+position = Vector2(-32, -34)
+centered = false
+texture = ExtResource("8_sacks")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SacksHotspot"]
+position = Vector2(0, -17)
+shape = SubResource("Rect_sacks")
+
+[node name="ApproachPoint" type="Marker2D" parent="SacksHotspot"]
+position = Vector2(-40, 8)
+
+[node name="DeskHotspot" type="Area2D" parent="."]
+position = Vector2(252, 150)
+script = ExtResource("2_hotspot")
+display_name = "ARCH_DESK"
+act_verb = 3
+look_text = "ARCH_DESK_LOOK"
+act_text = "ARCH_DESK_ACT"
+accepted_item = ExtResource("13_notification")
+accepted_text = "ARCH_DESK_SIGNED"
+consumes_accepted_item = false
+accepted_flag = &"notified"
+sound = ExtResource("15_thud")
+
+[node name="Picture" type="Sprite2D" parent="DeskHotspot"]
+position = Vector2(-28, -30)
+centered = false
+texture = ExtResource("9_desk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeskHotspot"]
+position = Vector2(0, -15)
+shape = SubResource("Rect_desk")
+
+[node name="ApproachPoint" type="Marker2D" parent="DeskHotspot"]
+position = Vector2(-38, 8)
+
+[node name="TrayHotspot" type="Area2D" parent="."]
+position = Vector2(240, 152)
+script = ExtResource("4_pickup")
+display_name = "ARCH_TRAY"
+hand_verb = 2
+look_text = "ARCH_TRAY_LOOK"
+hand_text = "ARCH_TRAY_HAND"
+item = ExtResource("12_backlog")
+vanishes_when_taken = true
+takeable_if = PackedStringArray("line_purged")
+refused_text = "ARCH_TRAY_REFUSED"
+
+[node name="Picture" type="Sprite2D" parent="TrayHotspot"]
+position = Vector2(-17, -48)
+centered = false
+texture = ExtResource("10_tray")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TrayHotspot"]
+position = Vector2(0, -37)
+shape = SubResource("Rect_tray")
+
+[node name="ApproachPoint" type="Marker2D" parent="TrayHotspot"]
+position = Vector2(-32, -2)

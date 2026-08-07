@@ -1,0 +1,131 @@
+[gd_scene load_steps=13 format=3 uid="uid://baggabackya01"]
+
+[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2_hotspot"]
+[ext_resource type="Script" path="res://scripts/rooms/door_hotspot.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot_variant.gd" id="4_variant"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_backyard.png" id="5_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_office_door.png" id="6_door"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_flanges.png" id="7_flanges"]
+[ext_resource type="Texture2D" path="res://assets/sprites/prop_yard_gate.png" id="8_gate"]
+[ext_resource type="Resource" uid="uid://baggaseqflang1" path="res://resources/sequences/backyard_frost.tres" id="9_seq"]
+[ext_resource type="AudioStream" path="res://assets/audio/hum_high.wav" id="10_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_01.wav" id="11_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_02.wav" id="12_s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/step_stone_03.wav" id="13_s3"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_yard"]
+vertices = PackedVector2Array(8, 114, 312, 114, 312, 172, 8, 172)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(8, 114, 312, 114, 312, 172, 8, 172)])
+agent_radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="Rect_door"]
+size = Vector2(32, 44)
+
+[sub_resource type="RectangleShape2D" id="Rect_flanges"]
+size = Vector2(96, 26)
+
+[sub_resource type="RectangleShape2D" id="Rect_gate"]
+size = Vector2(34, 52)
+
+[sub_resource type="Resource" id="Variant_flanges_read"]
+script = ExtResource("4_variant")
+conditions = PackedStringArray("knows_flange")
+look_text = "YARD_FLANGES_LOOK_READ"
+
+[sub_resource type="Resource" id="Variant_flanges_clear"]
+script = ExtResource("4_variant")
+conditions = PackedStringArray("line_purged")
+look_text = "YARD_FLANGES_LOOK_CLEAR"
+
+[node name="Backyard" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+music = ExtResource("10_hum")
+footsteps = Array[AudioStream]([ExtResource("11_s1"), ExtResource("12_s2"), ExtResource("13_s3")])
+room_size = Vector2(320, 180)
+
+[node name="Background" type="Sprite2D" parent="."]
+centered = false
+texture = ExtResource("5_bg")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_yard")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+
+[node name="Default" type="Marker2D" parent="EntryPoints"]
+position = Vector2(46, 126)
+
+[node name="FromTubes" type="Marker2D" parent="EntryPoints"]
+position = Vector2(46, 126)
+
+[node name="DoorHotspot" type="Area2D" parent="."]
+position = Vector2(46, 108)
+script = ExtResource("3_door")
+display_name = "YARD_DOOR"
+reach_verb = 7
+default_verb = 7
+look_text = "YARD_DOOR_LOOK"
+reach_text = "YARD_DOOR_REACH"
+target_room = "res://scenes/rooms/Tubes.tscn"
+target_entry = &"FromYard"
+
+[node name="Picture" type="Sprite2D" parent="DoorHotspot"]
+position = Vector2(-16, -44)
+centered = false
+texture = ExtResource("6_door")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorHotspot"]
+position = Vector2(0, -22)
+shape = SubResource("Rect_door")
+
+[node name="ApproachPoint" type="Marker2D" parent="DoorHotspot"]
+position = Vector2(0, 20)
+
+[node name="FlangesHotspot" type="Area2D" parent="."]
+position = Vector2(180, 104)
+script = ExtResource("2_hotspot")
+display_name = "YARD_FLANGES"
+act_verb = 3
+look_text = "YARD_FLANGES_LOOK"
+act_text = "YARD_FLANGES_ACT"
+variants = Array[ExtResource("4_variant")]([SubResource("Variant_flanges_clear"), SubResource("Variant_flanges_read")])
+sequence = ExtResource("9_seq")
+sequence_verb = 1
+sequence_if = PackedStringArray("!knows_flange")
+
+[node name="Picture" type="Sprite2D" parent="FlangesHotspot"]
+position = Vector2(-48, -34)
+centered = false
+texture = ExtResource("7_flanges")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlangesHotspot"]
+position = Vector2(0, -21)
+shape = SubResource("Rect_flanges")
+
+[node name="ApproachPoint" type="Marker2D" parent="FlangesHotspot"]
+position = Vector2(0, 12)
+
+[node name="GateHotspot" type="Area2D" parent="."]
+position = Vector2(288, 114)
+script = ExtResource("2_hotspot")
+display_name = "YARD_GATE"
+act_verb = 4
+reach_verb = 7
+look_text = "YARD_GATE_LOOK"
+act_text = "YARD_GATE_ACT"
+reach_text = "YARD_GATE_REACH"
+
+[node name="Picture" type="Sprite2D" parent="GateHotspot"]
+position = Vector2(-17, -52)
+centered = false
+texture = ExtResource("8_gate")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GateHotspot"]
+position = Vector2(0, -26)
+shape = SubResource("Rect_gate")
+
+[node name="ApproachPoint" type="Marker2D" parent="GateHotspot"]
+position = Vector2(-22, 12)

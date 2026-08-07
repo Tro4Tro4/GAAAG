@@ -111,8 +111,8 @@ reach_verb = 7
 default_verb = 7
 look_text = "APT_DOOR_LOOK"
 reach_text = "APT_DOOR_REACH"
-target_room = "res://scenes/rooms/Street.tscn"
-target_entry = &"AtDoor"
+target_room = "res://scenes/rooms/Landing.tscn"
+target_entry = &"FromFlat"
 
 [node name="Picture" type="Sprite2D" parent="DoorHotspot"]
 position = Vector2(-16, -44)

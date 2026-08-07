@@ -485,89 +485,84 @@ basta: è una macchina scortese, non un narratore.
 
 ## Stato di costruzione del capitolo 1
 
-Aggiornare questa sezione a ogni stanza finita: è il punto da cui si riprende.
+**Il capitolo è completo e giocabile dall'inizio alla fine.** Dieci stanze,
+quattro cancelli, un finale. Da qui in avanti questa sezione registra le
+correzioni, non le mancanze.
 
-**Fatto e provabile premendo Play**
-- **L'introduzione**, tutti e due i movimenti: l'ordine di ritiro che si compila
-  riga per riga e viene timbrato (`scripts/ui/intro_screen.gd`, la carta e il
-  timbro da `tools/make_intro_form.py`), e la scena in stanza di Lino che arriva
-  sotto casa (`resources/sequences/intro_street.seq`). Parte una volta sola,
-  guardata dal flag `intro_seen`.
-- **Stanza 1, Via del palazzo** (`scenes/rooms/Street.tscn`), larga due
-  schermate, con otto hotspot che rispondono tutti: portone, avviso, campanelli,
-  bidoni, vicolo, tombino, furgone, sbarra. Sfondo e prop da
-  `tools/make_street_background.py` e `tools/make_street_props.py`.
-- **Stanza 2, Appartamento** (`scenes/rooms/Apartment.tscn`), una schermata, con
-  sei hotspot: porta di casa, scatole a catalogo, scatola dei documenti,
-  addetto al carico, finestra, materasso. Sfondo e prop da
-  `tools/make_apartment_background.py` e `tools/make_apartment_props.py`.
-- **Il cancello A, completo e giocabile.** La catena è di quattro passi e
-  attraversa tre sistemi: guardare la scatola dei documenti fa notare l'etichetta
-  di consegna (sequenza, alza `saw_delivery_label`); parlare con l'addetto dà la
-  regola — *si depenna solo ciò che risulta già consegnato*; l'opzione che nomina
-  l'etichetta compare solo con quel flag e alza `box_struck_off`; il cartellino
-  passa da spuntato a barrato (`StateVisual`) e la scatola diventa prendibile
-  (`PickupHotspot.takeable_if`). È **order-free**: si può guardare prima o
-  parlare prima.
-- **Il portone della via porta dentro**, ed è un `DoorHotspot` vero: via ↔
-  appartamento nei due sensi. Era l'impalcatura dichiarata del giro precedente.
-- **Il cancello B, completo e giocabile.** Il sorvegliante alla sbarra vuole una
-  prova di residenza e rifiuta il documento d'identità — «quello dice chi è, a me
-  serve dove». La prova è la stessa etichetta di consegna del cancello A, e
-  l'opzione compare solo con `has:documents`: conta avere la scatola addosso.
-  La sbarra è un `DoorHotspot` con `locked_if`, quindi resta visibile e rifiuta
-  a voce finché non si è passati.
-- **L'ufficio è del capitolo 1, non più del prototipo.** Atrio, corridoio e
-  postazione certificano l'occupazione invece di collaudare la posta pneumatica,
-  e Lino ci entra come pubblico e non come ispettore — il corridoio è una
-  galleria d'ispezione pubblica, che è ciò che gli dà il diritto di stare lì e
-  insieme il divieto di toccare. Non è cambiata una scena: testi, chiavi e un
-  campo. Le chiavi `PROTO_*` sono diventate `LOBBY_*`, `TUBES_*`, `STATION_*`.
-- **Cesare è giocabile**, e lo diventa nel momento in cui Lino imbuca il reclamo
-  dal punto pubblico: `complaint_posted` — che era `met_cesare` — lo alza il
-  passaggio stesso. I due non si incontrano mai, ed è il punto.
-- **La catena cooperativa del prototipo è ora canonica**, dall'inizio alla fine:
-  modulo dal portamoduli, targhetta dall'oblò, combinazione, imbucata dal punto
-  pubblico, cambio personaggio, ritiro dalla bocchetta di servizio,
-  protocollazione nel registro, leva d'inversione, capsula che esce dalla parte
-  di Lino. Dentro c'è il **certificato di occupazione** spedito tre anni fa e mai
-  consegnato, e in fondo l'elenco degli indirizzi certificati: l'ultimo è il suo.
-- **L'ufficio è di nuovo raggiungibile.** Da quando Lino parte dalla via, atrio,
-  corridoio e postazione non erano nominati da nessuno: la sbarra ora porta
-  all'atrio, e l'atrio ha guadagnato la porta d'ingresso che gli mancava — senza,
-  entrarci sarebbe stato un soft lock. Quattro stanze su cinque sono raggiungibili
-  camminando; la quinta è la postazione di Cesare, chiusa per costruzione.
-- **Il primo PNG del gioco**, l'addetto al carico: uno sprite fermo alto quaranta
-  unità, un hotspot con `dialogue` e nessun codice nuovo.
-- **Il roster che cresce**: `PlayerCharacter.available_if`. Cesare è in scena ma
-  non compare nella barra finché non si alza `complaint_posted`, che nessuno alza
-  ancora — è l'aggancio che servirà quando il capitolo arriverà all'ufficio.
-- **I dialoghi e le sequenze si scrivono come copioni**, non come `.tres`:
-  `resources/dialogues/*.dlg` e `resources/sequences/*.seq`, e
-  `python tools/make_dialogues.py` ne scrive le risorse. Il runtime non è
-  cambiato.
+**Le dieci stanze**
+| # | stanza | scena | cosa ci si fa |
+|---|--------|-------|---------------|
+| 1 | Via del palazzo | `Street` | l'avviso, il furgone, il posto di blocco |
+| 2 | Pianerottolo | `Landing` | Duilio, i campanelli, il vano contatori |
+| 3 | Appartamento | `Apartment` | **cancello A**: la scatola dei documenti |
+| 4 | Cantina | `Cellar` | la distinta di carico, e il numero di spedizione |
+| 5 | Atrio | `Lobby` | il regolamento, i moduli, il comma 9 |
+| 6 | Sottoscala-archivio | `Archive` | la chiave del cortile, la ricevuta, l'arretrato |
+| 7 | Galleria dei tubi | `Tubes` | l'oblò, la targhetta, l'imbucata pubblica |
+| 8 | Cortile | `Backyard` | la brina, e il giunto dove si ferma |
+| 9 | Postazione | `Station` | Cesare: console, registro, leva |
+| 10 | Il bar | `Bar` | **il finale**: l'orologio, la firma, lo sgombero |
 
-**Impalcatura da sostituire, e non è un difetto nascosto**
-- La porta dell'appartamento **scende in strada**, non sul pianerottolo, perché
-  il pianerottolo non esiste. Quando nasce la stanza 3, la porta di casa punta
-  lì e le scale diventano un passaggio vero. È una riga in due scene.
-- **La sbarra porta dritta all'atrio**, saltando il resto della città. Stessa
-  compressione onesta del portone che porta dritto in casa: quando esisteranno
-  altre stanze in mezzo, è una riga da cambiare.
+**La catena, cancello per cancello**
 
-**Da fare, nell'ordine che conviene**
-1. **Ufficio**: riscrivere atrio, corridoio e postazione da collaudo della posta
-   pneumatica a certificazione dell'occupazione, e alzare `complaint_posted` — che è
-   ciò che rende Cesare giocabile e la postazione raggiungibile. È il passo che
-   sblocca più superficie con meno lavoro nuovo, perché le tre stanze e la catena
-   cooperativa esistono già e verificate: cambiano i testi, non le scene.
-2. Il **cancello C**, cioè la catena del prototipo allungata: il numero di
-   protocollo dedotto dal registro, e lo spurgo in cui uno guarda e l'altro
-   agisce da due stanze diverse.
-3. Stanza 3, **Pianerottolo**, e la prima comparsa di Duilio; la porta di casa
-   viene ripuntata lì invece che sulla strada.
-4. Stanza 4, **Cantina**; stanze 9 e 10, **archivio** e **cortile**.
-5. Cancello D, la sera, il bar, lo sgombero.
+- **A — uscire di casa con i propri documenti.** Guardare la scatola fa notare
+  l'etichetta di consegna; l'addetto al carico dà la regola (*si depenna solo ciò
+  che risulta già consegnato*); l'opzione che nomina l'etichetta la fa depennare;
+  la scatola diventa prendibile.
+- **B — arrivare all'ufficio.** Il sorvegliante alla sbarra rifiuta il documento
+  d'identità e accetta l'etichetta di consegna: quella dice *dove*.
+- **C — far funzionare l'ufficio.** Sei passi, e tre di essi attraversano i due
+  personaggi:
+  1. Lino prende il modulo in atrio, stacca la targhetta in galleria, li combina
+     e imbuca il reclamo dal punto pubblico. Cesare diventa giocabile.
+  2. Per protocollare serve un numero, e la protocollatrice è a valle
+     dell'ostruzione. Il **comma 9** — la numerazione riparte da uno ogni
+     esercizio — è affisso in atrio, dove solo Lino va. Dopo tre anni di niente,
+     il numero è **uno**.
+  3. Protocollato il reclamo, la leva d'inversione ha un motivo: la linea gira e
+     la capsula ostruita esce dalla parte di Lino. Dentro c'è il **certificato di
+     occupazione** spedito tre anni fa, con il suo indirizzo in fondo all'elenco.
+  4. Ma l'ufficio riceve e non spedisce: la sezione 4 va spurgata, e la console
+     chiede **dove**. La chiave del cortile è in una busta mai aperta nel
+     sottoscala; in cortile la brina sulla linea si ferma di netto al **giunto
+     dodici**.
+  5. Lino guarda, Cesare aziona, da due stanze diverse. La linea si libera.
+  6. Per emettere serve il **numero di spedizione**, che sta sulla distinta dei
+     traslocatori, in cantina, dall'altra parte del quartiere.
+- **D — la notifica, e la sera.** Cesare emette e imbuca; Lino ritira dal tubo e
+  **firma la ricevuta** al banco dell'archivio — l'istante in cui lo sfratto
+  diventa vero, e il timbro stampa la data e l'ora. Poi, se vuole, imbuca
+  l'arretrato di tre anni: una cortesia che nessuno gli ha chiesto e che non
+  sblocca niente.
+- **Il bar.** Duilio ha bisogno di un testimone residente. L'orologio del bar
+  dice che è mezzanotte e sette, cioè che Lino non lo è più. Sulla ricevuta c'è
+  l'ora vera. **Un documento contro un orologio.** Firma, e mentre firma legge:
+  «Quando?» «Fra undici minuti.» «Per dove?» «Via.»
+- **La chiusura.** Duilio esce. Comincia un rumore che non è un motore, e poi il
+  rumore di una saracinesca che non è quella del bar. Non parte il palazzo:
+  parte tutto. Resta un locale con dentro Lino, e un orologio che va avanti di
+  sette minuti.
+
+**Verificato meccanicamente, non ancora giocato**
+La catena è stata provata con una **chiusura a punto fisso** su tutte le azioni
+del capitolo: 36 passi, ogni cancello raggiunto, `chapter1_done` nell'insieme
+finale. Il verificatore ha trovato un soft lock (l'opzione del protocollo era
+condizionata a qualcosa che spariva appena Cesare lo ritirava) e non ne ha
+trovati altri. Verificato anche che ogni flag usato in una condizione è alzato da
+qualcosa, che ogni oggetto del catalogo è ottenibile, e che nove stanze su dieci
+sono raggiungibili camminando — la decima è la postazione di Cesare, chiusa per
+costruzione.
+
+**Cosa manca, e non è una mancanza nascosta**
+- **Non esiste un sistema di fine partita**, quindi finita la scena finale il
+  giocatore resta nel bar. La porta lo dice invece di far finta di niente.
+- **Il pianerottolo non porta ai piani superiori** e il cortile non porta fuori
+  dall'isolato: sono compressioni geografiche dichiarate, come il portone che
+  porta dritto in casa.
+- **Le tre stanze in più che la storia elencava** — un secondo posto di blocco
+  come stanza propria, e due varianti di stato — sono state assorbite: il posto
+  di blocco è la sbarra dentro la via, e l'archivio fa il lavoro che la storia
+  dava al sottoscala e al cortile insieme.
 
 ## Cosa non è ancora deciso
 
